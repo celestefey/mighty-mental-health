@@ -482,8 +482,17 @@ export default function HomePage() {
                         return (
                           <div
                             key={service.id}
+                            role="button"
+                            tabIndex={0}
+                            aria-pressed={isSelected}
                             onClick={() => setSelectedService(service)}
-                            className={`p-5 rounded-2xl cursor-pointer border-2 transition-all ${
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                setSelectedService(service);
+                              }
+                            }}
+                            className={`p-5 rounded-2xl cursor-pointer border-2 transition-all focus-visible:ring-2 focus-visible:ring-[#F96100] focus-visible:outline-hidden ${
                               isSelected 
                                 ? 'border-[#F96100] bg-[#FFFDF9] shadow-md' 
                                 : 'border-gray-200 bg-white hover:border-gray-300'
@@ -535,8 +544,17 @@ export default function HomePage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {/* Option 1: Telehealth Video */}
                         <div
+                          role="button"
+                          tabIndex={0}
+                          aria-pressed={selectedModality === 'video'}
                           onClick={() => setSelectedModality('video')}
-                          className={`p-4 rounded-2xl cursor-pointer border-2 transition-all relative ${
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              setSelectedModality('video');
+                            }
+                          }}
+                          className={`p-4 rounded-2xl cursor-pointer border-2 transition-all relative focus-visible:ring-2 focus-visible:ring-[#130C76] focus-visible:outline-hidden ${
                             selectedModality === 'video'
                               ? 'border-[#130C76] bg-white shadow-md ring-2 ring-[#130C76]/15'
                               : 'border-gray-200 bg-white/70 hover:border-gray-300'
@@ -574,8 +592,17 @@ export default function HomePage() {
 
                         {/* Option 2: Phone Call */}
                         <div
+                          role="button"
+                          tabIndex={0}
+                          aria-pressed={selectedModality === 'phone'}
                           onClick={() => setSelectedModality('phone')}
-                          className={`p-4 rounded-2xl cursor-pointer border-2 transition-all relative ${
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              setSelectedModality('phone');
+                            }
+                          }}
+                          className={`p-4 rounded-2xl cursor-pointer border-2 transition-all relative focus-visible:ring-2 focus-visible:ring-[#130C76] focus-visible:outline-hidden ${
                             selectedModality === 'phone'
                               ? 'border-[#130C76] bg-white shadow-md ring-2 ring-[#130C76]/15'
                               : 'border-gray-200 bg-white/70 hover:border-gray-300'

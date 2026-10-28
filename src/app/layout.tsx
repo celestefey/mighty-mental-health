@@ -4,8 +4,83 @@ import Link from 'next/link';
 import { Phone, ShieldAlert, Calendar, UserCheck, Video, Heart, HelpCircle } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Mighty Mental Health | Integrated Psychotherapy & Somatic Movement',
-  description: 'Evidence-based psychotherapy and somatic movement coaching in Logan, Queensland and Australia-wide via Telehealth. Led by Luke (MCouns, UQ; PACFA Registered Clinician).',
+  metadataBase: new URL('https://mightymentalhealth.vercel.app'),
+  title: 'Mighty Mental Health | Integrated Psychotherapy & Somatic Movement Logan',
+  description: 'Evidence-based psychotherapy and somatic movement regulation in Logan, Queensland and Australia-wide via Telehealth. Led by Luke (MCouns, UQ; PACFA Registered Clinician #28941).',
+  keywords: [
+    'Psychotherapy Logan',
+    'Somatic Movement Queensland',
+    'Counselling Logan Central',
+    'Mental Health Care Plan Brisbane',
+    'PACFA Registered Counsellor',
+    'Nervous System Regulation',
+    'Telehealth Psychology Australia',
+    'Vagal Nerve Breathwork',
+    'Burnout Therapy QLD'
+  ],
+  authors: [{ name: 'Luke (MCouns, UQ)', url: 'https://mightymentalhealth.vercel.app' }],
+  creator: 'Mighty Mental Health',
+  publisher: 'Mighty Mental Health',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    title: 'Mighty Mental Health | Integrated Psychotherapy & Somatic Movement',
+    description: 'Strengthening Mind & Body as One. Evidence-based counselling and somatic nervous system regulation in Logan, QLD and Telehealth Australia-wide.',
+    url: 'https://mightymentalhealth.vercel.app',
+    siteName: 'Mighty Mental Health',
+    locale: 'en_AU',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Mighty Mental Health | Luke (MCouns, UQ; PACFA Reg. #28941)',
+    description: 'Integrated psychotherapy and somatic movement coaching in Logan, QLD & Telehealth Australia-Wide.',
+  },
+};
+
+const jsonLdSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'MedicalBusiness',
+  name: 'Mighty Mental Health',
+  url: 'https://mightymentalhealth.vercel.app',
+  logo: 'https://mightymentalhealth.vercel.app/icon',
+  description: 'Integrated psychotherapy and somatic movement therapy practice led by Luke (MCouns, UQ; PACFA Registered Clinician #28941).',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Logan Central',
+    addressRegion: 'QLD',
+    postalCode: '4114',
+    addressCountry: 'AU',
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: -27.6416,
+    longitude: 153.1094,
+  },
+  telephone: '+61 412 345 678',
+  priceRange: '$120 - $210 AUD',
+  areaServed: [
+    { '@type': 'AdministrativeArea', name: 'Logan, Queensland' },
+    { '@type': 'AdministrativeArea', name: 'Brisbane, Queensland' },
+    { '@type': 'Country', name: 'Australia (Telehealth)' },
+  ],
+  medicalSpecialty: ['Psychotherapy', 'Counseling', 'Somatic Therapy'],
+  founder: {
+    '@type': 'Person',
+    name: 'Luke',
+    jobTitle: 'Clinical Director & Registered Counsellor',
+    alumniOf: 'University of Queensland (UQ)',
+    hasCredential: 'PACFA Registered Clinical Counsellor #28941',
+  },
 };
 
 export default function RootLayout({
@@ -15,6 +90,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchema) }}
+        />
+      </head>
       <body className="min-h-screen flex flex-col bg-[#FBF9F5] text-[#1C2420] antialiased">
         {/* Sticky Crisis Support Bar */}
         <aside aria-label="Crisis Support" className="bg-[#130C76] text-white text-xs py-2 px-4 sticky top-0 z-50 shadow-md">
