@@ -1,0 +1,2373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mighty Mental Health — WebGPU Hero Shader Suite (Refined Light & Dark)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy-bold: #130C76;
+      --blue-philippine: #0038A8;
+      --orange-cadmium: #F96100;
+      --orange-peel: #FF9E00;
+      --yellow-aureoline: #FFAC24;
+      
+      --bg-dark: #0E0A48;
+      --border-color: rgba(255, 255, 255, 0.15);
+      --text-main: #FFFFFF;
+      --text-muted: #94A3B8;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    /* Light Mode Dynamic Body */
+    body.light-theme {
+      background: #DCE5F2;
+      color: #0F172A;
+      --border-color: rgba(19, 12, 118, 0.12);
+      --text-main: #0F172A;
+      --text-muted: #475569;
+    }
+    body.light-theme.linen-palette {
+      background: #F2EBE1;
+    }
+
+    /* Suite Header */
+    header.suite-header {
+      background: rgba(19, 12, 118, 0.90);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.65rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      transition: all 0.3s ease;
+      flex-wrap: nowrap;
+      gap: 0.75rem;
+    }
+    body.light-theme header.suite-header {
+      background: rgba(255, 255, 255, 0.96);
+      border-bottom: 1px solid rgba(19, 12, 118, 0.14);
+      box-shadow: 0 4px 20px rgba(19, 12, 118, 0.05);
+    }
+
+    .brand-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+    .brand-logo-icon {
+      width: 32px;
+      height: 32px;
+    }
+    .brand-name {
+      font-weight: 900;
+      font-size: 1.05rem;
+      letter-spacing: -0.3px;
+      color: #FFFFFF;
+      line-height: 1.1;
+      transition: color 0.3s ease;
+    }
+    body.light-theme .brand-name { color: var(--navy-bold); }
+    .brand-sub {
+      font-size: 0.70rem;
+      font-family: 'Space Mono', monospace;
+      color: var(--orange-cadmium);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    /* Pattern Selection Nav */
+    .pattern-tabs {
+      display: flex;
+      gap: 0.3rem;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 0.25rem 0.35rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      flex-shrink: 1;
+    }
+    .pattern-tabs::-webkit-scrollbar { display: none; }
+    body.light-theme .pattern-tabs {
+      background: #EDF2F7;
+      border-color: #CBD5E1;
+    }
+
+    .pattern-tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 0.35rem 0.6rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    body.light-theme .pattern-tab-btn { color: #64748B; }
+    .pattern-tab-btn:hover {
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.08);
+    }
+    body.light-theme .pattern-tab-btn:hover {
+      color: var(--navy-bold);
+      background: rgba(255, 255, 255, 0.7);
+    }
+    .pattern-tab-btn.active {
+      background: var(--orange-cadmium);
+      color: #FFFFFF !important;
+      box-shadow: 0 2px 8px rgba(249, 97, 0, 0.35);
+    }
+
+    /* Theme Switcher in Header */
+    .theme-mode-toggle {
+      display: inline-flex;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      gap: 0.25rem;
+    }
+    body.light-theme .theme-mode-toggle {
+      background: #EDF2F7;
+      border-color: #CBD5E1;
+    }
+    .theme-btn {
+      border: none;
+      background: transparent;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    body.light-theme .theme-btn { color: #64748B; }
+    .theme-btn.active {
+      background: var(--navy-bold);
+      color: #FFFFFF;
+      box-shadow: 0 2px 6px rgba(19, 12, 118, 0.3);
+    }
+    body.light-theme .theme-btn.active {
+      background: #FFFFFF;
+      color: var(--navy-bold);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Main Stage */
+    main.stage-container {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: calc(100vh - 72px);
+    }
+
+    /* Canvas Viewport */
+    .canvas-viewport {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+    #shaderCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Overlay Controls & Info */
+    .stage-overlay {
+      position: relative;
+      z-index: 10;
+      pointer-events: none;
+      padding: 2rem 3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex: 1;
+    }
+    .interactive { pointer-events: auto; }
+
+    /* Hero Preview Mockup Frame */
+    .hero-mockup-frame {
+      max-width: 860px;
+      margin: 0.5rem auto 0;
+      text-align: center;
+      background: rgba(14, 10, 72, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem 2.25rem;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      transition: all 0.3s ease;
+    }
+    body.light-theme .hero-mockup-frame {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(19, 12, 118, 0.15);
+      box-shadow: 0 20px 48px rgba(19, 12, 118, 0.10);
+    }
+
+    .hero-mockup-frame.hidden-mockup {
+      opacity: 0;
+      transform: translateY(-20px);
+      pointer-events: none;
+      display: none;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(249, 97, 0, 0.15);
+      border: 1px solid rgba(249, 97, 0, 0.4);
+      color: var(--orange-peel);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      margin-bottom: 0.85rem;
+      font-family: 'Space Mono', monospace;
+    }
+    body.light-theme .hero-eyebrow {
+      background: #FFF3E6;
+      border-color: rgba(249, 97, 0, 0.35);
+      color: var(--orange-cadmium);
+    }
+
+    .hero-title {
+      font-size: 2.8rem;
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 0.85rem;
+      background: linear-gradient(135deg, #FFFFFF 60%, #FFAC24 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: all 0.3s ease;
+    }
+    body.light-theme .hero-title {
+      background: linear-gradient(135deg, #130C76 60%, #0038A8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 1.05rem;
+      color: #E2E8F0;
+      max-width: 650px;
+      margin: 0 auto 1.5rem;
+      line-height: 1.6;
+      transition: color 0.3s ease;
+    }
+    body.light-theme .hero-desc { color: #334155; }
+
+    .hero-cta-group {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .btn-hero-primary {
+      background: var(--orange-cadmium);
+      color: #FFFFFF;
+      border: none;
+      font-weight: 800;
+      font-size: 1rem;
+      padding: 0.85rem 1.8rem;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 16px rgba(249, 97, 0, 0.4);
+      font-family: inherit;
+    }
+    .btn-hero-primary:hover {
+      background: var(--orange-peel);
+      transform: translateY(-2px);
+    }
+    .btn-hero-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #FFFFFF;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 0.85rem 1.6rem;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    body.light-theme .btn-hero-secondary {
+      background: #FFFFFF;
+      color: var(--navy-bold);
+      border-color: #CBD5E1;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    /* Pattern Drawer & Specs */
+    .pattern-specs-panel {
+      background: rgba(16, 12, 76, 0.94);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.1rem 1.3rem;
+      max-width: 480px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+      transition: all 0.3s ease;
+    }
+    body.light-theme .pattern-specs-panel {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(19, 12, 118, 0.15);
+      box-shadow: 0 12px 32px rgba(19, 12, 118, 0.08);
+      color: #1E293B;
+    }
+
+    .pattern-name-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .pattern-title-text {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #FFFFFF;
+    }
+    body.light-theme .pattern-title-text { color: var(--navy-bold); }
+
+    .pattern-badge {
+      background: rgba(249, 97, 0, 0.2);
+      color: var(--orange-cadmium);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      font-family: 'Space Mono', monospace;
+    }
+    .badge-favorite {
+      background: #FEF3C7 !important;
+      color: #92400E !important;
+      border: 1px solid #F59E0B;
+    }
+
+    .pattern-desc {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 0.85rem;
+    }
+    body.light-theme .pattern-desc { color: #475569; }
+
+    .component-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+    .tag-pill {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #CBD5E1;
+      font-size: 0.72rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-family: 'Space Mono', monospace;
+    }
+    body.light-theme .tag-pill {
+      background: #EFF6FF;
+      border-color: #BFDBFE;
+      color: var(--blue-philippine);
+    }
+
+    /* Floating Toolbar */
+    .bottom-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .controls-cluster {
+      background: rgba(16, 12, 76, 0.9);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      transition: all 0.3s ease;
+    }
+    body.light-theme .controls-cluster {
+      background: rgba(255, 255, 255, 0.92);
+      border-color: rgba(19, 12, 118, 0.15);
+      color: var(--navy-bold);
+      box-shadow: 0 4px 16px rgba(19, 12, 118, 0.06);
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .control-item input[type="range"] {
+      width: 90px;
+      accent-color: var(--orange-cadmium);
+      cursor: pointer;
+    }
+    .control-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-color);
+      color: #FFF;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.4rem 0.8rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    body.light-theme .control-btn {
+      background: #FFFFFF;
+      color: var(--navy-bold);
+      border-color: #CBD5E1;
+    }
+    .control-btn.active {
+      background: var(--blue-philippine);
+      color: #FFFFFF;
+      border-color: #3B82F6;
+    }
+
+    /* Light Mode Palette Selector (Coastal vs Warm Linen) */
+    .palette-toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(0,0,0,0.2);
+      padding: 0.2rem 0.4rem;
+      border-radius: 6px;
+    }
+    body.light-theme .palette-toggle-container {
+      background: #E2E8F0;
+      color: var(--navy-bold);
+    }
+
+    /* Living Drift & Geometric Studio Interactive Panels */
+    .drift-options-panel, .geom-options-panel {
+      display: none;
+      flex-direction: column;
+      gap: 0.45rem;
+      margin: 0.6rem 0;
+      padding: 0.6rem 0.75rem;
+      background: rgba(0, 0, 0, 0.28);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+    }
+    .drift-options-panel.visible, .geom-options-panel.visible {
+      display: flex;
+    }
+    body.light-theme .drift-options-panel, body.light-theme .geom-options-panel {
+      background: #F1F5F9;
+      border-color: #CBD5E1;
+    }
+    .drift-option-group {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+    .drift-option-label {
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-family: 'Space Mono', monospace;
+      min-width: 82px;
+    }
+    body.light-theme .drift-option-label {
+      color: var(--navy-bold);
+    }
+    .drift-toggle-btn, .geom-toggle-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    body.light-theme .drift-toggle-btn, body.light-theme .geom-toggle-btn {
+      background: #FFFFFF;
+      color: #64748B;
+      border-color: #CBD5E1;
+    }
+    .drift-toggle-btn.active, .geom-toggle-btn.active {
+      background: var(--orange-cadmium) !important;
+      color: #FFFFFF !important;
+      border-color: var(--orange-cadmium) !important;
+      box-shadow: 0 2px 6px rgba(249, 97, 0, 0.3);
+    }
+
+    /* Code Snippet Box */
+    .code-snippet-box {
+      background: #0B0829;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.8rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.73rem;
+      color: #E2E8F0;
+      max-height: 120px;
+      overflow-y: auto;
+      margin-top: 0.4rem;
+      line-height: 1.45;
+    }
+    body.light-theme .code-snippet-box {
+      background: #0F172A;
+      color: #F8FAFC;
+    }
+
+    .btn-copy-code {
+      width: 100%;
+      background: var(--navy-bold);
+      color: #FFFFFF;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 0.55rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      margin-top: 0.6rem;
+      font-family: inherit;
+    }
+    .btn-copy-code:hover { background: var(--blue-philippine); }
+
+    @media (max-width: 900px) {
+      .hero-title { font-size: 2rem; }
+      .pattern-tabs { overflow-x: auto; max-width: 100%; }
+      .bottom-toolbar { flex-direction: column-reverse; align-items: stretch; }
+      .pattern-specs-panel { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Suite Header -->
+  <header class="suite-header">
+    <div class="brand-title-group">
+      <svg class="brand-logo-icon" viewBox="50 144 54 52">
+        <path d="M 73.11,191.29 L 72.59,190.76 L 72.7,189.68 C 72.76,189.09 72.92,188.33 73.04,188 L 73.17,187.68 L 72.52,187.3 C 71.95,186.97 71.07,186.3 70.07,185.39 C 68.32,183.78 67.24,182.26 66.52,180.4 C 65.98,178.98 65.61,177.34 65.41,175.52 C 65.29,174.45 65.31,171.74 65.44,170.83 C 65.73,168.86 66.36,166.7 67.29,164.5 C 68.1,162.59 69.18,160.7 70.61,158.73 C 71.55,157.43 73.34,155.33 74.32,154.38 C 74.5,154.2 74.65,154.02 74.65,153.97 C 74.65,153.92 74.32,153.86 73.74,153.79 C 71.69,153.56 68.61,153.72 65.9,154.21 C 65.17,154.34 64.08,154.58 63.85,154.66 L 63.78,154.69 L 63.7,155.22 C 63.5,156.45 63.45,157.65 63.52,159.2 C 63.56,159.98 63.56,160.03 63.44,160.1 C 63.3,160.18 63.07,160.18 62.91,160.11 C 62.77,160.05 62.6,159.88 62.48,159.67 C 62.33,159.39 62.29,159.08 62.19,157.54 C 62.11,156.32 62.06,155.93 61.94,155.45 L 61.83,155.03 L 60.78,155.08 C 58.78,155.18 57.06,155.43 55.42,155.88 L 54.88,156.03 L 54.85,157.25 C 54.81,158.62 54.76,159.04 54.64,159.35 C 54.52,159.67 54.26,160 53.96,160.19 C 53.75,160.33 53.48,160.36 53.3,160.27 C 53.07,160.16 52.88,159.86 52.84,159.51 C 52.81,159.27 52.81,157.47 52.84,156.57 L 52.88,155.67 L 52.12,155.98 C 50.85,156.49 49.95,157.25 49.33,158.33 C 48.91,159.08 48.66,160.03 48.56,161.27 C 48.33,163.95 48.94,167.31 50.13,169.87 C 50.75,171.21 51.71,172.59 52.81,173.74 C 53.41,174.37 54.08,174.95 54.91,175.54 L 55.48,175.95 L 55.33,176.62 C 55.12,177.58 55.08,178.68 55.22,179.91 C 55.42,181.65 56.12,183.5 57.17,185.05 C 57.85,186.05 58.76,187.05 59.83,187.97 L 60.54,188.58 L 61.2,188.08 C 61.85,187.59 62.77,186.74 63.26,186.19 C 63.81,185.57 64.38,184.77 64.83,184.01 L 65.23,183.33 L 65.59,183.89 C 66.82,185.79 68.5,187.69 70.36,189.28 C 71.49,190.25 72.82,191.13 73.11,191.29 Z" fill="#130C76" />
+        <path d="M 77,166 C 75.5,164.5 74,165.5 74,167 C 74,169 77,171.5 77,171.5 C 77,171.5 80,169 80,167 C 80,165.5 78.5,164.5 77,166 Z" fill="#F96100" />
+      </svg>
+      <div>
+        <div class="brand-name">MIGHTY MENTAL HEALTH</div>
+        <div class="brand-sub">WebGPU Hero Suite (Light & Dark Refined)</div>
+      </div>
+    </div>
+
+    <!-- Pattern Tabs (Spotlighting 04, 04B, 01, and Living Drift Variations) -->
+    <div class="pattern-tabs">
+      <button class="pattern-tab-btn active" data-idx="0" onclick="switchPattern(0)">
+        <span>⭐</span> 04. Coastal Motes
+      </button>
+      <button class="pattern-tab-btn" data-idx="1" onclick="switchPattern(1)">
+        <span>🌾</span> 04B. Linen Motes
+      </button>
+      <button class="pattern-tab-btn" data-idx="2" onclick="switchPattern(2)">
+        <span>🌊</span> 01. Breathwork
+      </button>
+      <button class="pattern-tab-btn" data-idx="5" onclick="switchPattern(5)">
+        <span>🌿</span> 03C-1. Drift (Diagonal Ribbons)
+      </button>
+      <button class="pattern-tab-btn" data-idx="6" onclick="switchPattern(6)">
+        <span>🏁</span> 03C-2. Drift (Checkerboard)
+      </button>
+      <button class="pattern-tab-btn" data-idx="7" onclick="switchPattern(7)">
+        <span>↔️</span> 03C-3. Drift (Horizontal Strata)
+      </button>
+      <button class="pattern-tab-btn" data-idx="8" onclick="switchPattern(8)">
+        <span>🌊</span> 03C-4. Drift (Harmonic Ripple)
+      </button>
+      <button class="pattern-tab-btn" data-idx="10" onclick="switchPattern(10)">
+        <span>⭐</span> 05A. Geometric Champion
+      </button>
+      <button class="pattern-tab-btn" data-idx="11" onclick="switchPattern(11)">
+        <span>🔷</span> 05B. Geometric (Diamonds)
+      </button>
+      <button class="pattern-tab-btn" data-idx="12" onclick="switchPattern(12)">
+        <span>🔲</span> 05C. Geometric (Circuits)
+      </button>
+      <button class="pattern-tab-btn" data-idx="13" onclick="switchPattern(13)">
+        <span>〰️</span> 05D. Geometric (Waves)
+      </button>
+      <button class="pattern-tab-btn" data-idx="4" onclick="switchPattern(4)">
+        <span>🧠</span> 03B. Neuro Morph
+      </button>
+      <button class="pattern-tab-btn" data-idx="3" onclick="switchPattern(3)">
+        <span>⚡</span> 03A. Wave Sweep
+      </button>
+    </div>
+
+    <!-- Light vs Dark Mode Switcher -->
+    <div class="theme-mode-toggle">
+      <button id="btnLightMode" class="theme-btn" onclick="setThemeMode(false)">☀️ Light</button>
+      <button id="btnDarkMode" class="theme-btn active" onclick="setThemeMode(true)">🌙 Dark</button>
+    </div>
+  </header>
+
+  <!-- Stage -->
+  <main class="stage-container">
+    
+    <!-- Background Canvas -->
+    <div class="canvas-viewport">
+      <canvas id="shaderCanvas"></canvas>
+    </div>
+
+    <!-- Overlay UI -->
+    <div class="stage-overlay">
+      
+      <!-- Top Center: Live Website Hero Mockup -->
+      <div id="heroMockup" class="hero-mockup-frame interactive">
+        <div class="hero-eyebrow">
+          <span>● PACFA REGISTERED</span> • <span>MCouns (UQ)</span> • <span>FITNESS SPECIALIST</span>
+        </div>
+        <h1 class="hero-title">Strengthening Mind & Body As One</h1>
+        <p class="hero-desc">
+          Evidence-based psychotherapy combined with personalized somatic movement coaching. Meeting you where you're at to build enduring emotional and physical vitality.
+        </p>
+        <div class="hero-cta-group">
+          <button class="btn-hero-primary" onclick="alert('Demo: Redirects to booking calendar!')">Book Initial 40-Min Consult</button>
+          <button class="btn-hero-secondary" onclick="toggleMockup()">Hide Overlay (Inspect Shader)</button>
+        </div>
+      </div>
+
+      <!-- Bottom Row: Specs & Floating Toolbar -->
+      <div class="bottom-toolbar">
+        
+        <!-- Left: Pattern Specs Card -->
+        <div class="pattern-specs-panel interactive">
+          <div class="pattern-name-row">
+            <h3 id="patternTitle" class="pattern-title-text">04. Coastal Motes (Client Favorite)</h3>
+            <span id="patternBadge" class="pattern-badge badge-favorite">⭐ Client Favorite</span>
+          </div>
+          <p id="patternDesc" class="pattern-desc">
+            The standout hero favorite! Features thousands of gentle golden and warm amber motes drifting peacefully across rhythmic tidal breathing waves. Zero cursor follow.
+          </p>
+
+          <!-- Interactive Sub-Controls for Living Drift (Sync & Pattern) -->
+          <div id="driftOptionsPanel" class="drift-options-panel">
+            <div class="drift-option-group">
+              <span class="drift-option-label">Motion Sync:</span>
+              <button class="drift-toggle-btn active" id="btnSyncUnified" onclick="setDriftSync('unified')">🫁 Unified Breath (In-Sync)</button>
+              <button class="drift-toggle-btn" id="btnSyncHarmonic" onclick="setDriftSync('harmonic')">🌊 Harmonic Wave</button>
+            </div>
+            <div class="drift-option-group">
+              <span class="drift-option-label">Colors:</span>
+              <button class="drift-toggle-btn active" id="btnColDiag" onclick="setDriftColor('diagonal')">↗️ Diagonal Ribbons</button>
+              <button class="drift-toggle-btn" id="btnColCheck" onclick="setDriftColor('checkerboard')">🏁 Checkerboard</button>
+              <button class="drift-toggle-btn" id="btnColHoriz" onclick="setDriftColor('horizontal')">↔️ Horizontal Waves</button>
+            </div>
+          </div>
+
+          <!-- Interactive Sub-Controls for Geometric Matrix (Shape, Symmetry, Motion, Color) -->
+          <div id="geomOptionsPanel" class="geom-options-panel">
+            <div class="drift-option-group">
+              <span class="drift-option-label">Shape:</span>
+              <button class="geom-toggle-btn active" id="btnShapeCircles" onclick="setGeomShape('circles')">🔘 Interlocking Circles</button>
+              <button class="geom-toggle-btn" id="btnShapeDiamonds" onclick="setGeomShape('diamonds')">🔷 Diamond Lattice</button>
+              <button class="geom-toggle-btn" id="btnShapeCircuits" onclick="setGeomShape('circuits')">🔲 Circuit Grid</button>
+              <button class="geom-toggle-btn" id="btnShapeWaves" onclick="setGeomShape('waves')">〰️ Sine Waves</button>
+            </div>
+            <div class="drift-option-group">
+              <span class="drift-option-label">Symmetry:</span>
+              <button class="geom-toggle-btn" id="btnTileMirrored" onclick="setGeomTiling('mirrored')">🪞 Mirrored Mandala</button>
+              <button class="geom-toggle-btn" id="btnTileSerpentine" onclick="setGeomTiling('serpentine')">🌊 Serpentine Waves</button>
+              <button class="geom-toggle-btn active" id="btnTileUniform" onclick="setGeomTiling('uniform')">↗️ Uniform Tracks</button>
+              <button class="geom-toggle-btn" id="btnTileCols" onclick="setGeomTiling('alternating-cols')">↕️ Alt Columns</button>
+            </div>
+            <div class="drift-option-group">
+              <span class="drift-option-label">Motion:</span>
+              <button class="geom-toggle-btn" id="btnMotionBreath" onclick="setGeomMotion('breath-pulse')">🫁 Synchronized Breath</button>
+              <button class="geom-toggle-btn active" id="btnMotionRotate" onclick="setGeomMotion('mandala-rotate')">🔄 90° Mandala Morph</button>
+              <button class="geom-toggle-btn" id="btnMotionSurge" onclick="setGeomMotion('traveling-surge')">⚡ Traveling Surge</button>
+            </div>
+            <div class="drift-option-group">
+              <span class="drift-option-label">Colors:</span>
+              <button class="geom-toggle-btn" id="btnGeomColDiag" onclick="setGeomColor('diagonal')">↗️ Diagonal Ribbons</button>
+              <button class="geom-toggle-btn active" id="btnGeomColCheck" onclick="setGeomColor('checkerboard')">🏁 Checkerboard</button>
+              <button class="geom-toggle-btn" id="btnGeomColHoriz" onclick="setGeomColor('horizontal')">↔️ Horizontal Strata</button>
+            </div>
+          </div>
+
+          <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:0.4rem; text-transform:uppercase;">
+            Shaders.com React Implementation:
+          </div>
+          <div id="patternTags" class="component-tags">
+            <span class="tag-pill">&lt;SolidColor&gt;</span>
+            <span class="tag-pill">&lt;FloatingParticles&gt;</span>
+            <span class="tag-pill">&lt;SineWave&gt;</span>
+            <span class="tag-pill">&lt;Vignette&gt;</span>
+          </div>
+
+          <div class="code-snippet-box">
+            <pre><code id="codeSnippetText"></code></pre>
+          </div>
+          <button class="btn-copy-code" onclick="copySnippet()">📋 Copy React / Next.js Component Code</button>
+        </div>
+
+        <!-- Right: Interactive Controls Cluster -->
+        <div class="controls-cluster interactive">
+          <div class="control-item">
+            <label for="speedSlider">Speed</label>
+            <input type="range" id="speedSlider" min="0.1" max="1.5" step="0.05" value="0.50">
+            <span id="speedVal" style="font-family:'Space Mono'; font-size:0.75rem; width:28px;">0.50x</span>
+          </div>
+
+          <div class="control-item">
+            <label for="intensitySlider">Intensity</label>
+            <input type="range" id="intensitySlider" min="0.2" max="1.0" step="0.05" value="0.85">
+            <span id="intensityVal" style="font-family:'Space Mono'; font-size:0.75rem; width:28px;">85%</span>
+          </div>
+
+          <button id="btnToggleMockup" class="control-btn active" onclick="toggleMockup()">
+            👁️ Toggle Hero Text
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    let isDarkMode = true;
+    let currentPatternIdx = 0; // Default to 04. Coastal Motes (Top Choice ⭐)
+    let speedMultiplier = 0.50;
+    let intensityLevel = 0.85;
+    let isMockupVisible = true;
+
+    // Living Drift Specific Modes
+    let driftSyncMode = 'unified';       // 'unified' | 'harmonic'
+    let driftColorPattern = 'diagonal';  // 'diagonal' | 'checkerboard' | 'horizontal'
+
+    // Geometric Matrix Specific Modes (Approved Champion Defaults ⭐)
+    let geomShape = 'circles';          // 'circles' | 'diamonds' | 'circuits' | 'waves'
+    let geomTiling = 'uniform';         // 'mirrored' | 'serpentine' | 'uniform' | 'alternating-cols'
+    let geomMotion = 'mandala-rotate';  // 'breath-pulse' | 'mandala-rotate' | 'traveling-surge'
+    let geomColorPattern = 'checkerboard'; // 'diagonal' | 'checkerboard' | 'horizontal'
+
+    // Pattern Definitions & React Components Code
+    const patterns = [
+      {
+        id: 0,
+        title: "04. Coastal Motes (Top Choice ⭐)",
+        badge: "⭐ Client Top Favorite",
+        desc: "The standout hero champion! Calibrated with a rich, soothing Non-White Coastal Blue foundation (#DCE5F2) in Light Mode, eliminating stark white glare. Deep amber and terracotta motes float peacefully across oceanic breath waves. Dark mode radiates deep calming navy with sparkling warm embers. Zero cursor follow.",
+        tags: ["<SolidColor>", "<FloatingParticles>", "<SineWave>", "<Vignette>"],
+        getReactCode: (dark) => `// ParasympatheticMotesShader.tsx (Coastal Blue Variant)
+'use client';
+import { Shader, FloatingParticles, SineWave, Vignette, SolidColor } from 'shaders/react';
+
+export function ParasympatheticMotesShader({
+  mode = '${dark ? 'dark' : 'light'}',
+  lightThemeVariant = 'coastal-blue',
+  className = "absolute inset-0 -z-10 w-full h-full"
+}) {
+  const isDark = mode === 'dark';
+
+  return (
+    <Shader className={className}>
+      <SolidColor color={isDark ? "#0E0946" : "#DCE5F2"} />
+      <SineWave
+        color={isDark ? "#0038A8" : "#93C5FD"}
+        amplitude={0.18}
+        frequency={1.3}
+        speed={0.35}
+        thickness={0.42}
+        softness={0.7}
+        opacity={isDark ? 0.65 : 0.45}
+      />
+      <FloatingParticles
+        count={1800}
+        colorA={isDark ? "#FFAC24" : "#C2410C"} // Deep Amber
+        colorB={isDark ? "#F96100" : "#D97706"} // Warm Ochre
+        sizeMin={1.4}
+        sizeMax={3.8}
+        speed={0.40}
+        wander={0.42}
+        blendMode={isDark ? "screen" : "multiply"}
+        opacity={isDark ? 0.85 : 0.65}
+      />
+      <Vignette radius={0.76} intensity={isDark ? 0.48 : 0.25} />
+    </Shader>
+  );
+}`
+      },
+      {
+        id: 1,
+        title: "04B. Warm Linen Motes (Organic Earth Base 🌾)",
+        badge: "⭐ Client Favorite Variant",
+        desc: "Warm somatic earth variation of your favorite motes! Replaces cool tones with an organic, human, warm therapeutic linen base (#F2EBE1). Deep terracotta and amber particles drift gently across peaceful earth undertones. Purely autonomous, zero cursor follow.",
+        tags: ["<SolidColor>", "<FloatingParticles>", "<SineWave>", "<Vignette>"],
+        getReactCode: (dark) => `// ParasympatheticMotesShader.tsx (Warm Linen Variant)
+'use client';
+import { Shader, FloatingParticles, SineWave, Vignette, SolidColor } from 'shaders/react';
+
+export function ParasympatheticMotesShader({
+  mode = '${dark ? 'dark' : 'light'}',
+  lightThemeVariant = 'warm-linen',
+  className = "absolute inset-0 -z-10 w-full h-full"
+}) {
+  const isDark = mode === 'dark';
+
+  return (
+    <Shader className={className}>
+      <SolidColor color={isDark ? "#0E0946" : "#F2EBE1"} />
+      <SineWave
+        color={isDark ? "#0038A8" : "#E2D9CD"}
+        amplitude={0.16}
+        frequency={1.3}
+        speed={0.35}
+        thickness={0.42}
+        softness={0.7}
+        opacity={isDark ? 0.65 : 0.5}
+      />
+      <FloatingParticles
+        count={1800}
+        colorA={isDark ? "#FFAC24" : "#9A3412"} // Deep Terracotta
+        colorB={isDark ? "#F96100" : "#B45309"} // Warm Ochre
+        sizeMin={1.4}
+        sizeMax={3.8}
+        speed={0.40}
+        wander={0.42}
+        blendMode={isDark ? "screen" : "multiply"}
+        opacity={isDark ? 0.85 : 0.65}
+      />
+      <Vignette radius={0.76} intensity={isDark ? 0.48 : 0.25} />
+    </Shader>
+  );
+}`
+      },
+      {
+        id: 2,
+        title: "01. Dual-Layer Breathwork (Approved Option 🌊)",
+        badge: "Approved Hero Option",
+        desc: "Calming multi-layered mesh gradient at higher responsive speed (0.55x) with a second moving element: luminous floating strands drifting diagonally across the breathing mesh. Rich navy/orange in dark mode; rich soft coastal blue (#DCE5F2) with sunlit strands in light mode. Zero cursor follow.",
+        tags: ["<MeshGradient>", "<Strands>", "<SimplexNoise>", "<Vignette>"],
+        getReactCode: (dark) => `// SomaticBreathworkShader.tsx
+'use client';
+import { Shader, MeshGradient, Strands, SimplexNoise, Vignette } from 'shaders/react';
+
+export function SomaticBreathworkShader({
+  mode = '${dark ? 'dark' : 'light'}',
+  className = "absolute inset-0 -z-10 w-full h-full",
+  speed = 0.55
+}) {
+  const isDark = mode === 'dark';
+
+  return (
+    <Shader className={className}>
+      <MeshGradient
+        colorA={isDark ? "#130C76" : "#DCE5F2"}
+        colorB={isDark ? "#0038A8" : "#C7D8EB"}
+        colorC={isDark ? "#F96100" : "#FEE6D2"}
+        colorD={isDark ? "#0E0A48" : "#EBF2F9"}
+        colorSpace="oklab"
+        speed={speed}
+        distortion={0.65}
+      />
+      {/* Second Moving Element — Luminous Ethereal Strands */}
+      <Strands
+        count={6}
+        colorA={isDark ? "#FFAC24" : "#F96100"}
+        colorB={isDark ? "#0038A8" : "#93C5FD"}
+        speed={speed * 1.25}
+        thickness={0.25}
+        frequency={1.8}
+        amplitude={0.35}
+        opacity={isDark ? 0.45 : 0.25}
+        blendMode={isDark ? "screen" : "multiply"}
+      />
+      <SimplexNoise scale={3.2} speed={0.15} opacity={isDark ? 0.04 : 0.02} blendMode="softLight" />
+      <Vignette radius={0.78} intensity={isDark ? 0.42 : 0.22} />
+    </Shader>
+  );
+}`
+      },
+      {
+        id: 3,
+        title: "03A. Bio-Neural: Gradient Wave Sweep (⚡)",
+        badge: "⚡ Luminous Synaptic Surge",
+        desc: "The stable network pathways remain anchored while a continuous, luminous diagonal gradient wave (Philippine Blue -> Cadmium Orange -> Aureoline Yellow) travels through the synapses in a 5.5s meditative electrical surge. Zero mouse follow.",
+        tags: ["<Truchet>", "<LinearGradient>", "<TravelingWave>", "<Glow>"],
+        getReactCode: (dark) => `// BioNeuralFlowShader.tsx (Variant: 'gradient-sweep')
+'use client';
+import { Shader, Truchet, LinearGradient, Glow } from 'shaders/react';
+
+export function BioNeuralFlowShader({
+  mode = '${dark ? 'dark' : 'light'}',
+  variant = 'gradient-sweep',
+  className = "absolute inset-0 -z-10 w-full h-full"
+}) {
+  const isDark = mode === 'dark';
+
+  return (
+    <Shader className={className}>
+      <LinearGradient
+        colorA={isDark ? "#0E0946" : "#E2EAF4"}
+        colorB={isDark ? "#130C76" : "#CBD9E8"}
+        angle={90}
+        colorSpace="oklab"
+      />
+      {/* Stable Arc Geometry with Traveling Wave Energy */}
+      <Truchet
+        scale={48}
+        lineWidth={isDark ? 3.0 : 2.4}
+        strokeColor={isDark ? "#0038A8" : "#130C76"}
+        surgeColor={isDark ? "#FFAC24" : "#F96100"}
+        waveSpeed={0.18}
+        waveAngle={45}
+        opacity={isDark ? 0.85 : 0.60}
+      />
+      <Glow color="#FFAC24" radius={0.5} intensity={isDark ? 0.40 : 0.22} blendMode="screen" />
+    </Shader>
+  );
+}`
+      },
+      {
+        id: 4,
+        title: "03B. Bio-Neural: Neuroplastic Morph (🧠)",
+        badge: "🧠 Neuroplastic Rewiring",
+        desc: "The network connections physically shift and reconfigure! Clusters of synaptic arcs smoothly rotate 90° into new combinations, visually demonstrating neuroplasticity and the brain's ability to rewire new pathways in a slow, grounding 6s cycle.",
+        tags: ["<Truchet>", "<ClusterRotate>", "<SmoothMorph>", "<LinearGradient>"],
+        getReactCode: (dark) => `// BioNeuralFlowShader.tsx (Variant: 'morph')
+'use client';
+import { Shader, Truchet, LinearGradient, Glow } from 'shaders/react';
+
+export function BioNeuralFlowShader({
+  mode = '${dark ? 'dark' : 'light'}',
+  variant = 'morph',
+  className = "absolute inset-0 -z-10 w-full h-full"
+}) {
+  const isDark = mode === 'dark';
+
+  return (
+    <Shader className={className}>
+      <LinearGradient
+        colorA={isDark ? "#0E0946" : "#E2EAF4"}
+        colorB={isDark ? "#130C76" : "#CBD9E8"}
+        angle={90}
+        colorSpace="oklab"
+      />
+      {/* Dynamic Synaptic Pathway Rewiring */}
+      <Truchet
+        scale={48}
+        lineWidth={isDark ? 3.0 : 2.4}
+        strokeColor={isDark ? "#0038A8" : "#130C76"}
+        activeColor={isDark ? "#FFAC24" : "#F96100"}
+        morphMode="cluster-rotate"
+        morphSpeed={0.22}
+        opacity={isDark ? 0.85 : 0.60}
+      />
+      <Glow color="#FFAC24" radius={0.35} intensity={isDark ? 0.35 : 0.20} blendMode="screen" />
+    </Shader>
+  );
+}`
+      },
+      {
+        id: 5,
+        title: "03C-1. Living Drift: Diagonal Ribbons (Unified 🌿)",
+        badge: "🌿 In-Sync Diagonal Ribbons",
+        desc: "All living synaptic lines undulate in complete lockstep synchronization, organized into clean alternating 45° diagonal ribbons of grounding Navy/Blue and radiant Cadmium Orange/Amber. Synchronized breath undulation.",
+        tags: ["<FluidLines>", "<UnifiedSync>", "<DiagonalRibbons>", "<Glow>"],
+        getReactCode: (dark) => `// BioNeuralFlowShader.tsx (Living Drift: Diagonal Ribbons)
+'use client';
+import { BioNeuralFlowShader } from '@/components/shaders';
+
+export default function HeroSection() {
+  return (
+    <BioNeuralFlowShader
+      mode="${dark ? 'dark' : 'light'}"
+      variant="synaptic-drift"
+      driftSync="unified"
+      colorPattern="diagonal"
+    />
+  );
+}`
+      },
+      {
+        id: 6,
+        title: "03C-2. Living Drift: Checkerboard (Unified 🏁)",
+        badge: "🏁 In-Sync Checkerboard",
+        desc: "Synchronized breathing motion across all lines, structured into an interlacing bipartite checkerboard lattice where every node strictly alternates between grounding Navy and vital Orange.",
+        tags: ["<FluidLines>", "<UnifiedSync>", "<Checkerboard>", "<Glow>"],
+        getReactCode: (dark) => `// BioNeuralFlowShader.tsx (Living Drift: Checkerboard)
+'use client';
+import { BioNeuralFlowShader } from '@/components/shaders';
+
+export default function HeroSection() {
+  return (
+    <BioNeuralFlowShader
+      mode="${dark ? 'dark' : 'light'}"
+      variant="synaptic-drift"
+      driftSync="unified"
+      colorPattern="checkerboard"
+    />
+  );
+}`
+      },
+      {
+        id: 7,
+        title: "03C-3. Living Drift: Horizontal Strata (Unified ↔️)",
+        badge: "↔️ In-Sync Wave Strata",
+        desc: "Synchronized breathing lines organized into alternating horizontal strata bands: calming grounding Navy rows layered with radiant warm Cadmium Orange rows.",
+        tags: ["<FluidLines>", "<UnifiedSync>", "<HorizontalWaves>", "<Glow>"],
+        getReactCode: (dark) => `// BioNeuralFlowShader.tsx (Living Drift: Horizontal Waves)
+'use client';
+import { BioNeuralFlowShader } from '@/components/shaders';
+
+export default function HeroSection() {
+  return (
+    <BioNeuralFlowShader
+      mode="${dark ? 'dark' : 'light'}"
+      variant="synaptic-drift"
+      driftSync="unified"
+      colorPattern="horizontal"
+    />
+  );
+}`
+      },
+      {
+        id: 8,
+        title: "03C-4. Living Drift: Harmonic Ripple (🌊)",
+        badge: "🌊 Directional Ripple Wave",
+        desc: "Lines share identical wave frequency and harmonic amplitude, flowing in a synchronized directional ripple across the grid like a calming ocean swell.",
+        tags: ["<FluidLines>", "<HarmonicWave>", "<DiagonalRibbons>", "<Glow>"],
+        getReactCode: (dark) => `// BioNeuralFlowShader.tsx (Living Drift: Harmonic Wave)
+'use client';
+import { BioNeuralFlowShader } from '@/components/shaders';
+
+export default function HeroSection() {
+  return (
+    <BioNeuralFlowShader
+      mode="${dark ? 'dark' : 'light'}"
+      variant="synaptic-drift"
+      driftSync="harmonic"
+      colorPattern="diagonal"
+    />
+  );
+}`
+      },
+      {
+        id: 9,
+        title: "03D. Bio-Neural: Combined Hybrid Flow (✨)",
+        badge: "✨ Mind-Body Integration",
+        desc: "The complete integration: pathways dynamically rewire in gentle clusters while a traveling luminous gradient wave sweeps across the network, sparking active connections with golden warmth.",
+        tags: ["<Truchet>", "<ClusterMorph>", "<GradientSweep>", "<Glow>"],
+        getReactCode: (dark) => `// BioNeuralFlowShader.tsx (Variant: 'hybrid')
+'use client';
+import { Shader, Truchet, LinearGradient, Glow } from 'shaders/react';
+
+export function BioNeuralFlowShader({
+  mode = '${dark ? 'dark' : 'light'}',
+  variant = 'hybrid',
+  className = "absolute inset-0 -z-10 w-full h-full"
+}) {
+  const isDark = mode === 'dark';
+
+  return (
+    <Shader className={className}>
+      <LinearGradient
+        colorA={isDark ? "#0E0946" : "#E2EAF4"}
+        colorB={isDark ? "#130C76" : "#CBD9E8"}
+        angle={90}
+        colorSpace="oklab"
+      />
+      {/* Neuroplastic Morph + Travelling Surge Combined */}
+      <Truchet
+        scale={48}
+        lineWidth={isDark ? 3.2 : 2.5}
+        strokeColor={isDark ? "#0038A8" : "#130C76"}
+        surgeColor={isDark ? "#FFAC24" : "#F96100"}
+        morphMode="cluster-rotate"
+        morphSpeed={0.20}
+        waveSpeed={0.16}
+        opacity={isDark ? 0.85 : 0.65}
+      />
+      <Glow color="#FFAC24" radius={0.5} intensity={isDark ? 0.45 : 0.25} blendMode="screen" />
+    </Shader>
+  );
+}`
+      },
+      {
+        id: 10,
+        title: "05A. Geometric Champion: Morphing Circles (Approved ⭐)",
+        badge: "⭐ Client Geometric Champion",
+        desc: "Your approved geometric champion! Features clean interlocking circular quadrants organized into continuous uniform diagonal streams, smoothly rotating 90° in a slow 6s rhythm across a crisp checkerboard matrix of Cadmium Orange and Philippine Navy.",
+        tags: ["<GeometricCircles>", "<UniformTracks>", "<MandalaMorph>", "<Checkerboard>"],
+        getReactCode: (dark) => `// GeometricMatrixShader.tsx (Client Geometric Champion)
+'use client';
+import { GeometricMatrixShader } from '@/components/shaders';
+
+export default function HeroSection() {
+  return (
+    <GeometricMatrixShader
+      mode="${dark ? 'dark' : 'light'}"
+      shape="${geomShape}"
+      tiling="${geomTiling}"
+      motion="${geomMotion}"
+      colorPattern="${geomColorPattern}"
+    />
+  );
+}`
+      },
+      {
+        id: 11,
+        title: "05B. Geometric: Isometric Diamond Lattice (🔷)",
+        badge: "🔷 Isometric Facet Grid",
+        desc: "Crisp 45-degree diagonal facets connected to central geometric nodes, forming a regular diamond matrix. Replaces random curves with architectural stability, strength, and grounding precision.",
+        tags: ["<DiamondLattice>", "<Isometric>", "<SynchronizedBreath>", "<NonRandom>"],
+        getReactCode: (dark) => `// GeometricMatrixShader.tsx (Diamond Lattice)
+'use client';
+import { GeometricMatrixShader } from '@/components/shaders';
+
+export default function HeroSection() {
+  return (
+    <GeometricMatrixShader
+      mode="${dark ? 'dark' : 'light'}"
+      shape="${geomShape}"
+      tiling="${geomTiling}"
+      motion="${geomMotion}"
+      colorPattern="${geomColorPattern}"
+    />
+  );
+}`
+      },
+      {
+        id: 12,
+        title: "05C. Geometric: Architectural Circuit Grid (🔲)",
+        badge: "🔲 Right-Angle Circuit Architecture",
+        desc: "Clean horizontal and vertical lines with smooth 90-degree rounded elbows and node terminals. Unambiguously non-random, delivering clinical clarity, structure, and intentional boundary lines.",
+        tags: ["<CircuitGrid>", "<Orthogonal>", "<RoundedElbows>", "<NonRandom>"],
+        getReactCode: (dark) => `// GeometricMatrixShader.tsx (Circuit Grid)
+'use client';
+import { GeometricMatrixShader } from '@/components/shaders';
+
+export default function HeroSection() {
+  return (
+    <GeometricMatrixShader
+      mode="${dark ? 'dark' : 'light'}"
+      shape="${geomShape}"
+      tiling="${geomTiling}"
+      motion="${geomMotion}"
+      colorPattern="${geomColorPattern}"
+    />
+  );
+}`
+      },
+      {
+        id: 13,
+        title: "05D. Geometric: Pure Mathematical Sine Waves (〰️)",
+        badge: "〰️ Uniform Harmonic Strata",
+        desc: "Uniform mathematical sine wave strata flowing in perfect parallel synchrony. Clean, predictable, and deeply calming—embodying diaphragmatic respiration and somatic rhythm.",
+        tags: ["<SineWaveChannels>", "<HarmonicStrata>", "<Mathematical>", "<NonRandom>"],
+        getReactCode: (dark) => `// GeometricMatrixShader.tsx (Sine Waves)
+'use client';
+import { GeometricMatrixShader } from '@/components/shaders';
+
+export default function HeroSection() {
+  return (
+    <GeometricMatrixShader
+      mode="${dark ? 'dark' : 'light'}"
+      shape="${geomShape}"
+      tiling="${geomTiling}"
+      motion="${geomMotion}"
+      colorPattern="${geomColorPattern}"
+    />
+  );
+}`
+      }
+    ];
+
+    // Canvas Engine Setup
+    const canvas = document.getElementById('shaderCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Particle pool for Pattern 4 (Autonomous drift, zero mouse follow)
+    const particles = [];
+    for (let i = 0; i < 220; i++) {
+      particles.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        vx: (Math.random() - 0.5) * 0.45,
+        vy: -Math.random() * 0.65 - 0.25,
+        size: Math.random() * 3.4 + 1.2,
+        colorDark: Math.random() > 0.4 ? '#FFAC24' : '#F96100',
+        colorCoastal: Math.random() > 0.4 ? '#C2410C' : '#D97706',
+        colorLinen: Math.random() > 0.4 ? '#9A3412' : '#B45309',
+        alpha: Math.random() * 0.7 + 0.3,
+        pulse: Math.random() * Math.PI * 2
+      });
+    }
+
+    // Animation Loop
+    let time = 0;
+    function render(timestamp) {
+      try {
+        time += 0.016 * speedMultiplier;
+        const w = canvas.width;
+        const h = canvas.height;
+
+        ctx.clearRect(0, 0, w, h);
+
+        if (currentPatternIdx === 0) {
+          renderPattern4Coastal(ctx, w, h, time, isDarkMode);
+        } else if (currentPatternIdx === 1) {
+          renderPattern4Linen(ctx, w, h, time, isDarkMode);
+        } else if (currentPatternIdx === 2) {
+          renderPattern1(ctx, w, h, time, isDarkMode);
+        } else if (currentPatternIdx === 3) {
+          renderPattern3A(ctx, w, h, time, isDarkMode);
+        } else if (currentPatternIdx === 4) {
+          renderPattern3B(ctx, w, h, time, isDarkMode);
+        } else if (currentPatternIdx >= 5 && currentPatternIdx <= 8) {
+          renderPattern3C(ctx, w, h, time, isDarkMode, driftSyncMode, driftColorPattern);
+        } else if (currentPatternIdx === 9) {
+          renderPattern3D(ctx, w, h, time, isDarkMode);
+        } else if (currentPatternIdx >= 10 && currentPatternIdx <= 13) {
+          renderPattern5Geometric(ctx, w, h, time, isDarkMode, geomShape, geomTiling, geomMotion, geomColorPattern);
+        }
+      } catch (err) {
+        console.error("Shader render exception:", err);
+      }
+
+      requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+
+    // PATTERN 1: SOMATIC BREATHWORK (Dual Motion: Mesh + Flowing Strands)
+    function renderPattern1(c, w, h, t, dark) {
+      const spd = t * 1.5;
+      if (dark) {
+        c.fillStyle = '#100C4C';
+        c.fillRect(0, 0, w, h);
+
+        const cx1 = w * (0.35 + Math.sin(spd * 0.5) * 0.18);
+        const cy1 = h * (0.45 + Math.cos(spd * 0.45) * 0.2);
+        const r1 = Math.max(w, h) * 0.68;
+        const g1 = c.createRadialGradient(cx1, cy1, 0, cx1, cy1, r1);
+        g1.addColorStop(0, 'rgba(0, 56, 168, ' + (0.85 * intensityLevel) + ')');
+        g1.addColorStop(0.55, 'rgba(19, 12, 118, ' + (0.5 * intensityLevel) + ')');
+        g1.addColorStop(1, 'rgba(16, 12, 76, 0)');
+        c.fillStyle = g1;
+        c.fillRect(0, 0, w, h);
+
+        const cx2 = w * (0.75 + Math.cos(spd * 0.4) * 0.16);
+        const cy2 = h * (0.35 + Math.sin(spd * 0.5) * 0.18);
+        const r2 = Math.max(w, h) * 0.48;
+        const g2 = c.createRadialGradient(cx2, cy2, 0, cx2, cy2, r2);
+        g2.addColorStop(0, 'rgba(249, 97, 0, ' + (0.5 * intensityLevel) + ')');
+        g2.addColorStop(0.5, 'rgba(255, 172, 36, ' + (0.25 * intensityLevel) + ')');
+        g2.addColorStop(1, 'rgba(19, 12, 118, 0)');
+        c.fillStyle = g2;
+        c.fillRect(0, 0, w, h);
+
+        // SECOND MOVING ELEMENT: Ethereal Light Strands Weaving Across
+        c.save();
+        c.globalCompositeOperation = 'screen';
+        for (let i = 0; i < 5; i++) {
+          c.beginPath();
+          c.lineWidth = 3 + i * 1.5;
+          c.strokeStyle = i % 2 === 0 
+            ? 'rgba(255, 172, 36, ' + (0.35 * intensityLevel) + ')' 
+            : 'rgba(0, 56, 168, ' + (0.45 * intensityLevel) + ')';
+          for (let x = 0; x <= w; x += 30) {
+            const phase = spd * 1.8 + i * 0.8;
+            const y = (h * 0.25) + (i * h * 0.12) + Math.sin(x * 0.003 + phase) * 60 + Math.cos(x * 0.005 - spd) * 35;
+            if (x === 0) c.moveTo(x, y);
+            else c.lineTo(x, y);
+          }
+          c.stroke();
+        }
+        c.restore();
+
+        const vg = c.createRadialGradient(w/2, h/2, Math.min(w, h)*0.45, w/2, h/2, Math.max(w, h)*0.78);
+        vg.addColorStop(0, 'rgba(0,0,0,0)');
+        vg.addColorStop(1, 'rgba(8, 5, 36, 0.5)');
+        c.fillStyle = vg;
+        c.fillRect(0, 0, w, h);
+
+      } else {
+        // LIGHT MODE (Non-White Soft Coastal Blue Foundation)
+        c.fillStyle = '#DCE5F2';
+        c.fillRect(0, 0, w, h);
+
+        const cx1 = w * (0.35 + Math.sin(spd * 0.5) * 0.18);
+        const cy1 = h * (0.45 + Math.cos(spd * 0.45) * 0.2);
+        const r1 = Math.max(w, h) * 0.7;
+        const g1 = c.createRadialGradient(cx1, cy1, 0, cx1, cy1, r1);
+        g1.addColorStop(0, 'rgba(0, 56, 168, ' + (0.25 * intensityLevel) + ')');
+        g1.addColorStop(0.6, 'rgba(191, 219, 254, ' + (0.18 * intensityLevel) + ')');
+        g1.addColorStop(1, 'rgba(220, 229, 242, 0)');
+        c.fillStyle = g1;
+        c.fillRect(0, 0, w, h);
+
+        const cx2 = w * (0.75 + Math.cos(spd * 0.4) * 0.16);
+        const cy2 = h * (0.35 + Math.sin(spd * 0.5) * 0.18);
+        const r2 = Math.max(w, h) * 0.5;
+        const g2 = c.createRadialGradient(cx2, cy2, 0, cx2, cy2, r2);
+        g2.addColorStop(0, 'rgba(249, 97, 0, ' + (0.22 * intensityLevel) + ')');
+        g2.addColorStop(0.5, 'rgba(255, 172, 36, ' + (0.16 * intensityLevel) + ')');
+        g2.addColorStop(1, 'rgba(220, 229, 242, 0)');
+        c.fillStyle = g2;
+        c.fillRect(0, 0, w, h);
+
+        // SECOND MOVING ELEMENT: Sunlit Warm Strands
+        for (let i = 0; i < 4; i++) {
+          c.beginPath();
+          c.lineWidth = 2.5 + i * 1.2;
+          c.strokeStyle = i % 2 === 0 
+            ? 'rgba(249, 97, 0, ' + (0.26 * intensityLevel) + ')' 
+            : 'rgba(0, 56, 168, ' + (0.22 * intensityLevel) + ')';
+          for (let x = 0; x <= w; x += 30) {
+            const phase = spd * 1.8 + i * 0.8;
+            const y = (h * 0.25) + (i * h * 0.12) + Math.sin(x * 0.003 + phase) * 55 + Math.cos(x * 0.005 - spd) * 30;
+            if (x === 0) c.moveTo(x, y);
+            else c.lineTo(x, y);
+          }
+          c.stroke();
+        }
+
+        const vg = c.createRadialGradient(w/2, h/2, Math.min(w, h)*0.5, w/2, h/2, Math.max(w, h)*0.8);
+        vg.addColorStop(0, 'rgba(255,255,255,0)');
+        vg.addColorStop(1, 'rgba(186, 204, 226, 0.4)');
+        c.fillStyle = vg;
+        c.fillRect(0, 0, w, h);
+      }
+    }
+
+    // PATTERN 04B: WARM LINEN MOTES (Warm Organic Sand Base)
+    function renderPattern4Linen(c, w, h, t, dark) {
+      if (dark) {
+        renderPattern4Coastal(c, w, h, t, true);
+        return;
+      }
+
+      // Warm Therapeutic Linen Foundation (#F2EBE1)
+      c.fillStyle = '#F2EBE1';
+      c.fillRect(0, 0, w, h);
+
+      // Warm Earth Wave Horizon
+      c.fillStyle = 'rgba(226, 217, 205, ' + (0.5 * intensityLevel) + ')';
+      c.beginPath();
+      c.moveTo(0, h);
+      for (let x = 0; x <= w; x += 20) {
+        const y = h * 0.65 + Math.sin(x * 0.003 + t * 1.1) * (h * 0.12) + Math.cos(x * 0.006 - t * 0.7) * 25;
+        c.lineTo(x, y);
+      }
+      c.lineTo(w, h);
+      c.closePath();
+      c.fill();
+
+      // Deep Terracotta and Ochre Motes
+      c.save();
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.x += p.vx * speedMultiplier;
+        p.y += p.vy * speedMultiplier;
+        p.pulse += 0.03 * speedMultiplier;
+
+        if (p.y < -10) p.y = h + 10;
+        if (p.x < -10) p.x = w + 10;
+        if (p.x > w + 10) p.x = -10;
+
+        const currentAlpha = p.alpha * (0.6 + Math.sin(p.pulse) * 0.4) * intensityLevel;
+        c.fillStyle = p.colorLinen;
+        c.globalAlpha = currentAlpha * 0.85;
+        c.beginPath();
+        c.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        c.fill();
+      }
+      c.restore();
+
+      const vg = c.createRadialGradient(w/2, h/2, Math.min(w, h)*0.4, w/2, h/2, Math.max(w, h)*0.8);
+      vg.addColorStop(0, 'rgba(255,255,255,0)');
+      vg.addColorStop(1, 'rgba(215, 202, 186, 0.45)');
+      c.fillStyle = vg;
+      c.fillRect(0, 0, w, h);
+    }
+
+    // PATTERN 03A: BIO-NEURAL GRADIENT WAVE SWEEP (Luminous Synaptic Surge)
+    function renderPattern3A(c, w, h, t, dark) {
+      c.fillStyle = dark ? '#0E0946' : '#DCE5F2';
+      c.fillRect(0, 0, w, h);
+
+      const tileSize = 60;
+      const cols = Math.ceil(w / tileSize) + 1;
+      const rows = Math.ceil(h / tileSize) + 1;
+
+      // Meditative 5.5s diagonal traveling wave
+      const waveCycle = (t * 0.18) % 1.0;
+      const maxD = w + h;
+
+      for (let r = 0; r < rows; r++) {
+        for (let col = 0; col < cols; col++) {
+          const x = col * tileSize;
+          const y = r * tileSize;
+
+          const seed = Math.sin(col * 12.9898 + r * 78.233) * 43758.5453;
+          const orient = (Math.floor(seed) % 2 === 0);
+
+          // Distance along 45-degree diagonal wavefront
+          const normD = (x + y) / maxD;
+          const delta = (normD - waveCycle + 1.0) % 1.0;
+          let surge = Math.max(0, 1.0 - Math.abs(delta - 0.15) * 4.5);
+          surge = surge * surge;
+
+          if (dark) {
+            c.lineWidth = 2.4 + surge * 2.8;
+            if (surge > 0.25) {
+              c.strokeStyle = 'rgba(255, 172, 36, ' + ((0.4 + surge * 0.55) * intensityLevel) + ')';
+            } else {
+              c.strokeStyle = 'rgba(0, 56, 168, ' + (0.35 * intensityLevel) + ')';
+            }
+          } else {
+            c.lineWidth = 2.0 + surge * 2.4;
+            if (surge > 0.25) {
+              c.strokeStyle = 'rgba(249, 97, 0, ' + ((0.45 + surge * 0.5) * intensityLevel) + ')';
+            } else {
+              c.strokeStyle = 'rgba(19, 12, 118, ' + (0.28 * intensityLevel) + ')';
+            }
+          }
+
+          c.beginPath();
+          if (orient) {
+            c.arc(x, y, tileSize / 2, 0, Math.PI / 2);
+            c.arc(x + tileSize, y + tileSize, tileSize / 2, Math.PI, Math.PI * 1.5);
+          } else {
+            c.arc(x + tileSize, y, tileSize / 2, Math.PI / 2, Math.PI);
+            c.arc(x, y + tileSize, tileSize / 2, Math.PI * 1.5, Math.PI * 2);
+          }
+          c.stroke();
+        }
+      }
+
+      // Soft ambient sweep glow
+      const sweepCenter = waveCycle * maxD;
+      const sweepGrad = c.createLinearGradient(sweepCenter - 250, sweepCenter - 250, sweepCenter + 250, sweepCenter + 250);
+      if (dark) {
+        sweepGrad.addColorStop(0, 'rgba(0, 56, 168, 0)');
+        sweepGrad.addColorStop(0.5, 'rgba(255, 172, 36, ' + (0.16 * intensityLevel) + ')');
+        sweepGrad.addColorStop(1, 'rgba(249, 97, 0, 0)');
+      } else {
+        sweepGrad.addColorStop(0, 'rgba(220, 229, 242, 0)');
+        sweepGrad.addColorStop(0.5, 'rgba(254, 215, 170, ' + (0.26 * intensityLevel) + ')');
+        sweepGrad.addColorStop(1, 'rgba(220, 229, 242, 0)');
+      }
+      c.fillStyle = sweepGrad;
+      c.fillRect(0, 0, w, h);
+    }
+
+    // PATTERN 03B: BIO-NEURAL NEUROPLASTIC MORPH (Smooth Synaptic Rewiring)
+    function renderPattern3B(c, w, h, t, dark) {
+      c.fillStyle = dark ? '#0E0946' : '#DCE5F2';
+      c.fillRect(0, 0, w, h);
+
+      const tileSize = 60;
+      const half = tileSize / 2;
+      const cols = Math.ceil(w / tileSize) + 1;
+      const rows = Math.ceil(h / tileSize) + 1;
+
+      for (let r = 0; r < rows; r++) {
+        for (let col = 0; col < cols; col++) {
+          const cx = col * tileSize + half;
+          const cy = r * tileSize + half;
+
+          // Meditative ~6s wave cycle across clusters
+          const clusterNoise = Math.sin(col * 0.35 + t * 0.45) * Math.cos(r * 0.35 - t * 0.35);
+          const progress = Math.sin(clusterNoise * Math.PI) * 0.5 + 0.5;
+          const ease = progress * progress * (3 - 2 * progress);
+          const angle = ease * (Math.PI / 2);
+
+          const isRewiring = Math.abs(progress - 0.5) < 0.4;
+
+          c.save();
+          c.translate(cx, cy);
+          c.rotate(angle);
+
+          c.lineWidth = dark ? (isRewiring ? 3.2 : 2.5) : (isRewiring ? 2.6 : 2.1);
+          if (dark) {
+            c.strokeStyle = isRewiring 
+              ? 'rgba(255, 172, 36, ' + (0.80 * intensityLevel) + ')' 
+              : 'rgba(0, 56, 168, ' + (0.38 * intensityLevel) + ')';
+          } else {
+            c.strokeStyle = isRewiring 
+              ? 'rgba(249, 97, 0, ' + (0.78 * intensityLevel) + ')' 
+              : 'rgba(19, 12, 118, ' + (0.30 * intensityLevel) + ')';
+          }
+
+          // Arc 1 (Top-Left corner)
+          c.beginPath();
+          c.arc(-half, -half, half, 0, Math.PI / 2);
+          c.stroke();
+
+          // Arc 2 (Bottom-Right corner)
+          c.beginPath();
+          c.arc(half, half, half, Math.PI, Math.PI * 1.5);
+          c.stroke();
+
+          c.restore();
+        }
+      }
+    }
+
+    // PATTERN 03C: BIO-NEURAL ORGANIC DRIFT (Synchronized Living Dendrites)
+    function renderPattern3C(c, w, h, t, dark, syncMode = 'unified', colorMode = 'diagonal') {
+      c.fillStyle = dark ? '#0E0946' : '#DCE5F2';
+      c.fillRect(0, 0, w, h);
+
+      const tileSize = 60;
+      const half = tileSize / 2;
+      const cols = Math.ceil(w / tileSize) + 1;
+      const rows = Math.ceil(h / tileSize) + 1;
+
+      // 1. MOTION SYNCHRONIZATION:
+      // Unified: All lines share the exact same undulation phase and breath cycle across the entire canvas.
+      // Harmonic: All lines share identical frequency, undulating in a coordinated directional wave.
+      const unifiedBreath = t * 0.95;
+      const unifiedDriftX = Math.sin(unifiedBreath) * 14;
+      const unifiedDriftY = Math.cos(unifiedBreath) * 14;
+      const unifiedPulse = Math.sin(unifiedBreath) * 0.5 + 0.5;
+
+      for (let r = 0; r < rows; r++) {
+        for (let col = 0; col < cols; col++) {
+          const x = col * tileSize;
+          const y = r * tileSize;
+
+          // Deterministic continuous labyrinth connectivity
+          const seed = Math.sin(col * 12.9898 + r * 78.233) * 43758.5453;
+          const orient = (Math.floor(seed) % 2 === 0);
+
+          let driftX = unifiedDriftX;
+          let driftY = unifiedDriftY;
+          let pulse = unifiedPulse;
+
+          if (syncMode === 'harmonic') {
+            const wavePhase = t * 1.15 - (col + r) * 0.32;
+            driftX = Math.sin(wavePhase) * 13;
+            driftY = Math.cos(wavePhase) * 13;
+            pulse = Math.sin(wavePhase) * 0.5 + 0.5;
+          }
+
+          // 2. COORDINATED ALTERNATING COLOR PATTERN
+          let isWarmCadmium = false;
+          if (colorMode === 'checkerboard') {
+            // Strict bipartite checkerboard lattice
+            isWarmCadmium = (col + r) % 2 === 0;
+          } else if (colorMode === 'horizontal') {
+            // Alternating horizontal strata rows
+            isWarmCadmium = (r % 2 === 0);
+          } else {
+            // Default: 'diagonal' (45-degree diagonal flowing ribbons)
+            isWarmCadmium = (col + r) % 2 === 0;
+          }
+
+          // Line styling & contrast (Cadmium Orange vs Deep Navy)
+          if (dark) {
+            if (isWarmCadmium) {
+              c.lineWidth = 2.6 + pulse * 1.0;
+              c.strokeStyle = 'rgba(255, 172, 36, ' + ((0.42 + pulse * 0.48) * intensityLevel) + ')';
+            } else {
+              c.lineWidth = 2.2 + (1.0 - pulse) * 0.7;
+              c.strokeStyle = 'rgba(0, 80, 210, ' + ((0.38 + (1.0 - pulse) * 0.32) * intensityLevel) + ')';
+            }
+          } else {
+            // Light Mode on Coastal Slate-Blue Foundation (#DCE5F2)
+            if (isWarmCadmium) {
+              c.lineWidth = 2.4 + pulse * 0.8;
+              c.strokeStyle = 'rgba(249, 97, 0, ' + ((0.55 + pulse * 0.40) * intensityLevel) + ')';
+            } else {
+              c.lineWidth = 2.0 + (1.0 - pulse) * 0.6;
+              c.strokeStyle = 'rgba(19, 12, 118, ' + ((0.42 + (1.0 - pulse) * 0.28) * intensityLevel) + ')';
+            }
+          }
+
+          c.beginPath();
+          if (orient) {
+            c.moveTo(x + half, y);
+            c.quadraticCurveTo(x + half * 0.25 + driftX, y + half * 0.25 + driftY, x, y + half);
+            c.moveTo(x + half, y + tileSize);
+            c.quadraticCurveTo(x + tileSize - half * 0.25 + driftX, y + tileSize - half * 0.25 + driftY, x + tileSize, y + half);
+          } else {
+            c.moveTo(x + tileSize, y + half);
+            c.quadraticCurveTo(x + tileSize - half * 0.25 + driftX, y + half * 0.25 + driftY, x + half, y);
+            c.moveTo(x, y + half);
+            c.quadraticCurveTo(x + half * 0.25 + driftX, y + tileSize - half * 0.25 + driftY, x + half, y + tileSize);
+          }
+          c.stroke();
+        }
+      }
+
+      // Soft ambient radiant breathing glow
+      const ambientGlow = c.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.2, w / 2, h / 2, Math.max(w, h) * 0.85);
+      if (dark) {
+        ambientGlow.addColorStop(0, 'rgba(255, 172, 36, ' + (0.08 * intensityLevel) + ')');
+        ambientGlow.addColorStop(0.5, 'rgba(0, 56, 168, ' + (0.12 * intensityLevel) + ')');
+        ambientGlow.addColorStop(1, 'rgba(8, 5, 36, 0.45)');
+      } else {
+        ambientGlow.addColorStop(0, 'rgba(249, 97, 0, ' + (0.06 * intensityLevel) + ')');
+        ambientGlow.addColorStop(0.5, 'rgba(191, 219, 254, ' + (0.15 * intensityLevel) + ')');
+        ambientGlow.addColorStop(1, 'rgba(186, 204, 226, 0.35)');
+      }
+      c.fillStyle = ambientGlow;
+      c.fillRect(0, 0, w, h);
+    }
+
+    // PATTERN 03D: BIO-NEURAL COMBINED HYBRID (Dynamic Rewiring + Traveling Surge)
+    function renderPattern3D(c, w, h, t, dark) {
+      c.fillStyle = dark ? '#0E0946' : '#DCE5F2';
+      c.fillRect(0, 0, w, h);
+
+      const tileSize = 60;
+      const half = tileSize / 2;
+      const cols = Math.ceil(w / tileSize) + 1;
+      const rows = Math.ceil(h / tileSize) + 1;
+
+      // Meditative 5.5s traveling surge wave
+      const waveCycle = (t * 0.16) % 1.0;
+      const maxD = w + h;
+
+      for (let r = 0; r < rows; r++) {
+        for (let col = 0; col < cols; col++) {
+          const cx = col * tileSize + half;
+          const cy = r * tileSize + half;
+
+          const normD = (cx + cy) / maxD;
+          const delta = (normD - waveCycle + 1.0) % 1.0;
+          let surge = Math.max(0, 1.0 - Math.abs(delta - 0.15) * 4.5);
+          surge = surge * surge;
+
+          const clusterNoise = Math.sin(col * 0.35 + t * 0.45) * Math.cos(r * 0.35 - t * 0.35);
+          const progress = Math.sin(clusterNoise * Math.PI) * 0.5 + 0.5;
+          const ease = progress * progress * (3 - 2 * progress);
+          const angle = ease * (Math.PI / 2);
+
+          c.save();
+          c.translate(cx, cy);
+          c.rotate(angle);
+
+          if (dark) {
+            c.lineWidth = 2.4 + surge * 2.8;
+            c.strokeStyle = surge > 0.25
+              ? 'rgba(255, 172, 36, ' + ((0.45 + surge * 0.5) * intensityLevel) + ')'
+              : 'rgba(0, 56, 168, ' + (0.35 * intensityLevel) + ')';
+          } else {
+            c.lineWidth = 2.0 + surge * 2.4;
+            c.strokeStyle = surge > 0.25
+              ? 'rgba(249, 97, 0, ' + ((0.45 + surge * 0.5) * intensityLevel) + ')'
+              : 'rgba(19, 12, 118, ' + (0.28 * intensityLevel) + ')';
+          }
+
+          c.beginPath();
+          c.arc(-half, -half, half, 0, Math.PI / 2);
+          c.stroke();
+
+          c.beginPath();
+          c.arc(half, half, half, Math.PI, Math.PI * 1.5);
+          c.stroke();
+
+          c.restore();
+        }
+      }
+
+      const sweepCenter = waveCycle * maxD;
+      const sweepGrad = c.createLinearGradient(sweepCenter - 250, sweepCenter - 250, sweepCenter + 250, sweepCenter + 250);
+      if (dark) {
+        sweepGrad.addColorStop(0, 'rgba(0, 56, 168, 0)');
+        sweepGrad.addColorStop(0.5, 'rgba(255, 172, 36, ' + (0.16 * intensityLevel) + ')');
+        sweepGrad.addColorStop(1, 'rgba(249, 97, 0, 0)');
+      } else {
+        sweepGrad.addColorStop(0, 'rgba(220, 229, 242, 0)');
+        sweepGrad.addColorStop(0.5, 'rgba(254, 215, 170, ' + (0.25 * intensityLevel) + ')');
+        sweepGrad.addColorStop(1, 'rgba(220, 229, 242, 0)');
+      }
+      c.fillStyle = sweepGrad;
+      c.fillRect(0, 0, w, h);
+    }
+
+    // PATTERN 04: COASTAL MOTES (Client Top Favorite — Non-White Atmospheric Foundation)
+    function renderPattern4Coastal(c, w, h, t, dark) {
+      if (dark) {
+        c.fillStyle = '#0E0946';
+        c.fillRect(0, 0, w, h);
+
+        // Tidal Breathing Wave
+        c.fillStyle = 'rgba(0, 56, 168, ' + (0.45 * intensityLevel) + ')';
+        c.beginPath();
+        c.moveTo(0, h);
+        for (let x = 0; x <= w; x += 20) {
+          const y = h * 0.65 + Math.sin(x * 0.003 + t * 1.1) * (h * 0.12) + Math.cos(x * 0.006 - t * 0.7) * 25;
+          c.lineTo(x, y);
+        }
+        c.lineTo(w, h);
+        c.closePath();
+        c.fill();
+
+        // Motes Physics & Rendering (Zero Mouse Follow)
+        c.save();
+        c.globalCompositeOperation = 'screen';
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.x += p.vx * speedMultiplier;
+          p.y += p.vy * speedMultiplier;
+          p.pulse += 0.03 * speedMultiplier;
+
+          if (p.y < -10) p.y = h + 10;
+          if (p.x < -10) p.x = w + 10;
+          if (p.x > w + 10) p.x = -10;
+
+          const currentAlpha = p.alpha * (0.6 + Math.sin(p.pulse) * 0.4) * intensityLevel;
+          c.fillStyle = p.colorDark;
+          c.globalAlpha = currentAlpha;
+          c.beginPath();
+          c.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          c.fill();
+        }
+        c.restore();
+
+        const vg = c.createRadialGradient(w/2, h/2, Math.min(w, h)*0.4, w/2, h/2, Math.max(w, h)*0.8);
+        vg.addColorStop(0, 'rgba(0,0,0,0)');
+        vg.addColorStop(1, 'rgba(8, 5, 36, 0.55)');
+        c.fillStyle = vg;
+        c.fillRect(0, 0, w, h);
+
+      } else {
+        // LIGHT MODE: Rich Soothing Coastal Slate-Blue Foundation (#DCE5F2)
+        c.fillStyle = '#DCE5F2';
+        c.fillRect(0, 0, w, h);
+
+        // Deeper Atmospheric Oceanic Tidal Horizon
+        c.fillStyle = 'rgba(147, 197, 253, ' + (0.42 * intensityLevel) + ')';
+        c.beginPath();
+        c.moveTo(0, h);
+        for (let x = 0; x <= w; x += 20) {
+          const y = h * 0.65 + Math.sin(x * 0.003 + t * 1.1) * (h * 0.12) + Math.cos(x * 0.006 - t * 0.7) * 25;
+          c.lineTo(x, y);
+        }
+        c.lineTo(w, h);
+        c.closePath();
+        c.fill();
+
+        // Rich Terracotta & Amber Drifting Motes (Crisp & Tactile)
+        c.save();
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.x += p.vx * speedMultiplier;
+          p.y += p.vy * speedMultiplier;
+          p.pulse += 0.03 * speedMultiplier;
+
+          if (p.y < -10) p.y = h + 10;
+          if (p.x < -10) p.x = w + 10;
+          if (p.x > w + 10) p.x = -10;
+
+          const currentAlpha = p.alpha * (0.6 + Math.sin(p.pulse) * 0.4) * intensityLevel;
+          c.fillStyle = p.colorCoastal;
+          c.globalAlpha = currentAlpha * 0.85;
+          c.beginPath();
+          c.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          c.fill();
+        }
+        c.restore();
+
+        // Soft Coastal Slate Vignette
+        const vg = c.createRadialGradient(w/2, h/2, Math.min(w, h)*0.4, w/2, h/2, Math.max(w, h)*0.8);
+        vg.addColorStop(0, 'rgba(255,255,255,0)');
+        vg.addColorStop(1, 'rgba(186, 204, 226, 0.45)');
+        c.fillStyle = vg;
+        c.fillRect(0, 0, w, h);
+      }
+    }
+
+    // PATTERN 05: GEOMETRIC NEURAL MATRIX (Structured & Intentional Shapes)
+    function renderPattern5Geometric(c, w, h, t, dark, shape = 'circles', tiling = 'mirrored', motion = 'breath-pulse', colorMode = 'diagonal') {
+      // Foundation (Coastal Slate-Blue vs Deep Navy)
+      c.fillStyle = dark ? '#0E0946' : '#DCE5F2';
+      c.fillRect(0, 0, w, h);
+
+      // Motion Timers
+      const breathCycle = t * 0.95;
+      const breathPulse = Math.sin(breathCycle) * 0.5 + 0.5;
+
+      const rotCycle = t * 0.35;
+      const rotProgress = Math.sin(rotCycle) * 0.5 + 0.5;
+      const rotEase = rotProgress * rotProgress * (3 - 2 * rotProgress);
+      const rotAngle = rotEase * (Math.PI / 2);
+
+      const waveCycle = (t * 0.16) % 1.0;
+      const maxD = w + h;
+
+      if (shape === 'waves') {
+        // Pure Mathematical Sine Wave Channels
+        const lineCount = Math.floor(h / 48) + 2;
+        for (let i = 0; i < lineCount; i++) {
+          const baseY = i * 48;
+          const isWarm = (colorMode === 'checkerboard' || colorMode === 'horizontal') 
+            ? (i % 2 === 0) 
+            : (i % 2 === 0);
+
+          let pulse = breathPulse;
+          if (motion === 'traveling-surge') {
+            const normD = baseY / h;
+            const delta = (normD - waveCycle + 1.0) % 1.0;
+            const s = Math.max(0, 1.0 - Math.abs(delta - 0.2) * 4.5);
+            pulse = s * s;
+          }
+
+          c.lineWidth = dark ? (2.2 + pulse * 1.5) : (2.0 + pulse * 1.2);
+          if (dark) {
+            c.strokeStyle = isWarm 
+              ? 'rgba(255, 172, 36, ' + ((0.40 + pulse * 0.50) * intensityLevel) + ')' 
+              : 'rgba(0, 80, 210, ' + ((0.38 + (1 - pulse) * 0.35) * intensityLevel) + ')';
+          } else {
+            c.strokeStyle = isWarm 
+              ? 'rgba(249, 97, 0, ' + ((0.55 + pulse * 0.40) * intensityLevel) + ')' 
+              : 'rgba(19, 12, 118, ' + ((0.42 + (1 - pulse) * 0.28) * intensityLevel) + ')';
+          }
+
+          c.beginPath();
+          for (let x = 0; x <= w; x += 16) {
+            const freq = 0.0065;
+            let yOffset = 0;
+            if (motion === 'mandala-rotate') {
+              yOffset = Math.sin(x * freq + rotAngle * 2 + i * 0.5) * 22;
+            } else if (motion === 'traveling-surge') {
+              yOffset = Math.sin(x * freq - t * 1.4 + i * 0.4) * 20;
+            } else {
+              yOffset = Math.sin(x * freq + (i % 2 === 0 ? 0 : Math.PI)) * (16 + pulse * 8);
+            }
+            const y = baseY + yOffset;
+            if (x === 0) c.moveTo(x, y);
+            else c.lineTo(x, y);
+          }
+          c.stroke();
+        }
+      } else {
+        // Tiled Geometric Grid (Circles, Diamonds, Circuits)
+        const tileSize = 64;
+        const half = tileSize / 2;
+        const cols = Math.ceil(w / tileSize) + 1;
+        const rows = Math.ceil(h / tileSize) + 1;
+
+        for (let r = 0; r < rows; r++) {
+          for (let col = 0; col < cols; col++) {
+            const cx = col * tileSize + half;
+            const cy = r * tileSize + half;
+
+            // Symmetry / Tiling Rule
+            let orient = true;
+            if (tiling === 'mirrored') {
+              orient = ((col + r) % 2 === 0);
+            } else if (tiling === 'serpentine') {
+              orient = (r % 2 === 0);
+            } else if (tiling === 'alternating-cols') {
+              orient = (col % 2 === 0);
+            } else {
+              // 'uniform'
+              orient = true;
+            }
+
+            // Coordinated Alternating Color Pattern
+            let isWarm = false;
+            if (colorMode === 'checkerboard') {
+              isWarm = ((col + r) % 2 === 0);
+            } else if (colorMode === 'horizontal') {
+              isWarm = (r % 2 === 0);
+            } else {
+              // 'diagonal'
+              isWarm = ((col + r) % 2 === 0);
+            }
+
+            // Pulse / Surge
+            let pulse = breathPulse;
+            if (motion === 'traveling-surge') {
+              const normD = (cx + cy) / maxD;
+              const delta = (normD - waveCycle + 1.0) % 1.0;
+              const s = Math.max(0, 1.0 - Math.abs(delta - 0.15) * 5.0);
+              pulse = s * s;
+            }
+
+            c.save();
+            c.translate(cx, cy);
+
+            // Motion: Mandala Rotation
+            if (motion === 'mandala-rotate') {
+              const dir = orient ? 1 : -1;
+              c.rotate(dir * rotAngle);
+            }
+
+            // Line styling
+            if (dark) {
+              c.lineWidth = isWarm ? (2.6 + pulse * 1.2) : (2.2 + (1 - pulse) * 0.8);
+              c.strokeStyle = isWarm 
+                ? 'rgba(255, 172, 36, ' + ((0.42 + pulse * 0.50) * intensityLevel) + ')' 
+                : 'rgba(0, 80, 210, ' + ((0.38 + (1 - pulse) * 0.35) * intensityLevel) + ')';
+            } else {
+              c.lineWidth = isWarm ? (2.4 + pulse * 1.0) : (2.0 + (1 - pulse) * 0.7);
+              c.strokeStyle = isWarm 
+                ? 'rgba(249, 97, 0, ' + ((0.55 + pulse * 0.40) * intensityLevel) + ')' 
+                : 'rgba(19, 12, 118, ' + ((0.42 + (1 - pulse) * 0.28) * intensityLevel) + ')';
+            }
+
+            if (shape === 'circles') {
+              // Symmetrical Circular Arcs -> Interlocking Circles & Lenses
+              c.beginPath();
+              if (orient) {
+                c.arc(-half, -half, half, 0, Math.PI / 2);
+                c.stroke();
+                c.beginPath();
+                c.arc(half, half, half, Math.PI, Math.PI * 1.5);
+                c.stroke();
+              } else {
+                c.arc(half, -half, half, Math.PI / 2, Math.PI);
+                c.stroke();
+                c.beginPath();
+                c.arc(-half, half, half, Math.PI * 1.5, Math.PI * 2);
+                c.stroke();
+              }
+
+              // Central geometric focal dot
+              c.beginPath();
+              c.arc(0, 0, 2.4 + pulse * 1.4, 0, Math.PI * 2);
+              c.fillStyle = isWarm 
+                ? (dark ? 'rgba(255, 172, 36, 0.75)' : 'rgba(249, 97, 0, 0.85)') 
+                : (dark ? 'rgba(0, 80, 210, 0.65)' : 'rgba(19, 12, 118, 0.75)');
+              c.fill();
+
+            } else if (shape === 'diamonds') {
+              // Isometric Diamond Lattice / Facets
+              c.beginPath();
+              if (orient) {
+                c.moveTo(0, -half);
+                c.lineTo(-half, 0);
+                c.moveTo(0, half);
+                c.lineTo(half, 0);
+              } else {
+                c.moveTo(half, 0);
+                c.lineTo(0, -half);
+                c.moveTo(-half, 0);
+                c.lineTo(0, half);
+              }
+              c.stroke();
+
+              // Diamond central facet node
+              c.beginPath();
+              c.rect(-3, -3, 6, 6);
+              c.fillStyle = isWarm 
+                ? (dark ? 'rgba(255, 172, 36, 0.75)' : 'rgba(249, 97, 0, 0.85)') 
+                : (dark ? 'rgba(0, 80, 210, 0.65)' : 'rgba(19, 12, 118, 0.75)');
+              c.fill();
+
+            } else if (shape === 'circuits') {
+              // Architectural Circuit Grid (Right-Angle Smooth Rounded Elbows)
+              const rSize = half * 0.45;
+              c.beginPath();
+              if (orient) {
+                // Branch 1: Top to Left
+                c.moveTo(0, -half);
+                c.lineTo(0, -rSize);
+                c.quadraticCurveTo(0, 0, -rSize, 0);
+                c.lineTo(-half, 0);
+
+                // Branch 2: Bottom to Right
+                c.moveTo(0, half);
+                c.lineTo(0, rSize);
+                c.quadraticCurveTo(0, 0, rSize, 0);
+                c.lineTo(half, 0);
+              } else {
+                // Branch 1: Top to Right
+                c.moveTo(0, -half);
+                c.lineTo(0, -rSize);
+                c.quadraticCurveTo(0, 0, rSize, 0);
+                c.lineTo(half, 0);
+
+                // Branch 2: Bottom to Left
+                c.moveTo(0, half);
+                c.lineTo(0, rSize);
+                c.quadraticCurveTo(0, 0, -rSize, 0);
+                c.lineTo(-half, 0);
+              }
+              c.stroke();
+
+              // Circuit terminal node
+              c.beginPath();
+              c.arc(0, 0, 3, 0, Math.PI * 2);
+              c.fillStyle = isWarm 
+                ? (dark ? '#FFAC24' : '#F96100') 
+                : (dark ? '#0038A8' : '#130C76');
+              c.fill();
+            }
+
+            c.restore();
+          }
+        }
+      }
+
+      // Soft ambient radiant breathing glow
+      const ambientGlow = c.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.25, w / 2, h / 2, Math.max(w, h) * 0.85);
+      if (dark) {
+        ambientGlow.addColorStop(0, 'rgba(255, 172, 36, ' + (0.07 * intensityLevel) + ')');
+        ambientGlow.addColorStop(0.5, 'rgba(0, 56, 168, ' + (0.10 * intensityLevel) + ')');
+        ambientGlow.addColorStop(1, 'rgba(8, 5, 36, 0.45)');
+      } else {
+        ambientGlow.addColorStop(0, 'rgba(249, 97, 0, ' + (0.05 * intensityLevel) + ')');
+        ambientGlow.addColorStop(0.5, 'rgba(191, 219, 254, ' + (0.14 * intensityLevel) + ')');
+        ambientGlow.addColorStop(1, 'rgba(186, 204, 226, 0.35)');
+      }
+      c.fillStyle = ambientGlow;
+      c.fillRect(0, 0, w, h);
+    }
+
+    // Pattern Switcher
+    function switchPattern(idx) {
+      currentPatternIdx = idx;
+      document.querySelectorAll('.pattern-tab-btn').forEach((btn) => {
+        const bIdx = parseInt(btn.getAttribute('data-idx'), 10);
+        btn.classList.toggle('active', bIdx === idx);
+      });
+
+      // Handle Linen body class (index 1 is Warm Linen)
+      if (idx === 1 && !isDarkMode) {
+        document.body.classList.add('linen-palette');
+      } else {
+        document.body.classList.remove('linen-palette');
+      }
+
+      // Manage Living Drift sub-panel visibility and state
+      const driftPanel = document.getElementById('driftOptionsPanel');
+      if (driftPanel) {
+        if (idx >= 5 && idx <= 8) {
+          driftPanel.classList.add('visible');
+          if (idx === 5) {
+            driftSyncMode = 'unified';
+            driftColorPattern = 'diagonal';
+          } else if (idx === 6) {
+            driftSyncMode = 'unified';
+            driftColorPattern = 'checkerboard';
+          } else if (idx === 7) {
+            driftSyncMode = 'unified';
+            driftColorPattern = 'horizontal';
+          } else if (idx === 8) {
+            driftSyncMode = 'harmonic';
+            driftColorPattern = 'diagonal';
+          }
+          updateDriftSubButtons();
+        } else {
+          driftPanel.classList.remove('visible');
+        }
+      }
+
+      // Manage Geometric Matrix sub-panel visibility and state
+      const geomPanel = document.getElementById('geomOptionsPanel');
+      if (geomPanel) {
+        if (idx >= 10 && idx <= 13) {
+          geomPanel.classList.add('visible');
+          if (idx === 10) geomShape = 'circles';
+          else if (idx === 11) geomShape = 'diamonds';
+          else if (idx === 12) geomShape = 'circuits';
+          else if (idx === 13) geomShape = 'waves';
+          updateGeomSubButtons();
+        } else {
+          geomPanel.classList.remove('visible');
+        }
+      }
+
+      const p = patterns[idx];
+      document.getElementById('patternTitle').innerText = p.title;
+      document.getElementById('patternBadge').innerText = p.badge;
+      if (idx === 0 || idx === 1 || idx === 4 || idx === 5 || idx === 10 || idx === 11 || idx === 12) {
+        document.getElementById('patternBadge').classList.add('badge-favorite');
+      } else {
+        document.getElementById('patternBadge').classList.remove('badge-favorite');
+      }
+      document.getElementById('patternDesc').innerText = p.desc;
+      
+      const tagContainer = document.getElementById('patternTags');
+      tagContainer.innerHTML = p.tags.map(t => `<span class="tag-pill">${t}</span>`).join('');
+
+      document.getElementById('codeSnippetText').innerText = p.getReactCode(isDarkMode);
+    }
+
+    // Drift Sub-Control Handlers (Zero-reset direct toggle)
+    function updateDriftSubButtons() {
+      const bSyncUni = document.getElementById('btnSyncUnified');
+      const bSyncHarm = document.getElementById('btnSyncHarmonic');
+      const bColDiag = document.getElementById('btnColDiag');
+      const bColCheck = document.getElementById('btnColCheck');
+      const bColHoriz = document.getElementById('btnColHoriz');
+
+      if (bSyncUni && bSyncHarm) {
+        bSyncUni.classList.toggle('active', driftSyncMode === 'unified');
+        bSyncHarm.classList.toggle('active', driftSyncMode === 'harmonic');
+      }
+      if (bColDiag && bColCheck && bColHoriz) {
+        bColDiag.classList.toggle('active', driftColorPattern === 'diagonal');
+        bColCheck.classList.toggle('active', driftColorPattern === 'checkerboard');
+        bColHoriz.classList.toggle('active', driftColorPattern === 'horizontal');
+      }
+
+      if (currentPatternIdx >= 5 && currentPatternIdx <= 8) {
+        document.getElementById('codeSnippetText').innerText = patterns[currentPatternIdx].getReactCode(isDarkMode);
+      }
+    }
+
+    function setDriftSync(mode) {
+      driftSyncMode = mode;
+      updateDriftSubButtons();
+    }
+
+    function setDriftColor(pattern) {
+      driftColorPattern = pattern;
+      updateDriftSubButtons();
+    }
+
+    // Geometric Sub-Control Handlers (Independent, zero-reset toggling)
+    function updateGeomSubButtons() {
+      // 1. Shape Buttons
+      const bCircles = document.getElementById('btnShapeCircles');
+      const bDiamonds = document.getElementById('btnShapeDiamonds');
+      const bCircuits = document.getElementById('btnShapeCircuits');
+      const bWaves = document.getElementById('btnShapeWaves');
+      if (bCircles && bDiamonds && bCircuits && bWaves) {
+        bCircles.classList.toggle('active', geomShape === 'circles');
+        bDiamonds.classList.toggle('active', geomShape === 'diamonds');
+        bCircuits.classList.toggle('active', geomShape === 'circuits');
+        bWaves.classList.toggle('active', geomShape === 'waves');
+      }
+
+      // 2. Symmetry / Repetition Buttons
+      const bMirrored = document.getElementById('btnTileMirrored');
+      const bSerpentine = document.getElementById('btnTileSerpentine');
+      const bUniform = document.getElementById('btnTileUniform');
+      const bCols = document.getElementById('btnTileCols');
+      if (bMirrored && bSerpentine && bUniform && bCols) {
+        bMirrored.classList.toggle('active', geomTiling === 'mirrored');
+        bSerpentine.classList.toggle('active', geomTiling === 'serpentine');
+        bUniform.classList.toggle('active', geomTiling === 'uniform');
+        bCols.classList.toggle('active', geomTiling === 'alternating-cols');
+      }
+
+      // 3. Motion Buttons
+      const bBreath = document.getElementById('btnMotionBreath');
+      const bRotate = document.getElementById('btnMotionRotate');
+      const bSurge = document.getElementById('btnMotionSurge');
+      if (bBreath && bRotate && bSurge) {
+        bBreath.classList.toggle('active', geomMotion === 'breath-pulse');
+        bRotate.classList.toggle('active', geomMotion === 'mandala-rotate');
+        bSurge.classList.toggle('active', geomMotion === 'traveling-surge');
+      }
+
+      // 4. Color Pattern Buttons
+      const bDiag = document.getElementById('btnGeomColDiag');
+      const bCheck = document.getElementById('btnGeomColCheck');
+      const bHoriz = document.getElementById('btnGeomColHoriz');
+      if (bDiag && bCheck && bHoriz) {
+        bDiag.classList.toggle('active', geomColorPattern === 'diagonal');
+        bCheck.classList.toggle('active', geomColorPattern === 'checkerboard');
+        bHoriz.classList.toggle('active', geomColorPattern === 'horizontal');
+      }
+
+      // 5. Update React Code snippet live with exact selected props
+      if (currentPatternIdx >= 10 && currentPatternIdx <= 13) {
+        document.getElementById('codeSnippetText').innerText = patterns[currentPatternIdx].getReactCode(isDarkMode);
+      }
+    }
+
+    function setGeomShape(shape) {
+      geomShape = shape;
+      let targetIdx = 10;
+      if (shape === 'circles') targetIdx = 10;
+      else if (shape === 'diamonds') targetIdx = 11;
+      else if (shape === 'circuits') targetIdx = 12;
+      else if (shape === 'waves') targetIdx = 13;
+
+      currentPatternIdx = targetIdx;
+      document.querySelectorAll('.pattern-tab-btn').forEach((btn) => {
+        const bIdx = parseInt(btn.getAttribute('data-idx'), 10);
+        btn.classList.toggle('active', bIdx === targetIdx);
+      });
+
+      const p = patterns[targetIdx];
+      document.getElementById('patternTitle').innerText = p.title;
+      document.getElementById('patternBadge').innerText = p.badge;
+      document.getElementById('patternDesc').innerText = p.desc;
+      const tagContainer = document.getElementById('patternTags');
+      tagContainer.innerHTML = p.tags.map(t => `<span class="tag-pill">${t}</span>`).join('');
+
+      updateGeomSubButtons();
+    }
+
+    function setGeomTiling(tiling) {
+      geomTiling = tiling;
+      updateGeomSubButtons();
+    }
+
+    function setGeomMotion(motion) {
+      geomMotion = motion;
+      updateGeomSubButtons();
+    }
+
+    function setGeomColor(color) {
+      geomColorPattern = color;
+      updateGeomSubButtons();
+    }
+
+    // Theme Switcher
+    function setThemeMode(dark) {
+      isDarkMode = dark;
+      if (dark) {
+        document.body.classList.remove('light-theme');
+        document.body.classList.remove('linen-palette');
+        document.getElementById('btnDarkMode').classList.add('active');
+        document.getElementById('btnLightMode').classList.remove('active');
+      } else {
+        document.body.classList.add('light-theme');
+        if (currentPatternIdx === 1) {
+          document.body.classList.add('linen-palette');
+        }
+        document.getElementById('btnLightMode').classList.add('active');
+        document.getElementById('btnDarkMode').classList.remove('active');
+      }
+      switchPattern(currentPatternIdx);
+    }
+
+    // Controls
+    document.getElementById('speedSlider').addEventListener('input', (e) => {
+      speedMultiplier = parseFloat(e.target.value);
+      document.getElementById('speedVal').innerText = speedMultiplier.toFixed(2) + 'x';
+    });
+
+    document.getElementById('intensitySlider').addEventListener('input', (e) => {
+      intensityLevel = parseFloat(e.target.value);
+      document.getElementById('intensityVal').innerText = Math.round(intensityLevel * 100) + '%';
+    });
+
+    function toggleMockup() {
+      isMockupVisible = !isMockupVisible;
+      const frame = document.getElementById('heroMockup');
+      const btn = document.getElementById('btnToggleMockup');
+      if (isMockupVisible) {
+        frame.classList.remove('hidden-mockup');
+        btn.classList.add('active');
+        btn.innerText = '👁️ Toggle Hero Text: ON';
+      } else {
+        frame.classList.add('hidden-mockup');
+        btn.classList.remove('active');
+        btn.innerText = '👁️ Toggle Hero Text: OFF';
+      }
+    }
+
+    function copySnippet() {
+      const code = patterns[currentPatternIdx].getReactCode(isDarkMode);
+      navigator.clipboard.writeText(code).then(() => {
+        alert('Copied ' + patterns[currentPatternIdx].title + ' (' + (isDarkMode ? 'Dark' : 'Light') + ' Mode) React code to clipboard!');
+      });
+    }
+
+    // URL Hash Navigation Support (e.g. #pattern-0-light, #pattern-3c-1-light, etc.)
+    function applyHash() {
+      const hash = window.location.hash.toLowerCase();
+      if (hash.includes('light')) {
+        setThemeMode(false);
+      } else if (hash.includes('dark')) {
+        setThemeMode(true);
+      }
+      
+      if (hash.includes('linen') || hash.includes('04b') || hash.includes('pattern-1')) {
+        switchPattern(1);
+      } else if (hash.includes('breathwork') || hash.includes('01') || hash.includes('pattern-2')) {
+        switchPattern(2);
+      } else if (hash.includes('wave') || hash.includes('sweep') || hash.includes('03a') || hash.includes('pattern-3a') || hash.includes('pattern-3')) {
+        switchPattern(3);
+      } else if (hash.includes('morph') || hash.includes('03b') || hash.includes('pattern-3b') || hash.includes('pattern-4')) {
+        switchPattern(4);
+      } else if (hash.includes('3c-1') || hash.includes('diagonal')) {
+        switchPattern(5);
+      } else if (hash.includes('3c-2') || hash.includes('checker')) {
+        switchPattern(6);
+      } else if (hash.includes('3c-3') || hash.includes('horiz') || hash.includes('strata')) {
+        switchPattern(7);
+      } else if (hash.includes('3c-4') || hash.includes('harmonic') || hash.includes('ripple')) {
+        switchPattern(8);
+      } else if (hash.includes('drift') || hash.includes('03c') || hash.includes('pattern-5')) {
+        switchPattern(5);
+      } else if (hash.includes('hybrid') || hash.includes('03d') || hash.includes('pattern-3d') || hash.includes('pattern-6')) {
+        switchPattern(9);
+      } else if (hash.includes('5a') || hash.includes('circle') || hash.includes('mandala')) {
+        switchPattern(10);
+      } else if (hash.includes('5b') || hash.includes('diamond')) {
+        switchPattern(11);
+      } else if (hash.includes('5c') || hash.includes('circuit')) {
+        switchPattern(12);
+      } else if (hash.includes('5d') || hash.includes('wave-channel') || hash.includes('sine')) {
+        switchPattern(13);
+      } else if (hash.includes('geom') || hash.includes('pattern-5')) {
+        switchPattern(10);
+      } else {
+        switchPattern(0); // 04. Coastal Motes (Default Top Choice ⭐)
+      }
+    }
+    window.addEventListener('DOMContentLoaded', applyHash);
+    window.addEventListener('hashchange', applyHash);
+    applyHash();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mighty Mental Health — Official Brand Guidelines & Identity Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy-bold: #130C76;
+      --blue-philippine: #0038A8;
+      --orange-cadmium: #F96100;
+      --orange-peel: #FF9E00;
+      --yellow-aureoline: #FFAC24;
+      --bg-light: #F7F9FC;
+      --bg-card: #FFFFFF;
+      --text-main: #1A1A1A;
+      --text-muted: #555E6D;
+      --border-color: #E2E8F0;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(19, 12, 118, 0.05);
+      --shadow-md: 0 4px 12px rgba(19, 12, 118, 0.08);
+      --shadow-lg: 0 12px 28px rgba(19, 12, 118, 0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-main);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Header Bar */
+    header.portal-header {
+      background: var(--navy-bold);
+      color: #FFFFFF;
+      padding: 1.5rem 2rem;
+      border-bottom: 4px solid var(--orange-cadmium);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .brand-title {
+      font-size: 1.4rem;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+    }
+    .brand-subtitle {
+      font-size: 0.8rem;
+      color: var(--yellow-aureoline);
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 1px;
+    }
+    .header-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+    .btn-portal {
+      background: rgba(255, 255, 255, 0.12);
+      color: #FFFFFF;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 0.45rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .btn-portal:hover {
+      background: var(--orange-cadmium);
+      border-color: var(--orange-cadmium);
+    }
+
+    /* Navigation Tabs */
+    nav.portal-nav {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 2rem;
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+    .nav-tab {
+      padding: 1rem 1.25rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+    .nav-tab:hover {
+      color: var(--navy-bold);
+    }
+    .nav-tab.active {
+      color: var(--navy-bold);
+      border-bottom-color: var(--orange-cadmium);
+    }
+
+    /* Main Container */
+    main.portal-main {
+      max-width: 1240px;
+      margin: 2rem auto;
+      padding: 0 1.5rem 4rem;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Section Typography */
+    h2.section-heading {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--navy-bold);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.5px;
+    }
+    p.section-subheading {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      max-width: 800px;
+    }
+
+    /* Cards Grid */
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .grid-5 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.75rem;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      box-shadow: var(--shadow-md);
+    }
+    .card-accent-navy { border-top: 4px solid var(--navy-bold); }
+    .card-accent-blue { border-top: 4px solid var(--blue-philippine); }
+    .card-accent-orange { border-top: 4px solid var(--orange-cadmium); }
+    .card-accent-peel { border-top: 4px solid var(--orange-peel); }
+    .card-accent-yellow { border-top: 4px solid var(--yellow-aureoline); }
+
+    /* Swatches */
+    .swatch-box {
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+    }
+    .swatch-color {
+      height: 120px;
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s ease;
+    }
+    .swatch-color:hover .copy-tooltip { opacity: 1; }
+    .copy-tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.75);
+      color: #FFFFFF;
+      padding: 0.3rem 0.6rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      font-family: 'Space Mono', monospace;
+    }
+    .swatch-meta {
+      padding: 1rem;
+      background: #FFFFFF;
+    }
+    .swatch-title { font-weight: 700; font-size: 1rem; color: var(--navy-bold); }
+    .swatch-hex { font-family: 'Space Mono', monospace; font-size: 0.85rem; font-weight: 700; color: var(--orange-cadmium); }
+    .swatch-detail { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; font-family: 'Space Mono', monospace; }
+
+    /* Interactive Logo Sandbox */
+    .logo-sandbox {
+      background: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      text-align: center;
+      margin-bottom: 2rem;
+      transition: background 0.3s ease;
+    }
+    .sandbox-controls {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+    .btn-bg-toggle {
+      padding: 0.4rem 0.9rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid var(--border-color);
+      background: #FFFFFF;
+      cursor: pointer;
+    }
+    .btn-bg-toggle.active {
+      background: var(--navy-bold);
+      color: #FFFFFF;
+      border-color: var(--navy-bold);
+    }
+    .logo-display-stage {
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 220px;
+    }
+
+    /* Sliders / Voice Representation */
+    .spectrum-row {
+      margin-bottom: 1.5rem;
+      background: var(--bg-card);
+      padding: 1.25rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+    }
+    .spectrum-labels {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--navy-bold);
+      margin-bottom: 0.5rem;
+    }
+    .spectrum-track {
+      height: 12px;
+      background: #E2E8F0;
+      border-radius: 6px;
+      position: relative;
+    }
+    .spectrum-pin {
+      position: absolute;
+      top: -6px;
+      width: 24px;
+      height: 24px;
+      background: var(--orange-cadmium);
+      border: 3px solid #FFFFFF;
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transform: translateX(-50%);
+    }
+    .spectrum-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.6rem;
+    }
+
+    /* Values Wheel & Pill Items */
+    .pillar-card {
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .pillar-card.active {
+      border: 2px solid var(--orange-cadmium);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+    .pillar-icon {
+      width: 44px;
+      height: 44px;
+      margin-bottom: 1rem;
+    }
+
+    /* Wireframe Replica Container */
+    .wireframe-container {
+      background: #FFFFFF;
+      border: 2px solid var(--navy-bold);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-md);
+    }
+    .wireframe-header {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 2px solid #E2E8F0;
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .wireframe-hero {
+      text-align: center;
+      padding: 2rem 1rem;
+      background: #F8FAFC;
+      border-radius: var(--radius-md);
+      margin-bottom: 1.5rem;
+    }
+    .wireframe-about {
+      display: flex;
+      gap: 1.5rem;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      padding: 1.5rem;
+      border-radius: var(--radius-md);
+      margin-bottom: 1.5rem;
+      align-items: center;
+    }
+    .badge-pill {
+      display: inline-block;
+      background: #EEF2F6;
+      border: 1px solid #CBD5E1;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--navy-bold);
+      margin-right: 0.4rem;
+    }
+    .crisis-container {
+      background: #FFF5F5;
+      border: 2px solid #E53E3E;
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .crisis-title {
+      color: #C53030;
+      font-weight: 800;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Booking Side-by-Side Dual Column Component */
+    .booking-split-container {
+      display: grid;
+      grid-template-columns: minmax(310px, 1fr) 1.45fr;
+      gap: 1.75rem;
+      align-items: start;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 880px) {
+      .booking-split-container {
+        grid-template-columns: 1fr;
+      }
+    }
+    .service-selection-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .booking-service-card {
+      background: #FFFFFF;
+      border: 2px solid #E2E8F0;
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      text-align: left;
+    }
+    .booking-service-card:hover {
+      border-color: #CBD5E1;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+    .booking-service-card.active {
+      border-color: var(--orange-cadmium);
+      background: #FFFDFB;
+      box-shadow: 0 4px 16px rgba(249, 97, 0, 0.12);
+    }
+    .booking-service-card.active::before {
+      content: "✓";
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      width: 22px;
+      height: 22px;
+      background: var(--orange-cadmium);
+      color: #FFFFFF;
+      font-size: 0.75rem;
+      font-weight: 800;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .calendar-card {
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      box-shadow: var(--shadow-md);
+    }
+    .calendar-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #E2E8F0;
+      padding-bottom: 1rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .modality-pill-group {
+      display: inline-flex;
+      background: #F1F5F9;
+      padding: 0.25rem;
+      border-radius: 6px;
+    }
+    .modality-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    .modality-btn.active {
+      background: var(--navy-bold);
+      color: #FFFFFF;
+      box-shadow: 0 2px 4px rgba(19, 12, 118, 0.15);
+    }
+    .week-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--navy-bold);
+    }
+    .week-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.5rem;
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+    .day-header {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--navy-bold);
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #E2E8F0;
+      margin-bottom: 0.5rem;
+    }
+    .day-header small {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .time-slot-btn {
+      width: 100%;
+      margin-bottom: 0.4rem;
+      padding: 0.45rem 0;
+      border: 1px solid #CBD5E1;
+      border-radius: 4px;
+      background: #F8FAFC;
+      color: var(--navy-bold);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    .time-slot-btn:hover {
+      border-color: var(--blue-philippine);
+      background: #EFF6FF;
+    }
+    .time-slot-btn.active {
+      background: var(--orange-cadmium);
+      color: #FFFFFF;
+      border-color: var(--orange-cadmium);
+      box-shadow: 0 2px 6px rgba(249, 97, 0, 0.25);
+    }
+    .booking-summary-box {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      margin-top: 1rem;
+    }
+
+    /* Footer */
+    footer.portal-footer {
+      background: #FFFFFF;
+      border-top: 1px solid var(--border-color);
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* Print Stylesheet */
+    @media print {
+      header.portal-header { position: static; box-shadow: none; }
+      nav.portal-nav { display: none; }
+      .tab-content { display: block !important; page-break-after: always; }
+      .btn-portal, .btn-bg-toggle { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Bar -->
+  <header class="portal-header">
+    <div class="header-brand">
+      <svg width="40" height="38" viewBox="50 144 54 52">
+        <path d="M 73.11,191.29 L 72.59,190.76 L 72.7,189.68 C 72.76,189.09 72.92,188.33 73.04,188 L 73.17,187.68 L 72.52,187.3 C 71.95,186.97 71.07,186.3 70.07,185.39 C 68.32,183.78 67.24,182.26 66.52,180.4 C 65.98,178.98 65.61,177.34 65.41,175.52 C 65.29,174.45 65.31,171.74 65.44,170.83 C 65.73,168.86 66.36,166.7 67.29,164.5 C 68.1,162.59 69.18,160.7 70.61,158.73 C 71.55,157.43 73.34,155.33 74.32,154.38 C 74.5,154.2 74.65,154.02 74.65,153.97 C 74.65,153.92 74.32,153.86 73.74,153.79 C 71.69,153.56 68.61,153.72 65.9,154.21 C 65.17,154.34 64.08,154.58 63.85,154.66 L 63.78,154.69 L 63.7,155.22 C 63.5,156.45 63.45,157.65 63.52,159.2 C 63.56,159.98 63.56,160.03 63.44,160.1 C 63.3,160.18 63.07,160.18 62.91,160.11 C 62.77,160.05 62.6,159.88 62.48,159.67 C 62.33,159.39 62.29,159.08 62.19,157.54 C 62.11,156.32 62.06,155.93 61.94,155.45 L 61.83,155.03 L 60.78,155.08 C 58.78,155.18 57.06,155.43 55.42,155.88 L 54.88,156.03 L 54.85,157.25 C 54.81,158.62 54.76,159.04 54.64,159.35 C 54.52,159.67 54.26,160 53.96,160.19 C 53.75,160.33 53.48,160.36 53.3,160.27 C 53.07,160.16 52.88,159.86 52.84,159.51 C 52.81,159.27 52.81,157.47 52.84,156.57 L 52.88,155.67 L 52.12,155.98 C 50.85,156.49 49.95,157.25 49.33,158.33 C 48.91,159.08 48.66,160.03 48.56,161.27 C 48.33,163.95 48.94,167.31 50.13,169.87 C 50.75,171.21 51.71,172.59 52.81,173.74 C 53.41,174.37 54.08,174.95 54.91,175.54 L 55.48,175.95 L 55.33,176.62 C 55.12,177.58 55.08,178.68 55.22,179.91 C 55.42,181.65 56.12,183.5 57.17,185.05 C 57.85,186.05 58.76,187.05 59.83,187.97 L 60.54,188.58 L 61.2,188.08 C 61.85,187.59 62.77,186.74 63.26,186.19 C 63.81,185.57 64.38,184.77 64.83,184.01 L 65.23,183.33 L 65.59,183.89 C 66.82,185.79 68.5,187.69 70.36,189.28 C 71.49,190.25 72.82,191.13 73.11,191.29 Z" fill="#FFFFFF" />
+        <path d="M 77,166 C 75.5,164.5 74,165.5 74,167 C 74,169 77,171.5 77,171.5 C 77,171.5 80,169 80,167 C 80,165.5 78.5,164.5 77,166 Z" fill="#F96100" />
+      </svg>
+      <div>
+        <div class="brand-title">Mighty Mental Health</div>
+        <div class="brand-subtitle">BRAND GUIDELINES // SYSTEM ATLAS v1.0</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-portal" onclick="window.print()">🖨️ Export PDF</button>
+      <a class="btn-portal" href="BRAND_GUIDELINES.md" download>📄 Read Manual (MD)</a>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="portal-nav">
+    <div class="nav-tab active" onclick="switchTab('tab-strategy')">01. Strategy & Philosophy</div>
+    <div class="nav-tab" onclick="switchTab('tab-values')">02. Core Values & Pillars</div>
+    <div class="nav-tab" onclick="switchTab('tab-voice')">03. Voice & Persona ("Like Luke")</div>
+    <div class="nav-tab" onclick="switchTab('tab-visual')">04. Visual Identity & Colors</div>
+    <div class="nav-tab" onclick="switchTab('tab-logo')">05. Logo Suite & Assets</div>
+    <div class="nav-tab" onclick="switchTab('tab-typography')">06. Typography & Scale</div>
+    <div class="nav-tab" onclick="switchTab('tab-wireframe')">07. Website Wireframe & Telehealth</div>
+    <div class="nav-tab" onclick="switchTab('tab-canvas')">08. Master Canvas Artwork</div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="portal-main">
+
+    <!-- TAB 1: STRATEGY & PHILOSOPHY -->
+    <section id="tab-strategy" class="tab-content active">
+      <h2 class="section-heading">Brand Strategy & Philosophy</h2>
+      <p class="section-subheading">Dismantling the false divide between psychological care and physical vitality through integrated, down-to-earth healthcare.</p>
+
+      <div class="grid-2">
+        <div class="card card-accent-navy">
+          <h3 style="color:var(--navy-bold); margin-bottom: 0.75rem;">The Somatic-Cognitive Synthesis</h3>
+          <p style="margin-bottom: 1rem;">Conventional therapy stays in the chair; conventional fitness obsesses over appearance. <strong>Mighty Mental Health unifies both.</strong></p>
+          <p>We treat the nervous system as an embodied network: processing trauma and emotional obstacles cognitively, while simultaneously rebuilding physical stamina, regulation, and neurochemical resilience through somatic movement.</p>
+        </div>
+
+        <div class="card card-accent-orange">
+          <h3 style="color:var(--orange-cadmium); margin-bottom: 0.75rem;">The 3 Uniques (Core Differentiators)</h3>
+          <ul style="padding-left: 1.25rem; font-size: 0.95rem;">
+            <li style="margin-bottom: 0.5rem;"><strong>One Dual-Qualified Practitioner:</strong> Psychotherapy (PACFA, UQ) + Certified Movement Coaching under one roof.</li>
+            <li style="margin-bottom: 0.5rem;"><strong>Anti-Clinical Warmth:</strong> Zero sterile waiting rooms or diagnostic condescension. Genuine human connection.</li>
+            <li><strong>From Suffering to Strength:</strong> Moving beyond "symptom management" into tangible everyday physical and mental agency.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card card-accent-blue" style="margin-bottom: 2rem;">
+        <h3 style="color:var(--blue-philippine); margin-bottom: 1rem;">Strategic Horizons (1 to 10 Years)</h3>
+        <div class="grid-3" style="margin-bottom: 0;">
+          <div>
+            <div style="font-family:'Space Mono'; font-weight:700; color:var(--blue-philippine);">YEAR 1: FOUNDATION</div>
+            <p style="font-size:0.9rem; margin-top:0.4rem;">Australia-wide secure telehealth rollout (video/phone), local Logan community roots, 40-min intake, 60-min psychotherapy, 30-min fitness consults.</p>
+          </div>
+          <div>
+            <div style="font-family:'Space Mono'; font-weight:700; color:var(--orange-cadmium);">YEAR 3: TAILORED PRODUCT</div>
+            <p style="font-size:0.9rem; margin-top:0.4rem;">Launch standardized "Somatic Strength" 12-week hybrid curriculum; deliver corporate wellness & resilience workshops for QLD teams.</p>
+          </div>
+          <div>
+            <div style="font-family:'Space Mono'; font-weight:700; color:var(--navy-bold);">YEAR 5: ALLIED HUB & APP</div>
+            <p style="font-size:0.9rem; margin-top:0.4rem;">Open physical Allied Health Hub in Logan/Brisbane; hire multidisciplinary clinicians; release proprietary MMH Psych+Bio App.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: CORE VALUES & PILLARS -->
+    <section id="tab-values" class="tab-content">
+      <h2 class="section-heading">Core Values & The 5 Pillars</h2>
+      <p class="section-subheading">The uncompromised ethical and clinical compass guiding every conversation, session, and intervention.</p>
+
+      <div class="grid-5" style="margin-bottom: 2rem;">
+        <div class="card pillar-card card-accent-blue active" onclick="showPillarDetail(1)">
+          <div style="font-size:1.8rem; margin-bottom:0.5rem;">🤝</div>
+          <div style="font-weight:700; font-size:0.95rem; color:var(--blue-philippine);">I. Human Dignity</div>
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">Inherent Worth</div>
+        </div>
+
+        <div class="card pillar-card card-accent-navy" onclick="showPillarDetail(2)">
+          <div style="font-size:1.8rem; margin-bottom:0.5rem;">📖</div>
+          <div style="font-weight:700; font-size:0.95rem; color:var(--navy-bold);">II. Acceptance</div>
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">No Judgement</div>
+        </div>
+
+        <div class="card pillar-card card-accent-orange" onclick="showPillarDetail(3)">
+          <div style="font-size:1.8rem; margin-bottom:0.5rem;">👥</div>
+          <div style="font-weight:700; font-size:0.95rem; color:var(--orange-cadmium);">III. Person-Centred</div>
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">Same Eye-Level</div>
+        </div>
+
+        <div class="card pillar-card card-accent-yellow" onclick="showPillarDetail(4)">
+          <div style="font-size:1.8rem; margin-bottom:0.5rem;">🌱</div>
+          <div style="font-weight:700; font-size:0.95rem; color:var(--yellow-aureoline);">IV. Self-Determination</div>
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">Autonomy & Tools</div>
+        </div>
+
+        <div class="card pillar-card card-accent-peel" onclick="showPillarDetail(5)">
+          <div style="font-size:1.8rem; margin-bottom:0.5rem;">🌸</div>
+          <div style="font-weight:700; font-size:0.95rem; color:var(--orange-peel);">V. Holistic View</div>
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">Whole Person</div>
+        </div>
+      </div>
+
+      <div id="pillar-detail-box" class="card card-accent-blue" style="padding: 2rem;">
+        <h3 id="pillar-title" style="color:var(--blue-philippine); margin-bottom: 0.5rem;">Pillar I: Human Dignity</h3>
+        <p id="pillar-def" style="font-size: 1.1rem; font-weight: 600; color: var(--navy-bold); margin-bottom: 1rem;">"Respecting your inherent worth as a person."</p>
+        <div class="grid-2" style="margin-bottom:0;">
+          <div>
+            <strong>Clinical Rationale:</strong>
+            <p id="pillar-clinical" style="font-size:0.95rem; color:var(--text-muted); margin-top:0.3rem;">Every individual carries unconditional worth. Healing cannot take root where shame or dehumanizing diagnostic labels dominate.</p>
+          </div>
+          <div>
+            <strong>How We Live This Value:</strong>
+            <p id="pillar-live" style="font-size:0.95rem; color:var(--text-muted); margin-top:0.3rem;">Absolute confidentiality, transparent pricing, unconditional positive regard, and prompt, respectful communication.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: VOICE & PERSONA ("LIKE LUKE") -->
+    <section id="tab-voice" class="tab-content">
+      <h2 class="section-heading">Brand Voice & Persona ("Like Luke")</h2>
+      <p class="section-subheading">Calibrated directly from Luke's founder notes: The grounded synthesis of The Sage (clinical depth) and The Everyman (unpretentious peer).</p>
+
+      <div class="spectrum-row">
+        <div class="spectrum-labels">
+          <span>CASUAL (Conversational / Down-to-Earth)</span>
+          <span style="color:var(--orange-cadmium); font-family:'Space Mono';">CALIBRATION: 3.4 / 10</span>
+          <span>FORMAL (Clinical / Academic)</span>
+        </div>
+        <div class="spectrum-track">
+          <div class="spectrum-pin" style="left: 34%;"></div>
+        </div>
+        <div class="spectrum-desc">Warm, relaxed Australian cadence. Never stiff or intimidating; professional without hiding behind clinical jargon.</div>
+      </div>
+
+      <div class="spectrum-row">
+        <div class="spectrum-labels">
+          <span>HUMOROUS (Playful / Levity)</span>
+          <span style="color:var(--orange-cadmium); font-family:'Space Mono';">CALIBRATION: 8.8 / 10 (SERIOUS)</span>
+          <span>SERIOUS (Grounded / Reverent)</span>
+        </div>
+        <div class="spectrum-track">
+          <div class="spectrum-pin" style="left: 88%;"></div>
+        </div>
+        <div class="spectrum-desc">Deeply reverent and serious toward human emotional pain. Subtle, authentic warmth used only to foster safety, never trivializing distress.</div>
+      </div>
+
+      <div class="spectrum-row">
+        <div class="spectrum-labels">
+          <span>ENTHUSIASTIC (Cheerleading / Hype)</span>
+          <span style="color:var(--orange-cadmium); font-family:'Space Mono';">CALIBRATION: 9.5 / 10 (MATTER-OF-FACT)</span>
+          <span>MATTER-OF-FACT (Steady / Realistic)</span>
+        </div>
+        <div class="spectrum-track">
+          <div class="spectrum-pin" style="left: 95%;"></div>
+        </div>
+        <div class="spectrum-desc">Zero toxic positivity ("Just smile!") or bro-fitness hype ("No excuses!"). Calm, honest, evidence-based realism that honors current struggles.</div>
+      </div>
+
+      <div class="spectrum-row">
+        <div class="spectrum-labels">
+          <span>DISRESPECTFUL (Casual Dismissal)</span>
+          <span style="color:var(--orange-cadmium); font-family:'Space Mono';">CALIBRATION: 10.0 / 10 (ABSOLUTE RESPECT)</span>
+          <span>RESPECTFUL (Unconditional Regard)</span>
+        </div>
+        <div class="spectrum-track">
+          <div class="spectrum-pin" style="left: 100%;"></div>
+        </div>
+        <div class="spectrum-desc">10/10 unconditional human respect. Complete reverence for client privacy, pace, and vulnerability.</div>
+      </div>
+    </section>
+
+    <!-- TAB 4: VISUAL IDENTITY & COLORS -->
+    <section id="tab-visual" class="tab-content">
+      <h2 class="section-heading">Visual Identity & The Somatic Palette</h2>
+      <p class="section-subheading">A calibrated chromatic system where deep psychological blues meet radiant somatic warmth. Click any color swatch to copy its HEX code.</p>
+
+      <div class="grid-5">
+        <!-- Swatch 1: Bold Navy -->
+        <div class="swatch-box">
+          <div class="swatch-color" style="background:#130C76;" onclick="copyHex('#130C76')">
+            <span class="copy-tooltip">Click to Copy</span>
+          </div>
+          <div class="swatch-meta">
+            <div class="swatch-title">Bold Navy</div>
+            <div class="swatch-hex">#130C76</div>
+            <div class="swatch-detail">RGB: 19, 12, 118<br>Role: Psych Depth</div>
+          </div>
+        </div>
+
+        <!-- Swatch 2: Philippine Blue -->
+        <div class="swatch-box">
+          <div class="swatch-color" style="background:#0038A8;" onclick="copyHex('#0038A8')">
+            <span class="copy-tooltip">Click to Copy</span>
+          </div>
+          <div class="swatch-meta">
+            <div class="swatch-title">Philippine Blue</div>
+            <div class="swatch-hex">#0038A8</div>
+            <div class="swatch-detail">RGB: 0, 56, 168<br>Role: Clinical Safety</div>
+          </div>
+        </div>
+
+        <!-- Swatch 3: Cadmium Orange -->
+        <div class="swatch-box">
+          <div class="swatch-color" style="background:#F96100;" onclick="copyHex('#F96100')">
+            <span class="copy-tooltip">Click to Copy</span>
+          </div>
+          <div class="swatch-meta">
+            <div class="swatch-title">Cadmium Orange</div>
+            <div class="swatch-hex">#F96100</div>
+            <div class="swatch-detail">RGB: 249, 97, 0<br>Role: Somatic Vitality</div>
+          </div>
+        </div>
+
+        <!-- Swatch 4: Orange Peel -->
+        <div class="swatch-box">
+          <div class="swatch-color" style="background:#FF9E00;" onclick="copyHex('#FF9E00')">
+            <span class="copy-tooltip">Click to Copy</span>
+          </div>
+          <div class="swatch-meta">
+            <div class="swatch-title">Orange Peel</div>
+            <div class="swatch-hex">#FF9E00</div>
+            <div class="swatch-detail">RGB: 255, 158, 0<br>Role: Warmth & Agency</div>
+          </div>
+        </div>
+
+        <!-- Swatch 5: Aureoline Yellow -->
+        <div class="swatch-box">
+          <div class="swatch-color" style="background:#FFAC24;" onclick="copyHex('#FFAC24')">
+            <span class="copy-tooltip">Click to Copy</span>
+          </div>
+          <div class="swatch-meta">
+            <div class="swatch-title">Aureoline Yellow</div>
+            <div class="swatch-hex">#FFAC24</div>
+            <div class="swatch-detail">RGB: 255, 172, 36<br>Role: Mental Clarity</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-accent-navy">
+        <h3 style="color:var(--navy-bold); margin-bottom: 0.75rem;">WCAG 2.1 Accessibility Matrix</h3>
+        <p style="font-size:0.95rem; margin-bottom:1rem;">In strict adherence to clinical accessibility standards, all color pairings meet universal readability criteria:</p>
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; font-size:0.85rem; text-align:left;">
+            <thead>
+              <tr style="background:#F1F5F9; border-bottom:2px solid #CBD5E1;">
+                <th style="padding:0.6rem;">Text Color</th>
+                <th style="padding:0.6rem;">Background</th>
+                <th style="padding:0.6rem;">Contrast Ratio</th>
+                <th style="padding:0.6rem;">WCAG Rating</th>
+                <th style="padding:0.6rem;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid #E2E8F0;">
+                <td style="padding:0.6rem; font-weight:700; color:#130C76;">Bold Navy (#130C76)</td>
+                <td style="padding:0.6rem;">Pure White (#FFFFFF)</td>
+                <td style="padding:0.6rem; font-family:'Space Mono';">16.2 : 1</td>
+                <td style="padding:0.6rem; font-weight:700;">AAA</td>
+                <td style="padding:0.6rem; color:#2E7D32;">✔ Pass (Body & Headers)</td>
+              </tr>
+              <tr style="border-bottom:1px solid #E2E8F0;">
+                <td style="padding:0.6rem; font-weight:700; color:#130C76;">Bold Navy (#130C76)</td>
+                <td style="padding:0.6rem; background:#FFAC24; color:#130C76;">Aureoline Yellow (#FFAC24)</td>
+                <td style="padding:0.6rem; font-family:'Space Mono';">8.33 : 1</td>
+                <td style="padding:0.6rem; font-weight:700;">AAA</td>
+                <td style="padding:0.6rem; color:#2E7D32;">✔ Pass (Accent Cards)</td>
+              </tr>
+              <tr style="border-bottom:1px solid #E2E8F0;">
+                <td style="padding:0.6rem; font-weight:700; color:#130C76;">Bold Navy (#130C76)</td>
+                <td style="padding:0.6rem; background:#FF9E00; color:#130C76;">Orange Peel (#FF9E00)</td>
+                <td style="padding:0.6rem; font-family:'Space Mono';">7.56 : 1</td>
+                <td style="padding:0.6rem; font-weight:700;">AAA</td>
+                <td style="padding:0.6rem; color:#2E7D32;">✔ Pass (CTAs & Buttons)</td>
+              </tr>
+              <tr style="border-bottom:1px solid #E2E8F0;">
+                <td style="padding:0.6rem; font-weight:700; color:#FFFFFF; background:#130C76;">Pure White (#FFFFFF)</td>
+                <td style="padding:0.6rem; background:#130C76; color:#FFFFFF;">Bold Navy (#130C76)</td>
+                <td style="padding:0.6rem; font-family:'Space Mono';">16.2 : 1</td>
+                <td style="padding:0.6rem; font-weight:700;">AAA</td>
+                <td style="padding:0.6rem; color:#2E7D32;">✔ Pass (Dark Sections)</td>
+              </tr>
+              <tr>
+                <td style="padding:0.6rem; font-weight:700; color:#F96100;">Cadmium Orange (#F96100)</td>
+                <td style="padding:0.6rem;">Pure White (#FFFFFF)</td>
+                <td style="padding:0.6rem; font-family:'Space Mono';">2.80 : 1</td>
+                <td style="padding:0.6rem; font-weight:700; color:#C53030;">DNP</td>
+                <td style="padding:0.6rem; color:#C53030;">✖ Graphics Only (Never small text)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: LOGO SUITE & ASSETS -->
+    <section id="tab-logo" class="tab-content">
+      <h2 class="section-heading">Logo Suite & Official Assets</h2>
+      <p class="section-subheading">The official Mighty Mental Health identity suite in vector SVG, vector PDF, and ultra-high-resolution transparent PNG formats.</p>
+
+      <div class="logo-sandbox" id="logo-sandbox">
+        <div class="sandbox-controls">
+          <button class="btn-bg-toggle active" onclick="setSandboxVariant('orange-heart', 'white')">Full Color (Orange Heart)</button>
+          <button class="btn-bg-toggle" onclick="setSandboxVariant('white-heart', 'white')">Cutout (White Heart)</button>
+          <button class="btn-bg-toggle" onclick="setSandboxVariant('dark-navy', 'navy')">Dark Navy Inverted</button>
+          <button class="btn-bg-toggle" onclick="setSandboxVariant('monogram', 'white')">Brain Monogram (mh)</button>
+        </div>
+
+        <div class="logo-display-stage" id="stage-area">
+          <img id="stage-logo-img" src="assets/test_clean_primary.png" alt="Mighty Mental Health Primary Logo" style="max-height: 180px; width: auto; object-fit: contain;">
+        </div>
+      </div>
+
+      <h3 style="color:var(--navy-bold); margin: 2rem 0 1rem;">Production Asset Downloads</h3>
+      <div class="grid-3">
+        <div class="card card-accent-navy">
+          <h4>Primary Lockup (Orange Heart)</h4>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin:0.5rem 0 1rem;">Standard full-color brand mark with radiant Cadmium Orange heart.</p>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <a class="btn-portal" style="background:var(--navy-bold); color:#FFF;" href="assets/logo-primary.svg" download>Download SVG</a>
+            <a class="btn-portal" style="background:var(--blue-philippine); color:#FFF;" href="assets/logo-primary-orange-heart.pdf" download>Download PDF</a>
+          </div>
+        </div>
+
+        <div class="card card-accent-blue">
+          <h4>Primary Lockup (White Cutout)</h4>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin:0.5rem 0 1rem;">Single-color variant with white negative-space heart cutout. Ideal for print & embroidery.</p>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <a class="btn-portal" style="background:var(--navy-bold); color:#FFF;" href="assets/logo-primary-white-heart.svg" download>Download SVG</a>
+            <a class="btn-portal" style="background:var(--blue-philippine); color:#FFF;" href="assets/logo-primary-white-heart.pdf" download>Download PDF</a>
+            <a class="btn-portal" style="background:var(--orange-cadmium); color:#FFF;" href="assets/logo-primary-clean.png" download>High-Res PNG</a>
+          </div>
+        </div>
+
+        <div class="card card-accent-orange">
+          <h4>Standalone Lifter Icons</h4>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin:0.5rem 0 1rem;">Standalone icon marks in both orange-heart and white-heart colorways.</p>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <a class="btn-portal" style="background:var(--orange-cadmium); color:#FFF;" href="assets/logo-icon-orange-heart.pdf" download>Orange Heart PDF</a>
+            <a class="btn-portal" style="background:var(--navy-bold); color:#FFF;" href="assets/logo-icon-white-heart.pdf" download>White Heart PDF</a>
+          </div>
+        </div>
+
+        <div class="card card-accent-yellow">
+          <h4>"MIGHTY mh" Brain Monogram</h4>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin:0.5rem 0 1rem;">Brain convolution inside 'm' and lifter inside 'h'. High-res transparent PNG.</p>
+          <a class="btn-portal" style="background:var(--navy-bold); color:#FFF;" href="assets/logo-monogram-brain.png" download>Download PNG</a>
+        </div>
+
+        <div class="card card-accent-navy">
+          <h4>Framed Social Card Template</h4>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin:0.5rem 0 1rem;">Dual framed container with navy stroke card and orange accent box.</p>
+          <a class="btn-portal" style="background:var(--navy-bold); color:#FFF;" href="assets/logo-framed-card.pdf" download>Download PDF</a>
+        </div>
+
+        <div class="card card-accent-blue">
+          <h4>Vector Master Art Canvas</h4>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin:0.5rem 0 1rem;">Complete Somatic Equilibrium system atlas in print-ready vector PDF.</p>
+          <a class="btn-portal" style="background:var(--blue-philippine); color:#FFF;" href="brand-canvas.pdf" download>Download PDF</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: TYPOGRAPHY & SCALE -->
+    <section id="tab-typography" class="tab-content">
+      <h2 class="section-heading">Typography Hierarchy & Scale</h2>
+      <p class="section-subheading">Built with Google's democratic, globally accessible open-source typeface <strong>Noto Sans</strong>.</p>
+
+      <div class="card card-accent-navy" style="margin-bottom: 2rem;">
+        <div style="border-bottom: 1px solid #E2E8F0; padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="font-family:'Space Mono'; font-size:0.75rem; color:var(--text-muted);">DISPLAY / HERO HEADING (H1) // 48px / Weight: 900</div>
+          <div style="font-size:2.8rem; font-weight:900; color:var(--navy-bold); line-height:1.1; margin-top:0.4rem;">Strength of Mind. Vitality of Body.</div>
+        </div>
+
+        <div style="border-bottom: 1px solid #E2E8F0; padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="font-family:'Space Mono'; font-size:0.75rem; color:var(--text-muted);">SECTION HEADING (H2) // 32px / Weight: 700</div>
+          <div style="font-size:2rem; font-weight:700; color:var(--blue-philippine); line-height:1.2; margin-top:0.4rem;">Evidence-based psychotherapy integrated with somatic movement.</div>
+        </div>
+
+        <div style="border-bottom: 1px solid #E2E8F0; padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="font-family:'Space Mono'; font-size:0.75rem; color:var(--text-muted);">FEATURE TITLE (H3) // 22px / Weight: 700</div>
+          <div style="font-size:1.35rem; font-weight:700; color:var(--navy-bold); line-height:1.3; margin-top:0.4rem;">Meeting you where you are — getting onto the same level.</div>
+        </div>
+
+        <div style="border-bottom: 1px solid #E2E8F0; padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="font-family:'Space Mono'; font-size:0.75rem; color:var(--text-muted);">BODY LEAD // 18px / Weight: 400</div>
+          <p style="font-size:1.1rem; color:var(--text-main); line-height:1.6; margin-top:0.4rem;">Our practice operates on the foundational truth that emotional healing and physical health are inseparable. When we calm the nervous system through targeted movement, psychological insight deepens.</p>
+        </div>
+
+        <div>
+          <div style="font-family:'Space Mono'; font-size:0.75rem; color:var(--text-muted);">BODY REGULAR // 16px / Weight: 400</div>
+          <p style="font-size:1rem; color:var(--text-main); line-height:1.6; margin-top:0.4rem;">Registered with the Psychotherapy and Counselling Federation of Australia (PACFA), Mighty Mental Health delivers confidential, compassionate clinical consultations via secure telehealth across Australia, alongside local in-person allied health community initiatives in Logan, Queensland.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 7: WIREFRAME & TELEHEALTH -->
+    <section id="tab-wireframe" class="tab-content">
+      <h2 class="section-heading">Website Wireframe & Telehealth UX</h2>
+      <p class="section-subheading">A faithful, production-ready interactive digital translation of Luke's handwritten website blueprint.</p>
+
+      <div class="wireframe-container">
+        <!-- Wireframe Header -->
+        <div class="wireframe-header">
+          <div style="display:flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--navy-bold);">
+            <span>☰</span>
+            <span>MIGHTY MENTAL HEALTH</span>
+          </div>
+          <div style="font-weight:700; color:var(--blue-philippine); cursor:pointer;">FAQ</div>
+        </div>
+
+        <!-- Wireframe Hero -->
+        <div class="wireframe-hero">
+          <h3 style="font-size:1.8rem; font-weight:900; color:var(--navy-bold); margin-bottom:0.5rem;">Mighty Mental Health</h3>
+          <p style="font-size:1rem; color:var(--text-muted); max-width:600px; margin:0 auto 1.25rem;">Concurrent Psychotherapy & Physical Fitness Coaching for Everyday Australians.</p>
+          <button class="btn-portal" style="background:var(--orange-cadmium); color:#FFF; font-size:0.95rem; padding:0.6rem 1.4rem;">Book Initial 40-Min Consult</button>
+        </div>
+
+        <!-- Wireframe About -->
+        <div class="wireframe-about">
+          <div style="width:90px; height:90px; background:#CBD5E1; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; flex-shrink:0;">👤</div>
+          <div>
+            <h4 style="font-size:1.2rem; color:var(--navy-bold); margin-bottom:0.25rem;">Meet Luke</h4>
+            <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:0.6rem;">Master of Counselling (University of Queensland) • Registered PACFA Clinician • Personal Training & Movement Coach</p>
+            <div>
+              <span class="badge-pill">PACFA Registered</span>
+              <span class="badge-pill">UQ Alumni</span>
+              <span class="badge-pill">Movement Specialist</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wireframe Services & Live Availability Calendar (Side-by-Side Dual Column) -->
+        <div class="booking-split-container">
+          
+          <!-- LEFT COLUMN: 3 Selectable Session Types (Step 1) -->
+          <div class="service-selection-col">
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.25rem;">
+              <h3 style="font-size:1.25rem; font-weight:800; color:var(--navy-bold);">1. Select Session Type</h3>
+              <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Step 1 of 2</span>
+            </div>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.5rem;">Select your consultation below to see live clinical availability on the right.</p>
+
+            <!-- Card 1: 40-Min Initial Consult -->
+            <div id="service-card-1" class="booking-service-card active" onclick="selectBookingService(this, '40-Min Initial Consultation', '40 mins')">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem; padding-right:1.75rem;">
+                <strong style="color:var(--navy-bold); font-size:1.05rem;">40-Min Initial Consult</strong>
+              </div>
+              <div style="margin-bottom:0.6rem;">
+                <span style="background:#FFF3E6; color:var(--orange-cadmium); font-size:0.72rem; font-weight:700; padding:0.2rem 0.5rem; border-radius:4px; margin-right:0.3rem;">Recommended First Step</span>
+                <span class="badge-pill" style="font-size:0.7rem; padding:0.15rem 0.4rem;">Dual-Track Intake</span>
+              </div>
+              <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.45; margin-bottom:0.75rem;">Comprehensive intake exploring root causes, physical habits, sleep quality, nervous system state, and personal core values.</p>
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; font-weight:700; color:var(--blue-philippine); border-top:1px dashed #E2E8F0; padding-top:0.6rem;">
+                <span>⏱ 40 Minutes</span>
+                <span>Telehealth Video / Phone</span>
+              </div>
+            </div>
+
+            <!-- Card 2: 60-Min Psychotherapy -->
+            <div id="service-card-2" class="booking-service-card" onclick="selectBookingService(this, '60-Min Psychotherapy Session', '60 mins')">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem; padding-right:1.75rem;">
+                <strong style="color:var(--navy-bold); font-size:1.05rem;">60-Min Psychotherapy</strong>
+              </div>
+              <div style="margin-bottom:0.6rem;">
+                <span class="badge-pill" style="font-size:0.7rem; padding:0.15rem 0.4rem; background:#EBF4FF; color:var(--blue-philippine); border-color:#BFDBFE;">PACFA Registered Care</span>
+                <span class="badge-pill" style="font-size:0.7rem; padding:0.15rem 0.4rem;">Individual Therapy</span>
+              </div>
+              <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.45; margin-bottom:0.75rem;">Ongoing clinical counselling grounded in human dignity, acceptance, and evidence-based psychotherapy for deep cognitive-emotional healing.</p>
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; font-weight:700; color:var(--blue-philippine); border-top:1px dashed #E2E8F0; padding-top:0.6rem;">
+                <span>⏱ 60 Minutes</span>
+                <span>Telehealth Video / Phone</span>
+              </div>
+            </div>
+
+            <!-- Card 3: 30-Min Somatic & Fitness Consult -->
+            <div id="service-card-3" class="booking-service-card" onclick="selectBookingService(this, '30-Min Somatic & Fitness Consult', '30 mins')">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem; padding-right:1.75rem;">
+                <strong style="color:var(--navy-bold); font-size:1.05rem;">30-Min Fitness Consult</strong>
+              </div>
+              <div style="margin-bottom:0.6rem;">
+                <span class="badge-pill" style="font-size:0.7rem; padding:0.15rem 0.4rem; background:#FEF3C7; color:#92400E; border-color:#FDE68A;">Somatic Reset</span>
+                <span class="badge-pill" style="font-size:0.7rem; padding:0.15rem 0.4rem;">Movement Protocol</span>
+              </div>
+              <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.45; margin-bottom:0.75rem;">Targeted movement protocols and nervous system de-escalation to calm hyperarousal, release tension, and rebuild stamina.</p>
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; font-weight:700; color:var(--blue-philippine); border-top:1px dashed #E2E8F0; padding-top:0.6rem;">
+                <span>⏱ 30 Minutes</span>
+                <span>Telehealth Video / Phone</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT COLUMN: Live Availability Calendar (Step 2) -->
+          <div class="calendar-card">
+            
+            <!-- Calendar Top Bar -->
+            <div class="calendar-top-bar">
+              <div>
+                <h3 style="font-size:1.2rem; font-weight:800; color:var(--navy-bold); margin-bottom:0.2rem;">2. Choose Date & Time</h3>
+                <span style="font-size:0.78rem; color:var(--text-muted);"><span style="display:inline-block; width:8px; height:8px; background:#10B981; border-radius:50%; margin-right:5px;"></span>Times shown in <strong>Brisbane, QLD (AEST)</strong></span>
+              </div>
+
+              <!-- Modality Switcher -->
+              <div class="modality-pill-group">
+                <button type="button" class="modality-btn active" onclick="setModality(this, 'Telehealth Video Call')">📹 Video Call</button>
+                <button type="button" class="modality-btn" onclick="setModality(this, 'Phone Call')">📞 Phone Call</button>
+              </div>
+            </div>
+
+            <!-- Week Header & Navigation -->
+            <div class="week-nav">
+              <span style="color:var(--text-muted); cursor:pointer;">&lt; Previous Week</span>
+              <span style="font-size:0.95rem;">October 2026: Week of 26th – 30th</span>
+              <span style="color:var(--blue-philippine); cursor:pointer;">Next Week &gt;</span>
+            </div>
+
+            <!-- Calendar 5-Day Availability Grid -->
+            <div class="week-grid">
+              
+              <!-- Mon 26 -->
+              <div>
+                <div class="day-header">Mon 26<small>Oct</small></div>
+                <button type="button" class="time-slot-btn" onclick="selectTimeSlot(this, 'Mon 26 Oct @ 09:00 AM AEST')">09:00</button>
+                <button type="button" class="time-slot-btn" onclick="selectTimeSlot(this, 'Mon 26 Oct @ 11:30 AM AEST')">11:30</button>
+                <button type="button" class="time-slot-btn" onclick="selectTimeSlot(this, 'Mon 26 Oct @ 02:00 PM AEST')">14:00</button>
+                <button type="button" class="time-slot-btn" onclick="selectTimeSlot(this, 'Mon 26 Oct @ 04:00 PM AEST')">16:00</button>
+              </div>
+
+              <!-- Tue 27 -->
+              <div>
+                <div class="day-header">Tue 27<small>Oct</small></div>
+                <button type="button" class="time-slot-btn" onclick="selectTimeSlot(this, 'Tue 27 Oct @ 10:00 AM AEST')">10:00</button>
+                <button type="button" class="time-slot-btn" onclick="selectTimeSlot(this, 'Tue 27 Oct @ 02:00 PM AEST')">14:00</button>
+                <button type="button" class="time-slot-btn" onclick="selectTimeSlot(this, 'Tue 27 Oct @ 04:30 PM AEST')">16:30</button>
+              </div>
+
+              <!-- Wed 28 -->
+              <div>
+                <div class="day-header" style="color:var(--orange-cadmium); border-bottom-color:var(--orange-cadmium);">Wed 28<small style="color:var(--orange-cadmium); font-weight:700;">Selected</small></div>
+                <button type="button" class="time-slot-btn active" onclick="selectTimeSlot(this, 'Wed 28 Oct @ 09:30 AM AEST')">09:30</button>
+                <button type="button" class="time-slot-btn" onclick="selectTimeSlot(this, 'Wed 28 Oct @ 11:00 AM AEST')">11:00</button>
+                <button type="button" class="time-slot-btn" onclick="selectTimeSlot(this, 'Wed 28 Oct @ 02:30 PM AEST')">14:30</button>
+                <button type="button" class="time-slot-btn" onclick="selectTimeSlot(this, 'Wed 28 Oct @ 04:00 PM AEST')">16:00</button>
+              </div>
+
+              <!-- Thu 29 -->
+              <div>
+                <div class="day-header">Thu 29<small>Oct</small></div>
+                <button type="button" class="time-slot-btn" onclick="selectTimeSlot(this, 'Thu 29 Oct @ 01:00 PM AEST')">13:00</button>
+                <button type="button" class="time-slot-btn" onclick="selectTimeSlot(this, 'Thu 29 Oct @ 03:30 PM AEST')">15:30</button>
+                <button type="button" class="time-slot-btn" onclick="selectTimeSlot(this, 'Thu 29 Oct @ 05:00 PM AEST')">17:00</button>
+              </div>
+
+              <!-- Fri 30 -->
+              <div>
+                <div class="day-header">Fri 30<small>Oct</small></div>
+                <button type="button" class="time-slot-btn" onclick="selectTimeSlot(this, 'Fri 30 Oct @ 10:00 AM AEST')">10:00</button>
+                <button type="button" class="time-slot-btn" onclick="selectTimeSlot(this, 'Fri 30 Oct @ 11:30 AM AEST')">11:30</button>
+                <button type="button" class="time-slot-btn" onclick="selectTimeSlot(this, 'Fri 30 Oct @ 01:00 PM AEST')">13:00</button>
+              </div>
+
+            </div>
+
+            <!-- Selection Summary & Confirmation Bar -->
+            <div class="booking-summary-box">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
+                <div id="booking-summary-details" style="font-size:0.86rem; color:var(--text-primary); line-height:1.5;">
+                  <div><strong>Selected:</strong> <span style="color:var(--navy-bold); font-weight:700;">40-Min Initial Consultation</span></div>
+                  <div><strong>Modality:</strong> <span style="color:var(--blue-philippine); font-weight:600;">Telehealth Video Call</span></div>
+                  <div><strong>When:</strong> <span style="color:var(--orange-cadmium); font-weight:700;">Wed 28 Oct @ 09:30 AM AEST</span></div>
+                </div>
+
+                <div style="text-align:right;">
+                  <button type="button" class="btn-portal" style="background:var(--orange-cadmium); color:#FFF; font-size:0.95rem; padding:0.65rem 1.4rem; box-shadow:0 4px 12px rgba(249,97,0,0.25);" onclick="alert('Proceeding to Client Intake & Telehealth Confirmation for: ' + selectedSession + ' (' + selectedSlot + ')')">
+                    Confirm & Enter Details &rarr;
+                  </button>
+                </div>
+              </div>
+              <div style="margin-top:0.6rem; padding-top:0.6rem; border-top:1px solid #E2E8F0; font-size:0.75rem; color:var(--text-muted); display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                <span>🔒 Secure 256-bit encrypted booking</span>
+                <span>•</span>
+                <span>No upfront payment required</span>
+                <span>•</span>
+                <span>Instant automated calendar invite & telehealth link</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Wireframe Crisis Banner -->
+        <div class="crisis-container">
+          <div class="crisis-title">🚨 Need Urgent Care?</div>
+          <p style="font-size:0.9rem; color:#742A2A; margin-bottom:0.75rem;">If you are in immediate danger, experiencing acute distress, or thinking about suicide, free support is available 24/7:</p>
+          <div style="display:flex; flex-wrap:wrap; gap:1.5rem; font-family:'Space Mono'; font-weight:700; font-size:0.9rem;">
+            <span>Emergency: <strong>000</strong></span>
+            <span>Lifeline: <strong>13 11 14</strong></span>
+            <span>Suicide Call Back: <strong>1300 659 467</strong></span>
+            <span>Beyond Blue: <strong>1300 22 4636</strong></span>
+          </div>
+        </div>
+
+        <!-- Wireframe Footer -->
+        <div style="border-top: 1px solid #E2E8F0; padding-top: 1rem; display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted); flex-wrap: wrap; gap: 0.5rem;">
+          <div>Location: <strong>Logan, Queensland, Australia</strong></div>
+          <div>Email: <strong>luke@mightymentalhealth.com.au</strong></div>
+          <div>Follow: <strong>Instagram • LinkedIn</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 8: MASTER CANVAS ARTWORK -->
+    <section id="tab-canvas" class="tab-content">
+      <h2 class="section-heading">Master Brand Canvas Artwork</h2>
+      <p class="section-subheading">Museum-grade aesthetic expression of the "Somatic Equilibrium" philosophy created under the Canvas Design mandate.</p>
+
+      <div class="card" style="text-align: center; padding: 2rem;">
+        <img src="brand-canvas.png" alt="Mighty Mental Health Master Brand Canvas" style="max-width: 100%; height: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md); border: 1px solid var(--border-color);">
+        <div style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 1rem;">
+          <a class="btn-portal" style="background:var(--navy-bold); color:#FFF;" href="brand-canvas.png" download>Download High-Res PNG (2400x3200)</a>
+          <a class="btn-portal" style="background:var(--blue-philippine); color:#FFF;" href="brand-canvas.pdf" download>Download Print PDF</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="portal-footer">
+    <p><strong>Mighty Mental Health (MMH)</strong> — Official Brand Guidelines & Design System Portal</p>
+    <p style="margin-top:0.3rem;">Master of Counselling (UQ) • PACFA Registered Clinician • Logan, Queensland, Australia</p>
+    <p style="margin-top:0.5rem; font-family:'Space Mono'; font-size:0.75rem;">© 2026 Mighty Mental Health. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Tab Switching
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      event.currentTarget.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Interactive Color Copy
+    function copyHex(hex) {
+      navigator.clipboard.writeText(hex).then(() => {
+        alert('Copied ' + hex + ' to clipboard!');
+      });
+    }
+
+    // Logo Sandbox Variant Toggle
+    function setSandboxVariant(variant, bg) {
+      const sandbox = document.getElementById('logo-sandbox');
+      const stageImg = document.getElementById('stage-logo-img');
+      const buttons = document.querySelectorAll('.btn-bg-toggle');
+      buttons.forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+
+      if (variant === 'orange-heart') {
+        sandbox.style.background = '#FFFFFF';
+        stageImg.src = 'assets/test_clean_primary.png';
+      } else if (variant === 'white-heart') {
+        sandbox.style.background = '#FFFFFF';
+        stageImg.src = 'assets/logo-primary-clean.png';
+      } else if (variant === 'dark-navy') {
+        sandbox.style.background = '#130C76';
+        stageImg.src = 'assets/logo-primary-clean.png';
+        stageImg.style.filter = 'brightness(0) invert(1)';
+      } else if (variant === 'monogram') {
+        sandbox.style.background = '#FFFFFF';
+        stageImg.src = 'assets/logo-monogram-brain.png';
+        stageImg.style.filter = 'none';
+      }
+      if (variant !== 'dark-navy') {
+        stageImg.style.filter = 'none';
+      }
+    }
+
+    // Interactive Pillar Details
+    const pillars = [
+      {},
+      {
+        title: "Pillar I: Human Dignity",
+        def: '"Respecting your inherent worth as a person."',
+        clinical: "Every individual carries unconditional worth. Healing cannot take root where shame or dehumanizing diagnostic labels dominate.",
+        live: "Absolute confidentiality, transparent pricing, unconditional positive regard, and prompt, respectful communication."
+      },
+      {
+        title: "Pillar II: Acceptance",
+        def: '"Leaving judgements at the door to focus on what’s really going on for you."',
+        clinical: "Shame is the greatest inhibitor of psychological healing. True transformation begins only when an individual feels safe enough to tell the unvarnished truth without fear of condemnation.",
+        live: "Zero judgment of relapses, relationship missteps, missed gym days, or past coping mechanisms. All responses are framed as human adaptations."
+      },
+      {
+        title: "Pillar III: Person-Centred Care",
+        def: '"Meeting you where you are in your journey — getting onto the same level."',
+        clinical: "The therapeutic relationship is egalitarian. The client is the ultimate expert in their lived experience; the clinician is a collaborative ally.",
+        live: "Collaborative goal setting, flexible appointment styles (video vs phone), and movement coaching calibrated to current energy levels."
+      },
+      {
+        title: "Pillar IV: Self-Determination",
+        def: '"Empowering you with the practical tools to take control, make decisions, and grow."',
+        clinical: "Therapy must build long-term autonomy rather than perpetual clinical dependence. Agency is the cornerstone of mental health.",
+        live: "Actionable breathwork, somatic resets, cognitive toolkits, and transparent roadmaps clients own for life."
+      },
+      {
+        title: "Pillar V: Holistic Perspective",
+        def: '"Caring for you as a whole person — integrating brain, body, spirit, and social world."',
+        clinical: "Depression and anxiety are embodied phenomena. Movement changes neurochemistry; emotional safety restores physical vitality.",
+        live: "Concurrent interventions: psychotherapy for cognitive-emotional processing alongside tailored physical activity for somatic regulation."
+      }
+    ];
+
+    function showPillarDetail(index) {
+      document.querySelectorAll('.pillar-card').forEach((c, i) => {
+        c.classList.toggle('active', i === index - 1);
+      });
+      const data = pillars[index];
+      document.getElementById('pillar-title').innerText = data.title;
+      document.getElementById('pillar-def').innerText = data.def;
+      document.getElementById('pillar-clinical').innerText = data.clinical;
+      document.getElementById('pillar-live').innerText = data.live;
+    }
+
+    // Interactive Side-by-Side Booking Component Logic
+    let selectedSession = "40-Min Initial Consultation";
+    let selectedModality = "Telehealth Video Call";
+    let selectedSlot = "Wed 28 Oct @ 09:30 AM AEST";
+
+    function selectBookingService(cardElem, sessionTitle, duration) {
+      document.querySelectorAll('.booking-service-card').forEach(c => c.classList.remove('active'));
+      cardElem.classList.add('active');
+      selectedSession = sessionTitle;
+      updateBookingSummary();
+    }
+
+    function setModality(btn, modality) {
+      document.querySelectorAll('.modality-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedModality = modality;
+      updateBookingSummary();
+    }
+
+    function selectTimeSlot(slotBtn, timeString) {
+      document.querySelectorAll('.time-slot-btn').forEach(b => b.classList.remove('active'));
+      slotBtn.classList.add('active');
+      selectedSlot = timeString;
+      updateBookingSummary();
+    }
+
+    function updateBookingSummary() {
+      const summaryElem = document.getElementById('booking-summary-details');
+      if (summaryElem) {
+        summaryElem.innerHTML = `
+          <div><strong>Selected:</strong> <span style="color:var(--navy-bold); font-weight:700;">${selectedSession}</span></div>
+          <div><strong>Modality:</strong> <span style="color:var(--blue-philippine); font-weight:600;">${selectedModality}</span></div>
+          <div><strong>When:</strong> <span style="color:var(--orange-cadmium); font-weight:700;">${selectedSlot}</span></div>
+        `;
+      }
+    }
+
+    // Hash navigation support (e.g. #tab-wireframe)
+    function applyHashTab() {
+      const hash = window.location.hash.replace('#', '');
+      if (hash && document.getElementById(hash)) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(hash).classList.add('active');
+        const navBtn = Array.from(document.querySelectorAll('.nav-tab')).find(b => b.getAttribute('onclick')?.includes(hash));
+        if (navBtn) navBtn.classList.add('active');
+      }
+    }
+    window.addEventListener('DOMContentLoaded', applyHashTab);
+    window.addEventListener('hashchange', applyHashTab);
+  </script>
+</body>
+</html>

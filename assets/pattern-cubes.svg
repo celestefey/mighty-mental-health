@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 100 100">
+  <defs>
+    <pattern id="isometric-cubes" width="40" height="69.28" patternUnits="userSpaceOnUse">
+      <g stroke="#ffffff" stroke-width="0.5">
+        <!-- Top face -->
+        <polygon points="20,0 40,11.55 20,23.09 0,11.55" fill="#0038A8" />
+        <!-- Left face -->
+        <polygon points="0,11.55 20,23.09 20,46.19 0,34.64" fill="#130C76" />
+        <!-- Right face -->
+        <polygon points="20,23.09 40,11.55 40,34.64 20,46.19" fill="#F96100" />
+        
+        <!-- Second cube offset -->
+        <polygon points="0,34.64 20,46.19 0,57.74 -20,46.19" fill="#0038A8" />
+        <polygon points="-20,46.19 0,57.74 0,80.83 -20,69.28" fill="#130C76" />
+        <polygon points="0,57.74 20,46.19 20,69.28 0,80.83" fill="#FFAC24" />
+
+        <polygon points="40,34.64 60,46.19 40,57.74 20,46.19" fill="#0038A8" />
+        <polygon points="20,46.19 40,57.74 40,80.83 20,69.28" fill="#130C76" />
+        <polygon points="40,57.74 60,46.19 60,69.28 40,80.83" fill="#F96100" />
+      </g>
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#isometric-cubes)" />
+</svg>
