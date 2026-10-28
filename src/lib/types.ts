@@ -23,6 +23,7 @@ export interface MMHAppointment {
   status: 'confirmed' | 'pending' | 'completed' | 'cancelled';
   telehealth_room_id: string;
   notes?: string;
+  is_demo?: boolean;
   created_at: string;
   service?: MMHService;
 }
@@ -59,6 +60,7 @@ export interface MMHFormAssignment {
   score_summary?: Record<string, any>;
   clinical_severity?: string;
   completed_at?: string;
+  is_demo?: boolean;
   created_at: string;
   form?: MMHForm;
 }
@@ -75,6 +77,7 @@ export interface MMHClinicalNote {
   plan: string;
   is_locked: boolean;
   locked_at?: string;
+  is_demo?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -88,5 +91,6 @@ export interface MMHInvoice {
   gst_cents: number;
   status: 'paid' | 'pending' | 'refunded';
   invoice_number: string;
+  is_demo?: boolean;
   created_at: string;
 }

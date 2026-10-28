@@ -12,7 +12,7 @@
 
 ```
 +---------------------------------------------------------------------------------------------------------+
-| TOTAL REQUESTS LOGGED: 14      | ACTIONED & VERIFIED: 12      | DEFERRED BY USER: 2     | PENDING: 0   |
+| TOTAL REQUESTS LOGGED: 15      | ACTIONED & VERIFIED: 13      | DEFERRED BY USER: 2     | PENDING: 0   |
 +---------------------------------------------------------------------------------------------------------+
 ```
 
@@ -202,6 +202,25 @@
   - Documented 4 core content collection types: Homepage, Clinician Bio, Somatic Articles/Psychoeducation, and FAQs.
   - Outlined zero-code content editing workflow for Luke, media asset library for psychoeducation resources, automated Vercel on-demand revalidation webhooks, and hosting deployment paths (Strapi Cloud vs. Render/Railway).
 - **Verification Evidence**: Verified schema types in `src/lib/strapi.ts`, build compiles with zero errors, deployed to GitHub and Vercel.
+
+---
+
+### [REQ-015] Clinical Testing Sandbox & Overdue Screener Soft-Reminder Architecture
+- **User Instruction**: *"c"* (Focus first on testing the core booking flow, client portal, and form assigner with real client test data with Sandbox Demo Mode & Soft Reminder edge cases confirmed)
+- **Category**: Clinical EHR Verification & Sandbox Isolation
+- **Status**: ✅ **Actioned & Verified**
+- **Implementation & Deliverables**:
+  - **Database Sandbox Isolation**: Added `is_demo BOOLEAN DEFAULT false` column and public delete policies across `mmh_appointments`, `mmh_form_assignments`, `mmh_clinical_notes`, and `mmh_invoices` in Supabase.
+  - **1-Click Seed & Purge Controls**: Mounted in `/admin` with `Seed Test Cohort` (3 personas) and `Purge Demo Data` without touching production records.
+  - **3 Realistic Patient Personas**:
+    1. **Sarah Jenkins** (`sarah.jenkins@example.com`): 60-min Psychotherapy, completed severe DASS-21 (D:16, A:18, S:26), live clinician urgent distress alert banner triggered, drafted SOAP progress note, and paid Medibank/Bupa tax invoice receipt ($210.00 GST-Free).
+    2. **David Chen** (`david.chen@example.com`): 40-min Initial consult, assigned pending GAD-7 with 24h deadline.
+    3. **Marcus Brody** (`marcus.brody@example.com`): 30-min Somatic consult, assigned Somatic Intake with deadline passed 24 hours ago.
+  - **Overdue Soft Reminder**:
+    - In `/admin`: Displays amber `Overdue Screener` badge in the appointment roster when assigned screeners pass their deadline.
+    - In `/portal`: Displays prominent soft reminder notification banner directing client to complete their screener, while keeping the 1-click **Join Encrypted Telehealth Room** launcher accessible.
+  - **Portal Interactive Receipts**: Wired dynamic `mmh_invoices` display in `/portal` showing PACFA Provider details, GST-free therapy status, and Print/Save PDF invoice button.
+- **Verification Evidence**: Seeded directly into live Supabase database; `npm run build` compiled all 9 routes with 0 errors; committed and deployed to Vercel production.
 
 ---
 

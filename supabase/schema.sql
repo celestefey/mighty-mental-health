@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS public.mmh_appointments (
     telehealth_room_id TEXT NOT NULL,
     notes TEXT,
     metadata JSONB DEFAULT '{}'::jsonb,
+    is_demo BOOLEAN DEFAULT false,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -60,6 +61,7 @@ CREATE TABLE IF NOT EXISTS public.mmh_form_assignments (
     score_summary JSONB DEFAULT '{}'::jsonb,
     clinical_severity TEXT,
     completed_at TIMESTAMPTZ,
+    is_demo BOOLEAN DEFAULT false,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -76,6 +78,7 @@ CREATE TABLE IF NOT EXISTS public.mmh_clinical_notes (
     plan TEXT,
     is_locked BOOLEAN NOT NULL DEFAULT false,
     locked_at TIMESTAMPTZ,
+    is_demo BOOLEAN DEFAULT false,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -90,6 +93,7 @@ CREATE TABLE IF NOT EXISTS public.mmh_invoices (
     gst_cents INTEGER NOT NULL,
     status TEXT NOT NULL DEFAULT 'paid',
     invoice_number TEXT NOT NULL UNIQUE,
+    is_demo BOOLEAN DEFAULT false,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -136,6 +140,12 @@ INSERT INTO public.mmh_services (title, slug, duration_minutes, price_cents, mod
 ('60-Min Psychotherapy & Counselling', 'psychotherapy-counselling', 60, 21000, ARRAY['video', 'phone'], 'Deep evidence-based psychotherapy (PACFA accredited) addressing root causes, emotional trauma, cognitive processing, and core values.'),
 ('30-Min Somatic & Movement Consultation', 'somatic-movement', 30, 12000, ARRAY['video', 'phone'], 'Tailored physical movement prescriptions, progressive resistance, walking protocols, and vagal nerve/somatic nervous system resets.')
 ON CONFLICT (slug) DO NOTHING;
+
+-- Demo Isolation Deletion Policies (Allow clearing test sandbox data without affecting production)
+CREATE POLICY "Allow delete demo appointments" ON public.mmh_appointments FOR DELETE TO public USING (is_demo = true);
+CREATE POLICY "Allow delete demo assignments" ON public.mmh_form_assignments FOR DELETE TO public USING (is_demo = true);
+CREATE POLICY "Allow delete demo clinical notes" ON public.mmh_clinical_notes FOR DELETE TO public USING (is_demo = true);
+CREATE POLICY "Allow delete demo invoices" ON public.mmh_invoices FOR DELETE TO public USING (is_demo = true);
 
 INSERT INTO public.mmh_forms (title, slug, category, description, is_template, questions, scoring_rules) VALUES
 (
@@ -202,3 +212,9 @@ INSERT INTO public.mmh_forms (title, slug, category, description, is_template, q
     '{"type": "qualitative_and_categorical"}'::jsonb
 )
 ON CONFLICT (slug) DO NOTHING;
+
+-- Demo Isolation Deletion Policies (Allow clearing test sandbox data without affecting production)
+CREATE POLICY "Allow delete demo appointments" ON public.mmh_appointments FOR DELETE TO public USING (is_demo = true);
+CREATE POLICY "Allow delete demo assignments" ON public.mmh_form_assignments FOR DELETE TO public USING (is_demo = true);
+CREATE POLICY "Allow delete demo clinical notes" ON public.mmh_clinical_notes FOR DELETE TO public USING (is_demo = true);
+CREATE POLICY "Allow delete demo invoices" ON public.mmh_invoices FOR DELETE TO public USING (is_demo = true);

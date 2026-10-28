@@ -93,6 +93,13 @@ export function ValidatedBookingForm({
         status: 'confirmed',
         telehealth_room_id: roomId,
         notes: values.clientNotes,
+        metadata: {
+          utm_source: values.utm_source,
+          utm_medium: values.utm_medium,
+          utm_campaign: values.utm_campaign,
+          client_ref_id: values.client_ref_id,
+        },
+        is_demo: false,
       })
       .select()
       .single();

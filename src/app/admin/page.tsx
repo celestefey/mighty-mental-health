@@ -15,7 +15,12 @@ import {
   Search,
   ShieldCheck,
   Activity,
-  AlertCircle
+  AlertCircle,
+  Sparkles,
+  Trash2,
+  RefreshCw,
+  AlertTriangle,
+  ExternalLink
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { MMHAppointment, MMHForm, MMHFormAssignment, MMHClinicalNote } from '@/lib/types';
@@ -57,6 +62,11 @@ export default function ClinicianAdminDashboard() {
   const [notePlan, setNotePlan] = useState('');
   const [isNoteSaving, setIsNoteSaving] = useState(false);
   const [noteSavedFeedback, setNoteSavedFeedback] = useState(false);
+
+  // Sandbox & Demo States
+  const [isSeedingDemo, setIsSeedingDemo] = useState(false);
+  const [isPurgingDemo, setIsPurgingDemo] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
   useEffect(() => {
     loadAllAdminData();
@@ -157,6 +167,181 @@ export default function ClinicianAdminDashboard() {
     loadAllAdminData();
   }
 
+  // Seed realistic Demo Cohort (Sarah Jenkins, David Chen, Marcus Brody)
+  async function handleSeedDemoData() {
+    setIsSeedingDemo(true);
+    try {
+      const { data: services } = await supabase.from('mmh_services').select('id, slug');
+      const s60 = services?.find(s => s.slug === 'psychotherapy-counselling')?.id;
+      const s40 = services?.find(s => s.slug === 'initial-consult')?.id;
+      const s30 = services?.find(s => s.slug === 'somatic-movement')?.id;
+
+      const dassForm = forms.find(f => f.slug === 'dass-21');
+      const gadForm = forms.find(f => f.slug === 'gad-7');
+      const somaticForm = forms.find(f => f.slug === 'somatic-intake');
+
+      const now = new Date();
+      const appt1Time = new Date(now.getTime() + 2 * 3600 * 1000).toISOString();
+      const appt2Time = new Date(now.getTime() + 24 * 3600 * 1000).toISOString();
+      const appt3Time = new Date(now.getTime() + 48 * 3600 * 1000).toISOString();
+
+      // Clean existing demo data first to prevent duplicates
+      await Promise.all([
+        supabase.from('mmh_appointments').delete().eq('is_demo', true),
+        supabase.from('mmh_form_assignments').delete().eq('is_demo', true),
+        supabase.from('mmh_clinical_notes').delete().eq('is_demo', true),
+        supabase.from('mmh_invoices').delete().eq('is_demo', true),
+      ]);
+
+      // 1. Insert Appointments
+      const { data: insertedAppts } = await supabase.from('mmh_appointments').insert([
+        {
+          client_name: 'Sarah Jenkins',
+          client_email: 'sarah.jenkins@example.com',
+          client_phone: '0412 345 678',
+          service_id: s60 || null,
+          scheduled_at: appt1Time,
+          duration_minutes: 60,
+          modality: 'video',
+          status: 'confirmed',
+          telehealth_room_id: 'mmh-sarah-j-telehealth',
+          notes: 'Reports workplace burnout, clavicular breathing, high autonomic stress.',
+          is_demo: true,
+        },
+        {
+          client_name: 'David Chen',
+          client_email: 'david.chen@example.com',
+          client_phone: '0423 456 789',
+          service_id: s40 || null,
+          scheduled_at: appt2Time,
+          duration_minutes: 40,
+          modality: 'video',
+          status: 'confirmed',
+          telehealth_room_id: 'mmh-david-c-telehealth',
+          notes: 'Initial consult regarding nervous system downregulation & sleep.',
+          is_demo: true,
+        },
+        {
+          client_name: 'Marcus Brody',
+          client_email: 'marcus.brody@example.com',
+          client_phone: '0434 567 890',
+          service_id: s30 || null,
+          scheduled_at: appt3Time,
+          duration_minutes: 30,
+          modality: 'video',
+          status: 'confirmed',
+          telehealth_room_id: 'mmh-marcus-b-telehealth',
+          notes: 'Somatic movement integration for athletic performance hyperarousal.',
+          is_demo: true,
+        }
+      ]).select();
+
+      // 2. Insert Assignments
+      const sarahDeadline = new Date(now.getTime() - 2 * 3600 * 1000).toISOString();
+      const davidDeadline = new Date(now.getTime() + 24 * 3600 * 1000).toISOString();
+      const marcusDeadline = new Date(now.getTime() - 24 * 3600 * 1000).toISOString(); // Overdue!
+
+      if (dassForm) {
+        await supabase.from('mmh_form_assignments').insert({
+          form_id: dassForm.id,
+          client_name: 'Sarah Jenkins',
+          client_email: 'sarah.jenkins@example.com',
+          deadline: sarahDeadline,
+          status: 'completed',
+          clinical_severity: 'D: Moderate (16) | A: Severe (18) | S: Severe (26)',
+          score_summary: {
+            depression: 16,
+            anxiety: 18,
+            stress: 26,
+            requiresUrgentAttention: true
+          },
+          completed_at: new Date(now.getTime() - 3 * 3600 * 1000).toISOString(),
+          is_demo: true,
+        });
+      }
+
+      if (gadForm) {
+        await supabase.from('mmh_form_assignments').insert({
+          form_id: gadForm.id,
+          client_name: 'David Chen',
+          client_email: 'david.chen@example.com',
+          deadline: davidDeadline,
+          status: 'assigned',
+          is_demo: true,
+        });
+      }
+
+      if (somaticForm) {
+        await supabase.from('mmh_form_assignments').insert({
+          form_id: somaticForm.id,
+          client_name: 'Marcus Brody',
+          client_email: 'marcus.brody@example.com',
+          deadline: marcusDeadline,
+          status: 'assigned',
+          is_demo: true,
+        });
+      }
+
+      // 3. Insert SOAP note & Invoice for Sarah Jenkins
+      if (insertedAppts && insertedAppts.length > 0) {
+        await supabase.from('mmh_clinical_notes').insert({
+          appointment_id: insertedAppts[0].id,
+          client_name: 'Sarah Jenkins',
+          client_email: 'sarah.jenkins@example.com',
+          note_type: 'SOAP',
+          subjective: 'Client presents with autonomic arousal, chronic deadline pressure, upper trapezius tightness, and fragmented sleep.',
+          objective: 'Observed clavicular shallow breathing. DASS-21 Anxiety score is 18 (Severe) and Stress is 26 (Severe).',
+          assessment: 'Somatic distress consistent with sympathetic nervous system overdrive.',
+          plan: 'Prescribed box breathing down-regulation; vagal nerve pacing; 1-week follow up.',
+          is_locked: false,
+          is_demo: true,
+        });
+
+        await supabase.from('mmh_invoices').insert({
+          appointment_id: insertedAppts[0].id,
+          client_name: 'Sarah Jenkins',
+          client_email: 'sarah.jenkins@example.com',
+          amount_cents: 21000,
+          gst_cents: 0,
+          status: 'paid',
+          invoice_number: `MMH-PACFA-${Date.now().toString().slice(-4)}`,
+          is_demo: true,
+        });
+      }
+
+      setFeedbackMessage('Demo client cohort seeded successfully! Sarah Jenkins (Severe Distress), David Chen (Pending GAD-7), and Marcus Brody (Overdue Screener) are active.');
+      setTimeout(() => setFeedbackMessage(null), 6000);
+      await loadAllAdminData();
+    } catch (err) {
+      console.error('Error seeding demo data:', err);
+    } finally {
+      setIsSeedingDemo(false);
+    }
+  }
+
+  // Purge Demo Data
+  async function handlePurgeDemoData() {
+    if (!window.confirm('Are you sure you want to purge all demo test records? Real production patient data will remain untouched.')) {
+      return;
+    }
+    setIsPurgingDemo(true);
+    try {
+      await Promise.all([
+        supabase.from('mmh_appointments').delete().eq('is_demo', true),
+        supabase.from('mmh_form_assignments').delete().eq('is_demo', true),
+        supabase.from('mmh_clinical_notes').delete().eq('is_demo', true),
+        supabase.from('mmh_invoices').delete().eq('is_demo', true),
+      ]);
+      setFeedbackMessage('All demo test records purged. Database sandbox is clean.');
+      setTimeout(() => setFeedbackMessage(null), 4000);
+      await loadAllAdminData();
+    } catch (err) {
+      console.error('Error purging demo data:', err);
+    } finally {
+      setIsPurgingDemo(false);
+    }
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* Clinician Top Header */}
@@ -195,6 +380,55 @@ export default function ClinicianAdminDashboard() {
           </button>
         </div>
       </div>
+
+      {/* Sandbox Test & Verification Toolbar */}
+      <div className="mt-4 bg-[#FBF9F5] border border-[#E5DFD5] rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-[#130C76]/10 text-[#130C76] flex items-center justify-center font-bold text-xs shrink-0">
+            <Sparkles className="w-4 h-4 text-[#F96100]" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-extrabold text-xs text-[#130C76]">Clinical Testing Sandbox</span>
+              <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-300">
+                {appointments.filter(a => a.is_demo).length} Demo Client(s) Loaded
+              </span>
+            </div>
+            <p className="text-[11px] text-gray-500 mt-0.5">
+              Simulate complete patient journeys: Sarah Jenkins (Severe DASS-21), David Chen (Pending GAD-7), and Marcus Brody (Overdue Screener).
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+          <button
+            onClick={handleSeedDemoData}
+            disabled={isSeedingDemo}
+            className="flex-1 sm:flex-none bg-[#130C76] hover:bg-[#0038A8] text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isSeedingDemo ? 'animate-spin' : ''}`} />
+            {isSeedingDemo ? 'Seeding...' : 'Seed Test Cohort'}
+          </button>
+
+          {appointments.some(a => a.is_demo) && (
+            <button
+              onClick={handlePurgeDemoData}
+              disabled={isPurgingDemo}
+              className="flex-1 sm:flex-none bg-white border border-red-200 hover:bg-red-50 text-red-600 px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+            >
+              <Trash2 className="w-3.5 h-3.5 text-red-500" />
+              {isPurgingDemo ? 'Purging...' : 'Purge Demo Data'}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {feedbackMessage && (
+        <div className="mt-3 bg-green-50 border border-green-200 text-green-900 rounded-xl p-3 text-xs font-medium flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
+          <span>{feedbackMessage}</span>
+        </div>
+      )}
 
       {/* Real-time Clinician Urgent Alert Banner if high severity submissions exist */}
       {assignments.some(a => a.clinical_severity && (a.clinical_severity.includes('Severe') || a.clinical_severity.includes('Extremely Severe'))) && (
@@ -268,12 +502,28 @@ export default function ClinicianAdminDashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {appointments.map((appt) => (
-                    <tr key={appt.id} className="hover:bg-gray-50/60">
-                      <td className="py-4">
-                        <span className="font-extrabold text-sm text-gray-900 block">{appt.client_name}</span>
-                        <span className="text-[11px] text-gray-500">{appt.client_email} • {appt.client_phone}</span>
-                      </td>
+                  {appointments.map((appt) => {
+                    const hasOverdueScreener = assignments.some(
+                      (a) => a.client_email === appt.client_email && a.status === 'assigned' && new Date(a.deadline) < new Date()
+                    );
+                    return (
+                      <tr key={appt.id} className="hover:bg-gray-50/60">
+                        <td className="py-4">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-extrabold text-sm text-gray-900">{appt.client_name}</span>
+                            {appt.is_demo && (
+                              <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[9px] font-extrabold px-1.5 py-0.2 rounded-full uppercase">
+                                Demo
+                              </span>
+                            )}
+                            {hasOverdueScreener && (
+                              <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-800 border border-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                <AlertCircle className="w-3 h-3 text-amber-600" /> Overdue Screener
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[11px] text-gray-500 block mt-0.5">{appt.client_email} • {appt.client_phone}</span>
+                        </td>
                       <td className="py-4 font-bold text-[#130C76]">
                         {appt.service?.title || `${appt.duration_minutes}-Min Session`}
                       </td>
@@ -312,7 +562,8 @@ export default function ClinicianAdminDashboard() {
                         </button>
                       </td>
                     </tr>
-                  ))}
+                  );
+                })}
                 </tbody>
               </table>
             </div>
@@ -346,17 +597,26 @@ export default function ClinicianAdminDashboard() {
                     <th className="pb-3 font-bold">Deadline</th>
                     <th className="pb-3 font-bold">Status</th>
                     <th className="pb-3 font-bold">Clinical Severity / Scores</th>
-                    <th className="pb-3 font-bold text-right">Completed</th>
+                    <th className="pb-3 font-bold">Completed At</th>
+                    <th className="pb-3 font-bold text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {assignments.map((asg) => {
                     const isDone = asg.status === 'completed';
+                    const isOverdue = !isDone && new Date(asg.deadline) < new Date();
                     return (
                       <tr key={asg.id} className="hover:bg-gray-50/60">
                         <td className="py-4">
-                          <span className="font-extrabold text-sm text-gray-900 block">{asg.client_name}</span>
-                          <span className="text-[11px] text-gray-500">{asg.client_email}</span>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-extrabold text-sm text-gray-900">{asg.client_name}</span>
+                            {asg.is_demo && (
+                              <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[9px] font-extrabold px-1.5 py-0.2 rounded-full uppercase">
+                                Demo
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[11px] text-gray-500 block mt-0.5">{asg.client_email}</span>
                         </td>
                         <td className="py-4 font-bold text-[#130C76]">
                           {asg.form?.title || 'Assessment'}
@@ -366,9 +626,13 @@ export default function ClinicianAdminDashboard() {
                         </td>
                         <td className="py-4">
                           <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            isDone ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-800'
+                            isDone 
+                              ? 'bg-green-100 text-green-700' 
+                              : isOverdue 
+                                ? 'bg-red-100 text-red-700 border border-red-200' 
+                                : 'bg-amber-100 text-amber-800'
                           }`}>
-                            {asg.status}
+                            {isDone ? 'Completed' : isOverdue ? 'Overdue' : 'Assigned'}
                           </span>
                         </td>
                         <td className="py-4">
@@ -380,8 +644,18 @@ export default function ClinicianAdminDashboard() {
                             <span className="text-gray-400 italic">Pending client submission</span>
                           )}
                         </td>
-                        <td className="py-4 text-right text-gray-500">
+                        <td className="py-4 text-gray-500">
                           {asg.completed_at ? new Date(asg.completed_at).toLocaleDateString('en-AU') : '—'}
+                        </td>
+                        <td className="py-4 text-right">
+                          <Link
+                            href={`/screeners/${asg.id}`}
+                            target="_blank"
+                            className="inline-flex items-center gap-1 bg-white border border-[#E5DFD5] hover:border-[#F96100] text-[#130C76] px-2.5 py-1 rounded-lg text-xs font-bold transition-all shadow-2xs"
+                          >
+                            <span>Open</span>
+                            <ExternalLink className="w-3 h-3 text-[#F96100]" />
+                          </Link>
                         </td>
                       </tr>
                     );
