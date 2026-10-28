@@ -19,6 +19,9 @@ import {
   Zap,
   Lock,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  HelpCircle,
   ExternalLink,
   SlidersHorizontal,
   Mail,
@@ -57,6 +60,52 @@ export default function HomePage() {
   const [contactMessage, setContactMessage] = useState('');
   const [contactSubmitting, setContactSubmitting] = useState(false);
   const [contactSubmitted, setContactSubmitted] = useState(false);
+
+  // FAQ Accordion State
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+
+  const faqs = [
+    {
+      q: 'Do I need a GP referral or Mental Health Care Plan to book?',
+      a: 'No, a GP referral is not required. You can book an appointment directly through our online calendar at any time. If you plan to claim private health insurance rebates, your invoice will include Luke\'s official PACFA clinician provider credentials.',
+      category: 'Booking & Access'
+    },
+    {
+      q: 'What actually happens during a Somatic & Movement Consultation?',
+      a: 'Unlike generic gym training or passive talk therapy, somatic movement works directly with your nervous system. We assess where your body stores tension (jaw, neck, shoulders, shallow breathing), combining targeted breath pacing, gentle mobility drills, and progressive nervous system down-regulation to restore autonomic balance. Wear comfortable clothing you can move freely in.',
+      category: 'Clinical Approach'
+    },
+    {
+      q: 'What are the consultation fees and are there any upfront surprise costs?',
+      a: 'Full transparent pricing: 40-Min Initial Assessment is $160 AUD, 60-Min Psychotherapy & Counselling is $210 AUD (GST-Free), and 30-Min Somatic Movement Consultation is $120 AUD. There are zero upfront booking fees or credit card deposit holds when scheduling your appointment.',
+      category: 'Fees & Billing'
+    },
+    {
+      q: 'Can I claim private health fund rebates?',
+      a: 'Yes. Luke is a PACFA Registered Clinician. Following each session, an official itemized tax invoice receipt is generated in your Client Portal suitable for immediate claims with Medibank, Bupa, AHM, Police Health, and most major Australian private insurers.',
+      category: 'Health Funds'
+    },
+    {
+      q: 'How does online Telehealth video work?',
+      a: 'Upon booking, you receive an encrypted in-app video room link accessible directly from your phone, tablet, or laptop browser. There is no software to install or app to download; simply click the link at your session time to connect with Luke in our private WebRTC consultation room.',
+      category: 'Telehealth'
+    },
+    {
+      q: 'Where is the physical clinic located if I prefer in-person sessions?',
+      a: 'Mighty Mental Health operates from Logan, Queensland, conveniently serving the greater Brisbane and Gold Coast region in person, while offering encrypted Telehealth across Australia. Free, accessible on-site parking is available.',
+      category: 'Location'
+    },
+    {
+      q: 'What is your cancellation and rescheduling policy?',
+      a: 'We ask for 24 hours\' advance notice for cancellations or rescheduling to allow clients on our waiting list to access care. We understand acute illnesses and family emergencies arise and always handle those situations with clinical compassion.',
+      category: 'Policies'
+    },
+    {
+      q: 'How is my clinical confidentiality and health privacy protected?',
+      a: 'All clinical notes, assessment responses (such as DASS-21 and GAD-7), and client records are stored in compliance with the Australian Privacy Act 1988 and Australian Privacy Principles (APP). Your raw clinical notes are locked and never shared without your explicit written consent, except where mandated by law for immediate safety.',
+      category: 'Privacy'
+    }
+  ];
 
   useEffect(() => {
     async function loadServices() {
@@ -212,7 +261,54 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. Dedicated "About Luke" Section */}
+      {/* 2. Clinical Accreditation & Trust Ribbon */}
+      <section className="bg-white border-b border-[#E5DFD5] py-5 shadow-2xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-between text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#F96100]/10 text-[#F96100] flex items-center justify-center shrink-0">
+                <Award className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="font-extrabold text-xs text-[#130C76] block">PACFA Registered</span>
+                <span className="text-[11px] text-gray-500 block">Clinician #28941</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center md:justify-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#0038A8]/10 text-[#0038A8] flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="font-extrabold text-xs text-[#130C76] block">UQ Master of Counselling</span>
+                <span className="text-[11px] text-gray-500 block">University of Queensland</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center md:justify-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#2A4836]/10 text-[#2A4836] flex items-center justify-center shrink-0">
+                <Activity className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="font-extrabold text-xs text-[#130C76] block">Certified Movement Coach</span>
+                <span className="text-[11px] text-gray-500 block">Somatic Regulation</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center md:justify-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#130C76]/10 text-[#130C76] flex items-center justify-center shrink-0">
+                <Lock className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="font-extrabold text-xs text-[#130C76] block">Privacy Act & APP Compliant</span>
+                <span className="text-[11px] text-gray-500 block">Encrypted Australian Telehealth</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. Dedicated "About Luke" Section */}
       <section id="about" className="py-24 bg-white border-b border-[#E5DFD5] scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -545,7 +641,71 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 5. In-Page Contact Us Section */}
+      {/* 5. Frequently Asked Questions (FAQs) */}
+      <section id="faqs" className="py-24 bg-white border-b border-[#E5DFD5] scroll-mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <Badge variant="default" className="text-xs font-bold uppercase tracking-wider py-1 px-3 mb-2">
+              <HelpCircle className="w-3.5 h-3.5 mr-1.5" /> Client Practice Guide
+            </Badge>
+            <h2 className="text-3xl font-extrabold text-[#130C76] sm:text-4xl">Frequently Asked Questions</h2>
+            <p className="text-sm text-gray-600 mt-2 leading-relaxed">
+              Clear, transparent answers about our somatic-cognitive approach, consultation fees, private health fund rebates, and clinical confidentiality.
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto space-y-4">
+            {faqs.map((faq, index) => {
+              const isOpen = openFaqIndex === index;
+              return (
+                <div
+                  key={index}
+                  className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
+                    isOpen 
+                      ? 'bg-[#FBF9F5] border-[#F96100] shadow-sm' 
+                      : 'bg-white border-[#E5DFD5] hover:border-gray-400'
+                  }`}
+                >
+                  <button
+                    onClick={() => setOpenFaqIndex(isOpen ? null : index)}
+                    className="w-full p-6 text-left flex items-start justify-between gap-4 cursor-pointer focus:outline-hidden"
+                  >
+                    <div>
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#F96100] block mb-1">
+                        {faq.category}
+                      </span>
+                      <h3 className="text-base font-bold text-[#130C76] sm:text-lg">
+                        {faq.q}
+                      </h3>
+                    </div>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1 transition-colors ${
+                      isOpen ? 'bg-[#F96100] text-white' : 'bg-gray-100 text-gray-500'
+                    }`}>
+                      {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </div>
+                  </button>
+
+                  {isOpen && (
+                    <div className="px-6 pb-6 pt-1 text-xs sm:text-sm text-gray-700 leading-relaxed border-t border-[#E5DFD5]/60 mt-1 animate-fadeIn">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Quick FAQ Footer reassurance */}
+          <div className="mt-12 text-center text-xs text-gray-500">
+            Have a question not covered here?{' '}
+            <a href="#contact" className="font-bold text-[#F96100] hover:underline">
+              Send Luke an inquiry directly &rarr;
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. In-Page Contact Us Section */}
       <section id="contact" className="py-24 bg-[#FBF9F5] scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16">

@@ -70,6 +70,9 @@ export default function RootLayout({
               <Link href="/#booking" className="hover:text-[#F96100] transition-colors">
                 Live Calendar
               </Link>
+              <Link href="/#faqs" className="hover:text-[#F96100] transition-colors">
+                FAQs
+              </Link>
               <Link href="/#contact" className="hover:text-[#F96100] transition-colors">
                 Contact
               </Link>
@@ -135,6 +138,7 @@ export default function RootLayout({
               <h4 className="text-sm font-semibold uppercase tracking-wider text-[#FFAC24] mb-3">Portals & Quick Links</h4>
               <ul className="space-y-2 text-sm text-white/80">
                 <li><Link href="/#booking" className="hover:text-white transition-colors">Book Online Session</Link></li>
+                <li><Link href="/#faqs" className="hover:text-white transition-colors">Frequently Asked Questions</Link></li>
                 <li><Link href="/portal" className="hover:text-white transition-colors">Client Portal (Intake & Calls)</Link></li>
                 <li><Link href="/admin" className="hover:text-white transition-colors">Clinician Admin & EHR</Link></li>
                 <li><Link href="/contact" className="hover:text-white transition-colors">Contact Practice</Link></li>

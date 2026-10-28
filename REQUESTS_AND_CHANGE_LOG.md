@@ -12,7 +12,7 @@
 
 ```
 +---------------------------------------------------------------------------------------------------------+
-| TOTAL REQUESTS LOGGED: 15      | ACTIONED & VERIFIED: 13      | DEFERRED BY USER: 2     | PENDING: 0   |
+| TOTAL REQUESTS LOGGED: 16      | ACTIONED & VERIFIED: 14      | DEFERRED BY USER: 2     | PENDING: 0   |
 +---------------------------------------------------------------------------------------------------------+
 ```
 
@@ -221,6 +221,22 @@
     - In `/portal`: Displays prominent soft reminder notification banner directing client to complete their screener, while keeping the 1-click **Join Encrypted Telehealth Room** launcher accessible.
   - **Portal Interactive Receipts**: Wired dynamic `mmh_invoices` display in `/portal` showing PACFA Provider details, GST-free therapy status, and Print/Save PDF invoice button.
 - **Verification Evidence**: Seeded directly into live Supabase database; `npm run build` compiled all 9 routes with 0 errors; committed and deployed to Vercel production.
+
+---
+
+### [REQ-016] Terri-Ann Spence Comparative Benchmark: Trust Ribbon & Interactive Landing Page FAQs
+- **User Instruction**:
+  - *"1. nah the text and pallete is fine because mmh also dips into fitness"*
+  - *"2. just do an faq"*
+  - *"3. sure, why not"* (Adding the dedicated Clinical Trust Ribbon)
+- **Category**: UX Optimization & Clinical Trust Design
+- **Status**: ✅ **Actioned & Verified**
+- **Implementation & Deliverables**:
+  - **Branding Preservation**: Maintained existing high-energy somatic/fitness typography and Cadmium Orange (`#F96100`) + Bold Navy (`#130C76`) palette as explicitly requested.
+  - **Dedicated Clinical Trust Ribbon**: Mounted directly below the Hero section (`src/app/page.tsx`) highlighting PACFA Registered Clinician #28941, UQ Master of Counselling, Certified Movement Coach, and Privacy Act & APP Telehealth Compliance.
+  - **Interactive FAQs Section (`#faqs`)**: Added an interactive accordion on the landing page answering 8 top client logistics and clinical questions (GP referrals, Somatic movement consultation expectations, fee transparency, private health fund claims, encrypted WebRTC telehealth tech, Logan clinic location, cancellation policy, and confidentiality protections).
+  - **Navigation Integration**: Added smooth-scroll `#faqs` links to both top navbar and global footer in `src/app/layout.tsx`.
+- **Verification Evidence**: `npm run build` compiled cleanly with 0 errors across all 9 routes; deployed to GitHub and Vercel production.
 
 ---
 
