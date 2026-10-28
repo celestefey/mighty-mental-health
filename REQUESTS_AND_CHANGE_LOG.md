@@ -300,6 +300,34 @@
 
 ---
 
+### [REQ-019] In-Call Telehealth Clinical Workbench & Patient Slide-Over Assessment Drawer
+- **User Instruction**: *"with the soap notes and the telehealth screen can we have it so luke can see the patient and his notes side by side, and aslo have a way for him to send and see patient test results and profiles while in the call? and on the patient side, can it have a side bar that pops in and out if a form is assigned while in session?"*
+- **Category**: Telehealth UX / Real-Time Dual-Perspective Clinical Architecture
+- **Status**: ✅ **Actioned & Verified**
+- **Implementation & Deliverables**:
+  - **Dual-Perspective Role Routing & In-Call Switcher**:
+    - Embedded segmented switch in [`src/app/telehealth/[roomId]/page.tsx`](src/app/telehealth/[roomId]/page.tsx) header supporting instant toggling between `👨‍⚕️ Luke's Console` and `🧑 Patient View`.
+    - Automated query parameter routing (`?role=clinician` from Admin appointment launcher, `?role=client` from Client Portal).
+  - **Luke's Side-by-Side Clinical Workbench**:
+    - **Split Screen Layout**: Large WebRTC video stream on the left (~60% width) with audio visualizer, connection diagnostics, and PiP local mirror.
+    - **Interactive Multi-Tab Clinician Console (Right Side)**:
+      1. **`SOAP Notes` Tab**: Real-time drafting across Subjective (S), Objective (O), Assessment (A), and Plan (P). Includes Draft Save, PACFA Audit-Sealed Locking, and auto-save feedback.
+      2. **⚡ `Inject Latest Scores into (O)`**: One-click automation button that retrieves the client's most recent completed assessment (e.g. PHQ-9, DASS-21, K10) and automatically injects formatted test scores, clinical classifications, and timestamps directly into the Objective section.
+      3. **`Patient Profile & Test Results` Tab**: In-call client bio, phone, appointment format, and expandable historical score cards for all assigned/completed assessments with severity flags.
+      4. **`Dispatch Assessment` Tab**: 1-click in-session screener launcher allowing Luke to push any of the 12 NovoPsych standardized instruments directly to the active client.
+  - **Patient Slide-Over Drawer Experience**:
+    - `fixed inset-y-0 right-0 w-[480px]` slide-over drawer that automatically pops in smoothly from the right when Luke dispatches a form.
+    - Synthesized gentle 2-tone audio chime (Web Audio API) + visual notification badge.
+    - Inlines interactive questionnaires directly inside the video call without disconnecting camera or microphone.
+    - On submission, immediately updates the clinician's results console and announces via in-room system chat.
+    - Provides a persistent `[📋 In-Call Assessment]` toggle pill in the video controls so patients can minimize and re-open the form at will.
+- **Verification Evidence**:
+  - `npm run build` compiled all 9 routes with 0 errors in 2.2s.
+  - Dual perspective switching and in-session score injection verified.
+  - Committed to GitHub and deployed live to Vercel production.
+
+---
+
 ## 📌 Running Verification Matrix
 
 | Route / Component | Description | Build Status | Live Status |

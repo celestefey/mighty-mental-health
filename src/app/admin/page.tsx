@@ -596,10 +596,10 @@ export default function ClinicianAdminDashboard() {
                       <td className="py-4 text-right space-x-2">
                         {appt.modality === 'video' && (
                           <Link
-                            href={`/telehealth/${appt.telehealth_room_id}`}
-                            className="bg-[#130C76] hover:bg-[#0038A8] text-white px-3 py-1.5 rounded-lg text-xs font-bold inline-flex items-center gap-1"
+                            href={`/telehealth/${appt.telehealth_room_id}?role=clinician`}
+                            className="bg-[#130C76] hover:bg-[#0038A8] text-white px-3 py-1.5 rounded-lg text-xs font-bold inline-flex items-center gap-1 shadow-xs"
                           >
-                            <Video className="w-3.5 h-3.5 text-[#FFAC24]" /> Start Room
+                            <Video className="w-3.5 h-3.5 text-[#FFAC24]" /> Start Room (Clinician)
                           </Link>
                         )}
                         <button

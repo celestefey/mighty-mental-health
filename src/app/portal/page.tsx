@@ -213,7 +213,7 @@ export default function ClientPortalPage() {
                     {/* Telehealth One-Click Launcher */}
                     {appt.modality === 'video' && (
                       <Link
-                        href={`/telehealth/${appt.telehealth_room_id}`}
+                        href={`/telehealth/${appt.telehealth_room_id}?role=client`}
                         className="w-full bg-[#130C76] hover:bg-[#0038A8] text-white py-2.5 px-4 rounded-xl font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2"
                       >
                         <Video className="w-4 h-4 text-[#FFAC24]" />
