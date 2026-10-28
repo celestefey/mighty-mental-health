@@ -455,7 +455,8 @@ export default function HomePage() {
           {bookingEngine === 'calcom' ? (
             <div className="max-w-4xl mx-auto">
               <CalBookingEmbed
-                calLink="luke-mightymentalhealth/initial-consult"
+                calLink={process.env.NEXT_PUBLIC_CAL_LINK || ''}
+                onSwitchToNative={() => setBookingEngine('native')}
                 metadata={{
                   utm_source: 'website_toggle',
                   workflow: 'agy_marketing_sync',
@@ -521,38 +522,114 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* STEP 2: Choose Appointment Time (60% Column) */}
+                {/* STEP 2 & 3: Choose Format & Time (60% Column) */}
                 <div className="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between">
                   <div>
-                    <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                      <div className="flex items-center gap-2">
+                    {/* Consultation Format Selector (Prominent Telehealth vs Phone) */}
+                    <div className="mb-6">
+                      <div className="flex items-center gap-2 mb-3">
                         <span className="w-7 h-7 rounded-full bg-[#130C76] text-white flex items-center justify-center text-xs font-bold">2</span>
-                        <h3 className="font-bold text-lg text-[#130C76]">Pick Date & Time</h3>
+                        <h3 className="font-bold text-lg text-[#130C76]">Choose Consultation Format</h3>
                       </div>
 
-                      {/* Modality Switcher */}
-                      <div className="inline-flex rounded-xl bg-white p-1 border border-gray-200">
-                        <button
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {/* Option 1: Telehealth Video */}
+                        <div
                           onClick={() => setSelectedModality('video')}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          className={`p-4 rounded-2xl cursor-pointer border-2 transition-all relative ${
                             selectedModality === 'video'
-                              ? 'bg-[#130C76] text-white shadow-xs'
-                              : 'text-gray-500 hover:text-gray-900'
+                              ? 'border-[#130C76] bg-white shadow-md ring-2 ring-[#130C76]/15'
+                              : 'border-gray-200 bg-white/70 hover:border-gray-300'
                           }`}
                         >
-                          <Video className="w-3.5 h-3.5 text-[#FFAC24]" /> Video Call
-                        </button>
-                        <button
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${
+                                selectedModality === 'video' ? 'bg-[#130C76] text-white' : 'bg-gray-100 text-gray-600'
+                              }`}>
+                                <Video className="w-5 h-5 text-[#FFAC24]" />
+                              </div>
+                              <div>
+                                <span className="font-extrabold text-sm text-[#130C76] block">
+                                  Telehealth Video
+                                </span>
+                                <span className="text-[11px] text-gray-500 block mt-0.5">
+                                  Encrypted in-browser room
+                                </span>
+                              </div>
+                            </div>
+                            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
+                              selectedModality === 'video' ? 'bg-[#130C76] text-white' : 'border border-gray-300'
+                            }`}>
+                              {selectedModality === 'video' && <CheckCircle2 className="w-3.5 h-3.5" />}
+                            </span>
+                          </div>
+                          <div className="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between text-[10px]">
+                            <span className="bg-green-100 text-green-800 font-extrabold px-2 py-0.5 rounded-full">
+                              ★ Recommended for Somatics
+                            </span>
+                            <span className="text-gray-400 font-medium">No app download</span>
+                          </div>
+                        </div>
+
+                        {/* Option 2: Phone Call */}
+                        <div
                           onClick={() => setSelectedModality('phone')}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          className={`p-4 rounded-2xl cursor-pointer border-2 transition-all relative ${
                             selectedModality === 'phone'
-                              ? 'bg-[#130C76] text-white shadow-xs'
-                              : 'text-gray-500 hover:text-gray-900'
+                              ? 'border-[#130C76] bg-white shadow-md ring-2 ring-[#130C76]/15'
+                              : 'border-gray-200 bg-white/70 hover:border-gray-300'
                           }`}
                         >
-                          <Phone className="w-3.5 h-3.5 text-[#FFAC24]" /> Phone Call
-                        </button>
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${
+                                selectedModality === 'phone' ? 'bg-[#130C76] text-white' : 'bg-gray-100 text-gray-600'
+                              }`}>
+                                <Phone className="w-5 h-5 text-[#FFAC24]" />
+                              </div>
+                              <div>
+                                <span className="font-extrabold text-sm text-[#130C76] block">
+                                  Phone Call
+                                </span>
+                                <span className="text-[11px] text-gray-500 block mt-0.5">
+                                  Luke calls your mobile
+                                </span>
+                              </div>
+                            </div>
+                            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
+                              selectedModality === 'phone' ? 'bg-[#130C76] text-white' : 'border border-gray-300'
+                            }`}>
+                              {selectedModality === 'phone' && <CheckCircle2 className="w-3.5 h-3.5" />}
+                            </span>
+                          </div>
+                          <div className="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between text-[10px]">
+                            <span className="bg-gray-100 text-gray-700 font-bold px-2 py-0.5 rounded-full">
+                              Audio Only
+                            </span>
+                            <span className="text-gray-400 font-medium">Direct phone call</span>
+                          </div>
+                        </div>
                       </div>
+                    </div>
+
+                    {/* STEP 3: Choose Appointment Time */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="w-7 h-7 rounded-full bg-[#130C76] text-white flex items-center justify-center text-xs font-bold">3</span>
+                        <h3 className="font-bold text-lg text-[#130C76]">Pick Date & Time</h3>
+                      </div>
+                      <span className="text-xs text-[#130C76] font-bold bg-[#130C76]/5 px-2.5 py-1 rounded-lg border border-[#130C76]/10 flex items-center gap-1.5">
+                        {selectedModality === 'video' ? (
+                          <>
+                            <Video className="w-3.5 h-3.5 text-[#F96100]" /> Telehealth Video
+                          </>
+                        ) : (
+                          <>
+                            <Phone className="w-3.5 h-3.5 text-[#F96100]" /> Phone Call
+                          </>
+                        )}
+                      </span>
                     </div>
 
                     {/* Timezone Switcher */}
@@ -618,11 +695,24 @@ export default function HomePage() {
                   {/* Bottom Confirmation Bar */}
                   <div className="mt-8 pt-6 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white -mx-6 -mb-6 sm:-mx-8 sm:-mb-8 p-6 rounded-b-3xl">
                     <div>
-                      <span className="text-xs text-gray-500 font-medium">Selected Appointment</span>
-                      <p className="text-sm font-extrabold text-[#130C76]">
-                        {selectedService?.title} • {selectedModality === 'video' ? 'Video' : 'Phone'}
-                      </p>
-                      <p className="text-xs text-gray-600 font-semibold">
+                      <span className="text-xs text-gray-500 font-medium">Selected Consultation</span>
+                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                        <p className="text-sm font-extrabold text-[#130C76]">
+                          {selectedService?.title}
+                        </p>
+                        <span className="bg-[#130C76] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase flex items-center gap-1 shadow-2xs">
+                          {selectedModality === 'video' ? (
+                            <>
+                              <Video className="w-3 h-3 text-[#FFAC24]" /> Telehealth Video
+                            </>
+                          ) : (
+                            <>
+                              <Phone className="w-3 h-3 text-[#FFAC24]" /> Phone Call
+                            </>
+                          )}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600 font-semibold mt-0.5">
                         {selectedDate} @ {selectedTime} ({selectedTimezone.split('/')[1]})
                       </p>
                     </div>

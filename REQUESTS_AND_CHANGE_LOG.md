@@ -12,7 +12,7 @@
 
 ```
 +---------------------------------------------------------------------------------------------------------+
-| TOTAL REQUESTS LOGGED: 16      | ACTIONED & VERIFIED: 14      | DEFERRED BY USER: 2     | PENDING: 0   |
+| TOTAL REQUESTS LOGGED: 17      | ACTIONED & VERIFIED: 15      | DEFERRED BY USER: 2     | PENDING: 0   |
 +---------------------------------------------------------------------------------------------------------+
 ```
 
@@ -237,6 +237,24 @@
   - **Interactive FAQs Section (`#faqs`)**: Added an interactive accordion on the landing page answering 8 top client logistics and clinical questions (GP referrals, Somatic movement consultation expectations, fee transparency, private health fund claims, encrypted WebRTC telehealth tech, Logan clinic location, cancellation policy, and confidentiality protections).
   - **Navigation Integration**: Added smooth-scroll `#faqs` links to both top navbar and global footer in `src/app/layout.tsx`.
 - **Verification Evidence**: `npm run build` compiled cleanly with 0 errors across all 9 routes; deployed to GitHub and Vercel production.
+
+---
+
+### [REQ-017] Prominent Modality Selection & Fail-Safe Cal.com Integration
+- **User Instruction**:
+  - *"can we make selecting telehealth or phone call more obvious?"*
+  - *"also cal.com things doesnt work"*
+- **Category**: Booking Engine UX & External Scheduling Reliability
+- **Status**: ✅ **Actioned & Verified**
+- **Implementation & Deliverables**:
+  - **High-Visibility Modality Cards**: Redesigned Step 2 in the booking grid (`src/app/page.tsx`) with two large, prominent dual cards:
+    - **Telehealth Video** (Recommended): Camera icon, "Encrypted in-browser room", checkmark, and badge *"★ Recommended for Somatics (No app download)"*.
+    - **Phone Call**: Receiver icon, "Luke calls your mobile", checkmark, and badge *"Audio Only"*.
+  - **Selected Consultation Badge**: Updated the bottom confirmation bar to prominently display the active modality with high-contrast pills (`[📹 Telehealth Video]` or `[📞 Phone Call]`).
+  - **Cal.com Embed Fix & Fallback**:
+    - Identified why Cal.com failed: hardcoded non-existent username `luke-mightymentalhealth/initial-consult` caused 404/blank iframe errors on cal.com.
+    - Updated [`CalBookingEmbed.tsx`](src/components/booking/CalBookingEmbed.tsx) to accept dynamic handles, check `process.env.NEXT_PUBLIC_CAL_LINK`, provide a direct input form for Luke to test any active Cal username, and include a 1-click fallback button back to the built-in dual-column calendar.
+- **Verification Evidence**: `npm run build` compiled cleanly; verified on GitHub and Vercel production.
 
 ---
 
