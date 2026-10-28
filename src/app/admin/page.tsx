@@ -196,6 +196,27 @@ export default function ClinicianAdminDashboard() {
         </div>
       </div>
 
+      {/* Real-time Clinician Urgent Alert Banner if high severity submissions exist */}
+      {assignments.some(a => a.clinical_severity && (a.clinical_severity.includes('Severe') || a.clinical_severity.includes('Extremely Severe'))) && (
+        <div className="mt-4 bg-red-50 border-2 border-red-200 rounded-2xl p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-xs animate-pulse">
+              !
+            </div>
+            <div>
+              <span className="font-extrabold text-sm text-red-900 block">High-Severity Clinical Screener Alert</span>
+              <span className="text-xs text-red-700">One or more clients have submitted assessments flagged with Severe distress. Please review the Submissions tab.</span>
+            </div>
+          </div>
+          <button
+            onClick={() => setActiveTab('assignments')}
+            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+          >
+            Review Submissions &rarr;
+          </button>
+        </div>
+      )}
+
       {/* Admin Tab Navigation */}
       <div className="flex border-b border-gray-200 mt-6 space-x-8 text-sm font-bold">
         {[

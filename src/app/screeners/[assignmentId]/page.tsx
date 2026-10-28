@@ -12,7 +12,8 @@ import {
   ShieldCheck, 
   Clock, 
   AlertCircle,
-  HelpCircle
+  HelpCircle,
+  ShieldAlert
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -87,6 +88,24 @@ export default function ScreenerSubmissionPage() {
         completed_at: new Date().toISOString(),
       })
       .eq('id', assignment.id);
+
+    // Dispatch real-time clinical notification alert to Luke
+    try {
+      await fetch('/api/alerts/clinician', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_name: assignment.client_name,
+          client_email: assignment.client_email,
+          form_title: assignment.form.title,
+          severity: severityFlag,
+          scores: scoreSummary,
+          submitted_at: new Date().toISOString(),
+        }),
+      });
+    } catch (err) {
+      console.warn('Clinician alert logging:', err);
+    }
 
     setIsSubmitting(false);
     setIsSubmitted(true);
@@ -172,12 +191,40 @@ export default function ScreenerSubmissionPage() {
               </div>
             )}
 
+            {/* Always visible 24/7 Crisis Support Numbers */}
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-4 max-w-md mx-auto text-left text-xs text-red-900 space-y-2 mt-6">
+              <div className="flex items-center gap-1.5 font-bold text-red-700">
+                <ShieldAlert className="w-4 h-4 text-red-600" /> If you need immediate support at any time:
+              </div>
+              <p className="text-[11px] text-red-800 leading-relaxed">
+                Forms are reviewed by Luke during consultation preparation. If you are experiencing acute distress, thoughts of self-harm, or need someone to speak with right now, free confidential 24/7 support is available:
+              </p>
+              <div className="grid grid-cols-2 gap-2 pt-1 font-bold text-[11px]">
+                <a href="tel:000" className="bg-white border border-red-200 p-2 rounded-xl text-center hover:bg-red-100/50 block transition-colors">
+                  <span className="text-red-600 block text-[9px] uppercase font-bold">Emergency Services</span>
+                  000
+                </a>
+                <a href="tel:131114" className="bg-white border border-red-200 p-2 rounded-xl text-center hover:bg-red-100/50 block transition-colors">
+                  <span className="text-red-600 block text-[9px] uppercase font-bold">24/7 Crisis Line</span>
+                  Lifeline: 13 11 14
+                </a>
+                <a href="tel:1300659467" className="bg-white border border-red-200 p-2 rounded-xl text-center hover:bg-red-100/50 block transition-colors">
+                  <span className="text-red-600 block text-[9px] uppercase font-bold">Suicide Call Back</span>
+                  1300 659 467
+                </a>
+                <a href="tel:1300224636" className="bg-white border border-red-200 p-2 rounded-xl text-center hover:bg-red-100/50 block transition-colors">
+                  <span className="text-red-600 block text-[9px] uppercase font-bold">Beyond Blue</span>
+                  1300 22 4636
+                </a>
+              </div>
+            </div>
+
             <div className="pt-6">
               <Link
                 href="/portal"
-                className="bg-[#130C76] text-white px-6 py-3 rounded-xl font-bold text-xs hover:bg-[#0038A8] transition-colors"
+                className="bg-[#130C76] text-white px-6 py-3 rounded-xl font-bold text-xs hover:bg-[#0038A8] transition-colors inline-block"
               >
-                Return to Portal
+                Return to Client Portal
               </Link>
             </div>
           </div>
