@@ -12,7 +12,7 @@
 
 ```
 +---------------------------------------------------------------------------------------------------------+
-| TOTAL REQUESTS LOGGED: 12      | ACTIONED & VERIFIED: 10      | DEFERRED BY USER: 2     | PENDING: 0   |
+| TOTAL REQUESTS LOGGED: 13      | ACTIONED & VERIFIED: 11      | DEFERRED BY USER: 2     | PENDING: 0   |
 +---------------------------------------------------------------------------------------------------------+
 ```
 
@@ -178,6 +178,18 @@
 - **Category**: Infrastructure / Real-Time Media
 - **Status**: ⏸️ **Deferred by User**
 - **Reason / Explanation**: User opted to defer commercial TURN server provisioning at this time. Embedded WebRTC room functions with peer-to-peer media streams and fallback presentation mode.
+
+---
+
+### [REQ-013] In-Page "About Luke" & Contact Form on Landing Page
+- **User Instruction**: *"also i want the about luke and the contact form to tall be on the landing page so its really eazy and obvious to navigate"*
+- **Category**: UX / Information Architecture & Navigation Optimization
+- **Status**: ✅ **Actioned & Verified**
+- **Implementation & Deliverables**:
+  - **About Luke Section (`#about`)**: Prominently mounted directly on the landing page (`src/app/page.tsx`) with comprehensive clinician credentials (UQ Master of Counselling, PACFA Registered Clinician, Certified Movement Coach), practice base (Logan, QLD), dual-track somatic-cognitive approach, and anti-clinical warmth narrative.
+  - **Contact Us Section (`#contact`)**: Integrated directly into the landing page with an interactive inquiry form (full name, email, phone, message), clinic location details, direct email (`luke@mightymentalhealth.com.au`), and 24/7 acute crisis support safeguards (000, Lifeline 13 11 14).
+  - **Single-Page Navigation**: Updated `src/app/layout.tsx` navbar so links (`Services`, `About Luke`, `Live Calendar`, `Contact`) smooth-scroll directly to the corresponding `#` anchors on the landing page.
+- **Verification Evidence**: Production build passed with 0 errors; verified on live Vercel deployment.
 
 ---
 

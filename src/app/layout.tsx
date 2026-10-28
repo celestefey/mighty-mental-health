@@ -70,6 +70,9 @@ export default function RootLayout({
               <Link href="/#booking" className="hover:text-[#F96100] transition-colors">
                 Live Calendar
               </Link>
+              <Link href="/#contact" className="hover:text-[#F96100] transition-colors">
+                Contact
+              </Link>
               <Link href="/portal" className="text-[#130C76] hover:text-[#F96100] transition-colors flex items-center gap-1.5 font-semibold">
                 <UserCheck className="w-4 h-4" /> Client Portal
               </Link>

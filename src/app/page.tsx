@@ -20,13 +20,18 @@ import {
   Lock,
   ChevronRight,
   ExternalLink,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Mail,
+  MapPin,
+  Send,
+  ShieldAlert
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { MMHService } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { ValidatedBookingForm } from '@/components/booking/ValidatedBookingForm';
 import { CalBookingEmbed } from '@/components/booking/CalBookingEmbed';
 
@@ -44,6 +49,14 @@ export default function HomePage() {
   // Booking Form Modal State
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState<any | null>(null);
+
+  // In-Page Contact Form State
+  const [contactName, setContactName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const [contactMessage, setContactMessage] = useState('');
+  const [contactSubmitting, setContactSubmitting] = useState(false);
+  const [contactSubmitted, setContactSubmitted] = useState(false);
 
   useEffect(() => {
     async function loadServices() {
@@ -65,9 +78,35 @@ export default function HomePage() {
     { day: 'FRI', date: '30 Oct', fullDate: '2026-10-30', slots: ['10:00 AM', '11:30 AM', '01:00 PM'] },
   ];
 
+  async function handleContactSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setContactSubmitting(true);
+
+    try {
+      await fetch('/api/webhooks/intake', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_name: contactName,
+          client_email: contactEmail,
+          form_id: 'inpage-contact-inquiry',
+          form_title: 'Website General Inquiry',
+          answers: { phone: contactPhone, message: contactMessage },
+          clinical_severity: 'General Inquiry',
+          metadata: { origin: 'landing_page_contact_section' },
+        }),
+      });
+    } catch (err) {
+      console.warn('Contact logging notice:', err);
+    }
+
+    setContactSubmitting(false);
+    setContactSubmitted(true);
+  }
+
   return (
     <div className="relative">
-      {/* Hero Section */}
+      {/* 1. Hero Section */}
       <section className="relative overflow-hidden pt-12 pb-24 md:pt-20 md:pb-32 bg-gradient-to-b from-[#FFFDF9] to-[#F5EFE6] border-b border-[#E5DFD5]">
         <div className="absolute inset-0 opacity-15 pointer-events-none bg-[radial-gradient(#130C76_1px,transparent_1px)] [background-size:24px_24px]"></div>
         
@@ -111,7 +150,10 @@ export default function HomePage() {
                   </a>
                 </Button>
                 <Button asChild variant="outline" size="lg">
-                  <a href="#services">Explore Clinical Menu</a>
+                  <a href="#about">Meet Luke</a>
+                </Button>
+                <Button asChild variant="secondary" size="lg">
+                  <a href="#contact">Contact Practice</a>
                 </Button>
               </div>
 
@@ -170,8 +212,87 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* The 5 Values Pillars */}
-      <section id="services" className="py-20 bg-white border-b border-[#E5DFD5]">
+      {/* 2. Dedicated "About Luke" Section */}
+      <section id="about" className="py-24 bg-white border-b border-[#E5DFD5] scroll-mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            {/* Left Column: Visual Profile & Credentials Badge Deck */}
+            <div className="lg:col-span-5 space-y-6">
+              <div className="relative rounded-3xl overflow-hidden bg-[#130C76] text-white p-8 sm:p-10 shadow-xl border border-[#130C76]">
+                <div className="w-24 h-24 rounded-2xl bg-[#F96100] text-white flex items-center justify-center font-extrabold text-4xl shadow-lg mb-6">
+                  L
+                </div>
+                <h3 className="text-2xl font-extrabold text-white">Luke MCouns</h3>
+                <p className="text-xs font-bold uppercase tracking-wider text-[#FFAC24] mt-1">
+                  Master of Counselling (University of Queensland)
+                </p>
+                <p className="text-xs text-white/80 mt-1">
+                  Registered PACFA Clinician • Certified Movement & Strength Coach
+                </p>
+
+                <div className="mt-6 pt-6 border-t border-white/10 space-y-3 text-xs text-white/90">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-[#F96100]" />
+                    <span>Practice Base: Logan, Queensland, Australia</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Video className="w-4 h-4 text-[#F96100]" />
+                    <span>Modality: Encrypted Telehealth Australia-Wide</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-[#F96100]" />
+                    <span>luke@mightymentalhealth.com.au</span>
+                  </div>
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-white/10">
+                  <Button asChild variant="default" size="default" className="w-full">
+                    <a href="#booking">Book With Luke &rarr;</a>
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Narrative, Dual-Track Philosophy & Anti-Clinical Stance */}
+            <div className="lg:col-span-7 space-y-6">
+              <Badge variant="navy" className="text-xs font-bold uppercase tracking-wider py-1 px-3">
+                Meet Your Clinician
+              </Badge>
+
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#130C76] tracking-tight">
+                No Cold Waiting Rooms. No Sterile Jargon. <span className="text-[#F96100]">Just Real Healthcare.</span>
+              </h2>
+
+              <p className="text-base text-gray-700 leading-relaxed">
+                Conventional therapy often asks you to talk about your distress while ignoring the knots in your shoulders, your shallow chest breathing, and your elevated nervous system. Conventional personal training treats your body like a machine to be judged, obsessed with mirrors and cosmetic vanity.
+              </p>
+
+              <p className="text-base text-gray-700 leading-relaxed">
+                <strong>Mighty Mental Health was founded to fuse both.</strong> With a Master of Counselling from the University of Queensland and years of clinical and physical strength coaching experience, Luke brings an evidence-based, compassionate space where mind and body are strengthened together.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div className="p-4 rounded-2xl bg-[#FBF9F5] border border-[#E5DFD5]">
+                  <h4 className="font-extrabold text-sm text-[#130C76] mb-1">Down-To-Earth Dialogue</h4>
+                  <p className="text-xs text-gray-600 leading-relaxed">
+                    Conversations feel natural, grounded, and unpretentious. We speak like real human beings, meeting you wherever you are at.
+                  </p>
+                </div>
+                <div className="p-4 rounded-2xl bg-[#FBF9F5] border border-[#E5DFD5]">
+                  <h4 className="font-extrabold text-sm text-[#130C76] mb-1">Somatic Equilibrium</h4>
+                  <p className="text-xs text-gray-600 leading-relaxed">
+                    Learn how nervous system regulation, vagal toning, and tailored progressive movement calm anxiety and restore vitality.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. The 5 Values Pillars */}
+      <section id="services" className="py-20 bg-[#FBF9F5] border-b border-[#E5DFD5] scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-xs font-bold uppercase tracking-wider text-[#F96100] block mb-2">Our Grounding Philosophy</span>
@@ -189,8 +310,8 @@ export default function HomePage() {
             ].map((pillar, i) => {
               const Icon = pillar.icon;
               return (
-                <div key={i} className="p-6 rounded-2xl bg-[#FBF9F5] border border-[#E5DFD5] hover:border-[#F96100] transition-colors group">
-                  <div className="w-10 h-10 rounded-xl bg-white border border-[#E5DFD5] flex items-center justify-center text-[#F96100] shadow-2xs mb-4 group-hover:scale-110 transition-transform">
+                <div key={i} className="p-6 rounded-2xl bg-white border border-[#E5DFD5] hover:border-[#F96100] transition-colors group shadow-xs">
+                  <div className="w-10 h-10 rounded-xl bg-[#FBF9F5] border border-[#E5DFD5] flex items-center justify-center text-[#F96100] shadow-2xs mb-4 group-hover:scale-110 transition-transform">
                     <Icon className="w-5 h-5" />
                   </div>
                   <h3 className="font-bold text-[#130C76] text-base mb-2">{pillar.title}</h3>
@@ -202,8 +323,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Side-by-Side Unified Booking Grid with Cal.com Switcher */}
-      <section id="booking" className="py-20 bg-[#FBF9F5] scroll-mt-12">
+      {/* 4. Side-by-Side Unified Booking Grid with Cal.com Switcher */}
+      <section id="booking" className="py-20 bg-white border-b border-[#E5DFD5] scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-10">
             <span className="text-xs font-bold uppercase tracking-wider text-[#F96100] block mb-1">Appointment Scheduler</span>
@@ -211,10 +332,10 @@ export default function HomePage() {
             <p className="text-sm text-gray-600 mt-2">Select your consultation, choose an open timeslot, and book your session in 60 seconds.</p>
             
             {/* Engine Switcher */}
-            <div className="mt-6 inline-flex rounded-xl bg-white p-1 border border-[#E5DFD5] shadow-2xs">
+            <div className="mt-6 inline-flex rounded-xl bg-gray-50 p-1 border border-[#E5DFD5] shadow-2xs">
               <button
                 onClick={() => setBookingEngine('native')}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   bookingEngine === 'native'
                     ? 'bg-[#130C76] text-white shadow-xs'
                     : 'text-gray-600 hover:text-gray-900'
@@ -224,7 +345,7 @@ export default function HomePage() {
               </button>
               <button
                 onClick={() => setBookingEngine('calcom')}
-                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   bookingEngine === 'calcom'
                     ? 'bg-[#130C76] text-white shadow-xs'
                     : 'text-gray-600 hover:text-gray-900'
@@ -247,11 +368,11 @@ export default function HomePage() {
             </div>
           ) : (
             /* Unified Dual Column Container */
-            <div className="bg-white rounded-3xl border border-[#E5DFD5] shadow-xl overflow-hidden">
+            <div className="bg-[#FBF9F5] rounded-3xl border border-[#E5DFD5] shadow-xl overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-12">
                 
                 {/* STEP 1: Select Session (40% Column) */}
-                <div className="lg:col-span-5 p-6 sm:p-8 bg-gray-50/60 border-b lg:border-b-0 lg:border-r border-[#E5DFD5] flex flex-col justify-between">
+                <div className="lg:col-span-5 p-6 sm:p-8 bg-white border-b lg:border-b-0 lg:border-r border-[#E5DFD5] flex flex-col justify-between">
                   <div>
                     <div className="flex items-center gap-2 mb-6">
                       <span className="w-7 h-7 rounded-full bg-[#130C76] text-white flex items-center justify-center text-xs font-bold">1</span>
@@ -267,7 +388,7 @@ export default function HomePage() {
                             onClick={() => setSelectedService(service)}
                             className={`p-5 rounded-2xl cursor-pointer border-2 transition-all ${
                               isSelected 
-                                ? 'border-[#F96100] bg-white shadow-md' 
+                                ? 'border-[#F96100] bg-[#FFFDF9] shadow-md' 
                                 : 'border-gray-200 bg-white hover:border-gray-300'
                             }`}
                           >
@@ -314,37 +435,37 @@ export default function HomePage() {
                       </div>
 
                       {/* Modality Switcher */}
-                      <div className="inline-flex rounded-xl bg-gray-100 p-1 border border-gray-200">
+                      <div className="inline-flex rounded-xl bg-white p-1 border border-gray-200">
                         <button
                           onClick={() => setSelectedModality('video')}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                             selectedModality === 'video'
-                              ? 'bg-white text-[#130C76] shadow-xs'
+                              ? 'bg-[#130C76] text-white shadow-xs'
                               : 'text-gray-500 hover:text-gray-900'
                           }`}
                         >
-                          <Video className="w-3.5 h-3.5 text-[#F96100]" /> Video Call
+                          <Video className="w-3.5 h-3.5 text-[#FFAC24]" /> Video Call
                         </button>
                         <button
                           onClick={() => setSelectedModality('phone')}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                             selectedModality === 'phone'
-                              ? 'bg-white text-[#130C76] shadow-xs'
+                              ? 'bg-[#130C76] text-white shadow-xs'
                               : 'text-gray-500 hover:text-gray-900'
                           }`}
                         >
-                          <Phone className="w-3.5 h-3.5 text-[#0038A8]" /> Phone Call
+                          <Phone className="w-3.5 h-3.5 text-[#FFAC24]" /> Phone Call
                         </button>
                       </div>
                     </div>
 
                     {/* Timezone Switcher */}
-                    <div className="flex items-center justify-between text-xs text-gray-500 mb-6 bg-amber-50/70 p-3 rounded-xl border border-amber-200/60">
+                    <div className="flex items-center justify-between text-xs text-gray-500 mb-6 bg-white p-3 rounded-xl border border-gray-200">
                       <span className="font-medium text-gray-700">Practice Timezone: Brisbane, QLD (AEST)</span>
                       <select
                         value={selectedTimezone}
                         onChange={(e) => setSelectedTimezone(e.target.value)}
-                        className="bg-white border border-gray-300 rounded-md px-2 py-1 text-xs text-gray-800 font-semibold focus:outline-hidden"
+                        className="bg-gray-50 border border-gray-300 rounded-md px-2 py-1 text-xs text-gray-800 font-semibold focus:outline-hidden"
                       >
                         <option value="Australia/Brisbane">AEST (Brisbane / Logan)</option>
                         <option value="Australia/Sydney">AEDT (Sydney, Melbourne, ACT)</option>
@@ -360,10 +481,10 @@ export default function HomePage() {
                           <div key={col.day} className="flex flex-col items-center">
                             <button
                               onClick={() => setSelectedDate(col.fullDate)}
-                              className={`w-full py-2.5 rounded-xl text-center border transition-all mb-3 ${
+                              className={`w-full py-2.5 rounded-xl text-center border transition-all mb-3 cursor-pointer ${
                                 isDaySelected
                                   ? 'bg-[#130C76] text-white border-[#130C76] shadow-xs'
-                                  : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                                  : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
                               }`}
                             >
                               <span className="block text-[11px] font-bold uppercase tracking-wider opacity-80">{col.day}</span>
@@ -381,7 +502,7 @@ export default function HomePage() {
                                       setSelectedDate(col.fullDate);
                                       setSelectedTime(slot);
                                     }}
-                                    className={`w-full py-2 px-1 text-center text-xs font-bold rounded-lg border transition-all slot-pill ${
+                                    className={`w-full py-2 px-1 text-center text-xs font-bold rounded-lg border transition-all slot-pill cursor-pointer ${
                                       isSlotSelected
                                         ? 'bg-[#F96100] text-white border-[#F96100] shadow-sm scale-105'
                                         : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400 hover:bg-gray-50'
@@ -399,7 +520,7 @@ export default function HomePage() {
                   </div>
 
                   {/* Bottom Confirmation Bar */}
-                  <div className="mt-8 pt-6 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 bg-gray-50 -mx-6 -mb-6 sm:-mx-8 sm:-mb-8 p-6">
+                  <div className="mt-8 pt-6 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white -mx-6 -mb-6 sm:-mx-8 sm:-mb-8 p-6 rounded-b-3xl">
                     <div>
                       <span className="text-xs text-gray-500 font-medium">Selected Appointment</span>
                       <p className="text-sm font-extrabold text-[#130C76]">
@@ -421,6 +542,165 @@ export default function HomePage() {
               </div>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* 5. In-Page Contact Us Section */}
+      <section id="contact" className="py-24 bg-[#FBF9F5] scroll-mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <Badge variant="default" className="text-xs font-bold uppercase tracking-wider py-1 px-3 mb-2">
+              Get in Touch
+            </Badge>
+            <h2 className="text-3xl font-extrabold text-[#130C76] sm:text-4xl">Have a Question for Luke?</h2>
+            <p className="text-sm text-gray-600 mt-2 leading-relaxed">
+              Have questions about psychotherapy, somatic fitness coaching, private health fund claims, or want to speak before booking? Send a message below.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 max-w-5xl mx-auto">
+            {/* Left Info Column */}
+            <div className="lg:col-span-5 space-y-6">
+              <Card className="p-6 sm:p-8 space-y-6">
+                <h3 className="font-extrabold text-xl text-[#130C76]">Practice Information</h3>
+
+                <div className="space-y-4 text-xs text-gray-700">
+                  <div className="flex items-start gap-3">
+                    <MapPin className="w-5 h-5 text-[#F96100] shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold text-gray-900 block">Clinic Base</span>
+                      <span>Logan, Queensland, Australia</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <Mail className="w-5 h-5 text-[#F96100] shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold text-gray-900 block">Direct Clinical Email</span>
+                      <span>luke@mightymentalhealth.com.au</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <Video className="w-5 h-5 text-[#F96100] shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold text-gray-900 block">Consultation Modality</span>
+                      <span>Secure Telehealth Video or Phone across Australia</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-gray-100 text-[11px] text-gray-500 space-y-1">
+                  <p><strong>Clinical Director:</strong> Luke (MCouns, UQ; PACFA Reg)</p>
+                  <p>Inquiries are reviewed directly by Luke within 1 business day.</p>
+                </div>
+              </Card>
+
+              {/* Acute Crisis Support Safeguard */}
+              <div className="bg-red-50 border border-red-200 rounded-3xl p-6 text-xs text-red-900 space-y-2">
+                <div className="flex items-center gap-2 font-bold text-red-700">
+                  <ShieldAlert className="w-4 h-4" /> Urgent Crisis Support
+                </div>
+                <p className="leading-relaxed text-[11px] text-red-800">
+                  Mighty Mental Health provides scheduled outpatient appointments. If you are experiencing acute distress:
+                </p>
+                <div className="space-y-1 font-bold text-[11px] text-red-900 pt-1">
+                  <p>• Emergency: <strong>000</strong></p>
+                  <p>• Lifeline: <strong>13 11 14</strong> (24/7 Crisis Support)</p>
+                  <p>• Suicide Call Back: <strong>1300 659 467</strong></p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Contact Form Column */}
+            <div className="lg:col-span-7">
+              <Card className="p-6 sm:p-10 shadow-lg">
+                {contactSubmitted ? (
+                  <div className="py-12 text-center space-y-4">
+                    <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
+                      <CheckCircle2 className="w-10 h-10" />
+                    </div>
+                    <h3 className="text-2xl font-extrabold text-[#130C76]">Message Received</h3>
+                    <p className="text-xs text-gray-600 max-w-sm mx-auto leading-relaxed">
+                      Thank you, <strong>{contactName}</strong>. Luke has received your note and will reply directly to <strong>{contactEmail}</strong>.
+                    </p>
+                    <button
+                      onClick={() => setContactSubmitted(false)}
+                      className="mt-4 text-xs font-bold text-[#F96100] hover:underline cursor-pointer"
+                    >
+                      Send another note &rarr;
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleContactSubmit} className="space-y-4">
+                    <h3 className="font-extrabold text-xl text-[#130C76] mb-2">Send an Inquiry</h3>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                        Full Name *
+                      </label>
+                      <Input
+                        type="text"
+                        required
+                        value={contactName}
+                        onChange={(e) => setContactName(e.target.value)}
+                        placeholder="e.g. Alex Morgan"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                          Email Address *
+                        </label>
+                        <Input
+                          type="email"
+                          required
+                          value={contactEmail}
+                          onChange={(e) => setContactEmail(e.target.value)}
+                          placeholder="alex@example.com"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                          Phone Number
+                        </label>
+                        <Input
+                          type="tel"
+                          value={contactPhone}
+                          onChange={(e) => setContactPhone(e.target.value)}
+                          placeholder="0400 000 000"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                        Your Message *
+                      </label>
+                      <textarea
+                        rows={4}
+                        required
+                        value={contactMessage}
+                        onChange={(e) => setContactMessage(e.target.value)}
+                        placeholder="Tell Luke a bit about what you are looking for..."
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-xs focus:outline-hidden focus:border-[#F96100]"
+                      ></textarea>
+                    </div>
+
+                    <Button
+                      type="submit"
+                      disabled={contactSubmitting}
+                      size="lg"
+                      className="w-full"
+                    >
+                      {contactSubmitting ? 'Sending...' : 'Send Message to Luke'}
+                    </Button>
+                  </form>
+                )}
+              </Card>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -467,7 +747,7 @@ export default function HomePage() {
                       setIsBookingModalOpen(false);
                       setBookingSuccess(null);
                     }}
-                    className="text-xs text-gray-400 hover:text-gray-600 pt-2"
+                    className="text-xs text-gray-400 hover:text-gray-600 pt-2 cursor-pointer"
                   >
                     Close Window
                   </button>
