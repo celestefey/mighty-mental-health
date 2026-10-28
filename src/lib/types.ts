@@ -31,16 +31,20 @@ export interface MMHAppointment {
 export interface ScreenerQuestion {
   id: string;
   text: string;
-  type: 'scale_0_3' | 'select' | 'multiselect' | 'text' | 'scale_1_10';
+  type: 'scale_0_3' | 'scale_1_5' | 'scale_0_4' | 'scale_0_8' | 'scale_1_4' | 'yes_no' | 'select' | 'multiselect' | 'text' | 'scale_1_10' | string;
   scale?: string; // e.g. 'depression', 'anxiety', 'stress'
   options?: string[];
+  threshold?: number;
+  reverse?: boolean;
+  cluster?: string;
+  critical_alert?: boolean;
 }
 
 export interface MMHForm {
   id: string;
   title: string;
   slug: string;
-  category: 'screener' | 'intake' | 'somatic' | 'custom';
+  category: 'screener' | 'intake' | 'somatic' | 'custom' | 'Mood & Depression' | 'Anxiety & Trauma' | 'ADHD & Neurodiversity' | 'Sleep & Somatics' | 'Substance & Well-being' | string;
   description: string;
   questions: ScreenerQuestion[];
   scoring_rules?: Record<string, any>;

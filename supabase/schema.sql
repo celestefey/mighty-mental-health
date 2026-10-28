@@ -151,7 +151,7 @@ INSERT INTO public.mmh_forms (title, slug, category, description, is_template, q
 (
     'DASS-21 (Depression, Anxiety, Stress Scales)',
     'dass-21',
-    'screener',
+    'Mood & Depression',
     'Quantitative measure of distress along the 3 axes of Depression, Anxiety, and Stress over the past week.',
     true,
     '[
@@ -182,7 +182,7 @@ INSERT INTO public.mmh_forms (title, slug, category, description, is_template, q
 (
     'GAD-7 (Generalised Anxiety Disorder Screener)',
     'gad-7',
-    'screener',
+    'Anxiety & Trauma',
     'Screening tool for generalized anxiety disorder assessing symptoms over the past 2 weeks.',
     true,
     '[
@@ -197,9 +197,179 @@ INSERT INTO public.mmh_forms (title, slug, category, description, is_template, q
     '{"max_score": 21, "cutoffs": {"mild": 5, "moderate": 10, "severe": 15}}'::jsonb
 ),
 (
+    'PHQ-9 (Patient Health Questionnaire - 9)',
+    'phq-9',
+    'Mood & Depression',
+    'Standard 9-item depression screener assessing core DSM criteria over the past 2 weeks with critical suicidality and self-harm detection.',
+    true,
+    '[
+        {"id": "q1", "text": "Little interest or pleasure in doing things", "type": "scale_0_3"},
+        {"id": "q2", "text": "Feeling down, depressed, or hopeless", "type": "scale_0_3"},
+        {"id": "q3", "text": "Trouble falling or staying asleep, or sleeping too much", "type": "scale_0_3"},
+        {"id": "q4", "text": "Feeling tired or having little energy", "type": "scale_0_3"},
+        {"id": "q5", "text": "Poor appetite or overeating", "type": "scale_0_3"},
+        {"id": "q6", "text": "Feeling bad about yourself — or that you are a failure or have let yourself or your family down", "type": "scale_0_3"},
+        {"id": "q7", "text": "Trouble concentrating on things, such as reading or watching television", "type": "scale_0_3"},
+        {"id": "q8", "text": "Moving or speaking slowly, or being so fidgety/restless that you have been moving around more than usual", "type": "scale_0_3"},
+        {"id": "q9", "text": "Thoughts that you would be better off dead, or of hurting yourself in some way", "type": "scale_0_3", "critical_alert": true}
+    ]'::jsonb,
+    '{"max_score": 27, "cutoffs": {"minimal": 4, "mild": 9, "moderate": 14, "moderately_severe": 19, "severe": 27}, "critical_item": "q9"}'::jsonb
+),
+(
+    'K10 (Kessler Psychological Distress Scale)',
+    'k10',
+    'Mood & Depression',
+    'Australian clinical gold standard for measuring non-specific psychological distress over the past 30 days, required for GP Mental Health Care Plans.',
+    true,
+    '[
+        {"id": "q1", "text": "In the past 4 weeks, about how often did you feel tired out for no good reason?", "type": "scale_1_5"},
+        {"id": "q2", "text": "In the past 4 weeks, about how often did you feel nervous?", "type": "scale_1_5"},
+        {"id": "q3", "text": "In the past 4 weeks, about how often did you feel so nervous that nothing could calm you down?", "type": "scale_1_5"},
+        {"id": "q4", "text": "In the past 4 weeks, about how often did you feel hopeless?", "type": "scale_1_5"},
+        {"id": "q5", "text": "In the past 4 weeks, about how often did you feel restless or fidgety?", "type": "scale_1_5"},
+        {"id": "q6", "text": "In the past 4 weeks, about how often did you feel so restless you could not sit still?", "type": "scale_1_5"},
+        {"id": "q7", "text": "In the past 4 weeks, about how often did you feel depressed?", "type": "scale_1_5"},
+        {"id": "q8", "text": "In the past 4 weeks, about how often did you feel that everything was an effort?", "type": "scale_1_5"},
+        {"id": "q9", "text": "In the past 4 weeks, about how often did you feel so sad that nothing could cheer you up?", "type": "scale_1_5"},
+        {"id": "q10", "text": "In the past 4 weeks, about how often did you feel worthless?", "type": "scale_1_5"}
+    ]'::jsonb,
+    '{"min_score": 10, "max_score": 50, "cutoffs": {"low": 19, "moderate": 24, "high": 29, "very_high": 50}}'::jsonb
+),
+(
+    'PCL-5 (PTSD Checklist for DSM-5)',
+    'pcl-5',
+    'Anxiety & Trauma',
+    'Comprehensive 20-item measure of DSM-5 Post-Traumatic Stress Disorder symptoms across Intrusion, Avoidance, Cognition/Mood, and Arousal clusters.',
+    true,
+    '[
+        {"id": "q1", "text": "Repeated, disturbing, and unwanted memories of the stressful experience?", "type": "scale_0_4", "cluster": "B"},
+        {"id": "q2", "text": "Repeated, disturbing dreams of the stressful experience?", "type": "scale_0_4", "cluster": "B"},
+        {"id": "q3", "text": "Suddenly feeling or acting as if the stressful experience were actually happening again?", "type": "scale_0_4", "cluster": "B"},
+        {"id": "q4", "text": "Feeling very upset when something reminded you of the stressful experience?", "type": "scale_0_4", "cluster": "B"},
+        {"id": "q5", "text": "Having strong physical sensations when reminded of the experience (heart pounding, trouble breathing, sweating)?", "type": "scale_0_4", "cluster": "B"},
+        {"id": "q6", "text": "Avoiding memories, thoughts, or feelings related to the stressful experience?", "type": "scale_0_4", "cluster": "C"},
+        {"id": "q7", "text": "Avoiding external reminders of the stressful experience (people, places, conversations, objects)?", "type": "scale_0_4", "cluster": "C"},
+        {"id": "q8", "text": "Trouble remembering important parts of the stressful experience?", "type": "scale_0_4", "cluster": "D"},
+        {"id": "q9", "text": "Having strong negative beliefs about yourself, other people, or the world?", "type": "scale_0_4", "cluster": "D"},
+        {"id": "q10", "text": "Blaming yourself or someone else for the stressful experience or what happened after?", "type": "scale_0_4", "cluster": "D"},
+        {"id": "q11", "text": "Having strong negative feelings such as fear, horror, anger, guilt, or shame?", "type": "scale_0_4", "cluster": "D"},
+        {"id": "q12", "text": "Loss of interest in activities that you used to enjoy?", "type": "scale_0_4", "cluster": "D"},
+        {"id": "q13", "text": "Feeling distant or cut off from other people?", "type": "scale_0_4", "cluster": "D"},
+        {"id": "q14", "text": "Trouble experiencing positive feelings (unable to feel happiness or loving feelings)?", "type": "scale_0_4", "cluster": "D"},
+        {"id": "q15", "text": "Irritable behavior, angry outbursts, or acting aggressively?", "type": "scale_0_4", "cluster": "E"},
+        {"id": "q16", "text": "Taking too many risks or doing things that could cause you harm?", "type": "scale_0_4", "cluster": "E"},
+        {"id": "q17", "text": "Being superalert, watchful, or constantly on guard?", "type": "scale_0_4", "cluster": "E"},
+        {"id": "q18", "text": "Feeling jumpy or easily startled?", "type": "scale_0_4", "cluster": "E"},
+        {"id": "q19", "text": "Having difficulty concentrating?", "type": "scale_0_4", "cluster": "E"},
+        {"id": "q20", "text": "Trouble falling or staying asleep?", "type": "scale_0_4", "cluster": "E"}
+    ]'::jsonb,
+    '{"max_score": 80, "clinical_cutoff": 33, "clusters": ["B", "C", "D", "E"]}'::jsonb
+),
+(
+    'ASRS v1.1 (Adult ADHD Self-Report Scale)',
+    'asrs-v1',
+    'ADHD & Neurodiversity',
+    'WHO 6-question Part A screening tool for Adult ADHD assessing attention regulation, task initiation, and hyperactivity/restlessness.',
+    true,
+    '[
+        {"id": "q1", "text": "How often do you have trouble wrapping up the final details of a project, once the challenging parts have been done?", "type": "scale_0_4", "threshold": 2},
+        {"id": "q2", "text": "How often do you have difficulty getting things in order when you have to do a task that requires organization?", "type": "scale_0_4", "threshold": 2},
+        {"id": "q3", "text": "How often do you have problems remembering appointments or obligations?", "type": "scale_0_4", "threshold": 2},
+        {"id": "q4", "text": "When you have a task that requires a lot of thought, how often do you avoid or delay getting started?", "type": "scale_0_4", "threshold": 3},
+        {"id": "q5", "text": "How often do you fidget or squirm with your hands or feet when you have to sit down for a long time?", "type": "scale_0_4", "threshold": 3},
+        {"id": "q6", "text": "How often do you feel overly active and compelled to do things, like you were driven by a motor?", "type": "scale_0_4", "threshold": 3}
+    ]'::jsonb,
+    '{"type": "shaded_boxes", "clinical_threshold": 4, "interpretation": "4 or more positive shaded criteria warrants comprehensive adult ADHD assessment."}'::jsonb
+),
+(
+    'Athens Insomnia Scale (AIS)',
+    'ais',
+    'Sleep & Somatics',
+    'Validated 8-item psychometric scale assessing night-time sleep difficulty and daytime consequences, directly guiding somatic regulation.',
+    true,
+    '[
+        {"id": "q1", "text": "Sleep induction (time it takes you to fall asleep)", "type": "select", "options": ["0: No problem", "1: Slightly delayed", "2: Markedly delayed", "3: Very delayed or did not sleep at all"]},
+        {"id": "q2", "text": "Awakenings during the night", "type": "select", "options": ["0: No problem", "1: Minor problem", "2: Considerable problem", "3: Serious problem or did not sleep at all"]},
+        {"id": "q3", "text": "Final awakening earlier than desired", "type": "select", "options": ["0: Not earlier", "1: A little earlier", "2: Markedly earlier", "3: Much earlier or did not sleep at all"]},
+        {"id": "q4", "text": "Total sleep duration", "type": "select", "options": ["0: Sufficient", "1: Slightly insufficient", "2: Markedly insufficient", "3: Very insufficient or did not sleep at all"]},
+        {"id": "q5", "text": "Overall quality of sleep", "type": "select", "options": ["0: Satisfactory", "1: Slightly unsatisfactory", "2: Markedly unsatisfactory", "3: Very unsatisfactory or did not sleep at all"]},
+        {"id": "q6", "text": "Sense of well-being during the day", "type": "select", "options": ["0: Normal", "1: Slightly decreased", "2: Markedly decreased", "3: Very decreased"]},
+        {"id": "q7", "text": "Physical and mental functioning during the day", "type": "select", "options": ["0: Normal", "1: Slightly decreased", "2: Markedly decreased", "3: Very decreased"]},
+        {"id": "q8", "text": "Sleepiness during the day", "type": "select", "options": ["0: None", "1: Mild", "2: Considerable", "3: Intense"]}
+    ]'::jsonb,
+    '{"max_score": 24, "insomnia_cutoff": 6}'::jsonb
+),
+(
+    'Brief Resilience Scale (BRS)',
+    'brs',
+    'Substance & Well-being',
+    '6-item measure assessing somatic and psychological ability to bounce back, recover from stress, and sustain adaptive resilience.',
+    true,
+    '[
+        {"id": "q1", "text": "I tend to bounce back quickly after hard times", "type": "scale_1_5", "reverse": false},
+        {"id": "q2", "text": "I have a hard time making it through stressful events", "type": "scale_1_5", "reverse": true},
+        {"id": "q3", "text": "It does not take me long to recover from a stressful event", "type": "scale_1_5", "reverse": false},
+        {"id": "q4", "text": "It is hard for me to snap back when something bad happens", "type": "scale_1_5", "reverse": true},
+        {"id": "q5", "text": "I usually come through difficult times with little trouble", "type": "scale_1_5", "reverse": false},
+        {"id": "q6", "text": "I tend to take a long time to get over set-backs in my life", "type": "scale_1_5", "reverse": true}
+    ]'::jsonb,
+    '{"cutoffs": {"low": 2.99, "normal": 4.30, "high": 5.00}, "reverse_items": ["q2", "q4", "q6"]}'::jsonb
+),
+(
+    'CRAFFT 2.1+N (Substance Use Screener)',
+    'crafft',
+    'Substance & Well-being',
+    'Screening tool for substance use and behavioral risk in adolescents and adults, identifying driving risk and potential substance use disorder.',
+    true,
+    '[
+        {"id": "q1", "text": "Have you ever ridden in a CAR driven by someone (including yourself) who was high or had been using alcohol or drugs?", "type": "yes_no"},
+        {"id": "q2", "text": "Do you ever use alcohol or drugs to RELAX, feel better about yourself, or fit in?", "type": "yes_no"},
+        {"id": "q3", "text": "Do you ever use alcohol or drugs while you are by yourself, ALONE?", "type": "yes_no"},
+        {"id": "q4", "text": "Do you ever FORGET things you did while using alcohol or drugs?", "type": "yes_no"},
+        {"id": "q5", "text": "Do your family or FRIENDS ever tell you that you should cut down on your drinking or drug use?", "type": "yes_no"},
+        {"id": "q6", "text": "Have you ever gotten into TROUBLE while you were using alcohol or drugs?", "type": "yes_no"}
+    ]'::jsonb,
+    '{"max_score": 6, "clinical_cutoff": 2, "interpretation": "A score of 2 or higher indicates high risk of a substance use disorder or significant safety risk."}'::jsonb
+),
+(
+    'WSAS (Work and Social Adjustment Scale)',
+    'wsas',
+    'Substance & Well-being',
+    '5-item simple, validated measure of functional impairment attributable to an identified mental or physical health condition.',
+    true,
+    '[
+        {"id": "q1", "text": "Because of my condition, my ability to work is impaired", "type": "scale_0_8"},
+        {"id": "q2", "text": "Because of my condition, my home management (cleaning, tidying, shopping, cooking) is impaired", "type": "scale_0_8"},
+        {"id": "q3", "text": "Because of my condition, my social leisure activities (parties, outings, visiting friends) are impaired", "type": "scale_0_8"},
+        {"id": "q4", "text": "Because of my condition, my private leisure activities (reading, gardening, solo walks) are impaired", "type": "scale_0_8"},
+        {"id": "q5", "text": "Because of my condition, my ability to form and maintain close relationships is impaired", "type": "scale_0_8"}
+    ]'::jsonb,
+    '{"max_score": 40, "cutoffs": {"subclinical": 9, "significant": 20, "severe": 40}}'::jsonb
+),
+(
+    'AQ-10 (Autism Spectrum Quotient - 10 Item Adult)',
+    'aq-10',
+    'ADHD & Neurodiversity',
+    'NICE-recommended 10-item clinical screener assessing autistic traits across attention to detail, communication, and social interaction.',
+    true,
+    '[
+        {"id": "q1", "text": "I often notice small sounds when others do not", "type": "scale_1_4", "score_if": [1, 2]},
+        {"id": "q2", "text": "I usually concentrate more on the whole picture, rather than the small details", "type": "scale_1_4", "score_if": [3, 4]},
+        {"id": "q3", "text": "I find it easy to do more than one thing at once", "type": "scale_1_4", "score_if": [3, 4]},
+        {"id": "q4", "text": "If there is an interruption, I can switch back to what I was doing very quickly", "type": "scale_1_4", "score_if": [3, 4]},
+        {"id": "q5", "text": "I find it easy to read between the lines when someone is talking to me", "type": "scale_1_4", "score_if": [3, 4]},
+        {"id": "q6", "text": "I know how to tell if someone listening to me is getting bored", "type": "scale_1_4", "score_if": [3, 4]},
+        {"id": "q7", "text": "When I am reading a story I find it difficult to work out the characters intentions", "type": "scale_1_4", "score_if": [1, 2]},
+        {"id": "q8", "text": "I like to collect information about categories of things (types of cars, birds, trains, plants)", "type": "scale_1_4", "score_if": [1, 2]},
+        {"id": "q9", "text": "I find it easy to work out what someone is thinking or feeling just by looking at their face", "type": "scale_1_4", "score_if": [3, 4]},
+        {"id": "q10", "text": "I find it difficult to work out peoples intentions", "type": "scale_1_4", "score_if": [1, 2]}
+    ]'::jsonb,
+    '{"max_score": 10, "clinical_cutoff": 6, "interpretation": "A score of 6 or above warrants referral for comprehensive neurodevelopmental assessment."}'::jsonb
+),
+(
     'MMH Somatic & Physical Movement Intake',
     'somatic-intake',
-    'somatic',
+    'Sleep & Somatics',
     'Comprehensive somatic, nervous system, and physical fitness intake questionnaire.',
     true,
     '[
@@ -211,7 +381,13 @@ INSERT INTO public.mmh_forms (title, slug, category, description, is_template, q
     ]'::jsonb,
     '{"type": "qualitative_and_categorical"}'::jsonb
 )
-ON CONFLICT (slug) DO NOTHING;
+ON CONFLICT (slug) DO UPDATE SET
+    title = EXCLUDED.title,
+    category = EXCLUDED.category,
+    description = EXCLUDED.description,
+    questions = EXCLUDED.questions,
+    scoring_rules = EXCLUDED.scoring_rules,
+    updated_at = now();
 
 -- Demo Isolation Deletion Policies (Allow clearing test sandbox data without affecting production)
 CREATE POLICY "Allow delete demo appointments" ON public.mmh_appointments FOR DELETE TO public USING (is_demo = true);

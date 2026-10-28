@@ -13,7 +13,18 @@ export async function POST(req: NextRequest) {
     } = body;
 
     const isHighSeverity = 
-      (typeof severity === 'string' && (severity.includes('Severe') || severity.includes('Extremely Severe'))) ||
+      (typeof severity === 'string' && (
+        severity.includes('Severe') || 
+        severity.includes('Extremely Severe') ||
+        severity.includes('URGENT') ||
+        severity.includes('Suicide Risk') ||
+        severity.includes('Very High Distress') ||
+        severity.includes('Probable PTSD') ||
+        severity.includes('High Substance Risk')
+      )) ||
+      Boolean(scores?.hasSelfHarmRisk) ||
+      Boolean(scores?.probablePTSD) ||
+      Boolean(scores?.highRisk) ||
       (scores?.depression && scores.depression >= 20) ||
       (scores?.anxiety && scores.anxiety >= 15);
 

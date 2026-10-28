@@ -20,11 +20,22 @@ import {
   Trash2,
   RefreshCw,
   AlertTriangle,
-  ExternalLink
+  ExternalLink,
+  Eye,
+  ShieldAlert
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { MMHAppointment, MMHForm, MMHFormAssignment, MMHClinicalNote } from '@/lib/types';
 import Link from 'next/link';
+
+const CATEGORY_TABS = [
+  'All',
+  'Mood & Depression',
+  'Anxiety & Trauma',
+  'ADHD & Neurodiversity',
+  'Sleep & Somatics',
+  'Substance & Well-being',
+];
 
 export default function ClinicianAdminDashboard() {
   const [activeTab, setActiveTab] = useState<'schedule' | 'forms' | 'assignments' | 'notes'>('schedule');
@@ -36,12 +47,17 @@ export default function ClinicianAdminDashboard() {
   const [clinicalNotes, setClinicalNotes] = useState<MMHClinicalNote[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Form Filter & Preview states
+  const [selectedCategoryTab, setSelectedCategoryTab] = useState<string>('All');
+  const [formSearchQuery, setFormSearchQuery] = useState<string>('');
+  const [previewingForm, setPreviewingForm] = useState<MMHForm | null>(null);
+
   // Form Builder state
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingFormId, setEditingFormId] = useState<string | null>(null);
   const [formTitle, setFormTitle] = useState('');
   const [formSlug, setFormSlug] = useState('');
-  const [formCategory, setFormCategory] = useState<'screener' | 'intake' | 'somatic' | 'custom'>('custom');
+  const [formCategory, setFormCategory] = useState<string>('Mood & Depression');
   const [formDescription, setFormDescription] = useState('');
   const [formQuestions, setFormQuestions] = useState<any[]>([
     { id: 'q1', text: 'How has your physical stress been this week?', type: 'scale_0_3' }
@@ -179,6 +195,10 @@ export default function ClinicianAdminDashboard() {
       const dassForm = forms.find(f => f.slug === 'dass-21');
       const gadForm = forms.find(f => f.slug === 'gad-7');
       const somaticForm = forms.find(f => f.slug === 'somatic-intake');
+      const aisForm = forms.find(f => f.slug === 'ais');
+      const k10Form = forms.find(f => f.slug === 'k10');
+      const pclForm = forms.find(f => f.slug === 'pcl-5');
+      const phqForm = forms.find(f => f.slug === 'phq-9');
 
       const now = new Date();
       const appt1Time = new Date(now.getTime() + 2 * 3600 * 1000).toISOString();
@@ -260,7 +280,16 @@ export default function ClinicianAdminDashboard() {
         });
       }
 
-      if (gadForm) {
+      if (k10Form) {
+        await supabase.from('mmh_form_assignments').insert({
+          form_id: k10Form.id,
+          client_name: 'David Chen',
+          client_email: 'david.chen@example.com',
+          deadline: davidDeadline,
+          status: 'assigned',
+          is_demo: true,
+        });
+      } else if (gadForm) {
         await supabase.from('mmh_form_assignments').insert({
           form_id: gadForm.id,
           client_name: 'David Chen',
@@ -277,6 +306,17 @@ export default function ClinicianAdminDashboard() {
           client_name: 'Marcus Brody',
           client_email: 'marcus.brody@example.com',
           deadline: marcusDeadline,
+          status: 'assigned',
+          is_demo: true,
+        });
+      }
+
+      if (aisForm) {
+        await supabase.from('mmh_form_assignments').insert({
+          form_id: aisForm.id,
+          client_name: 'Marcus Brody',
+          client_email: 'marcus.brody@example.com',
+          deadline: davidDeadline,
           status: 'assigned',
           is_demo: true,
         });
@@ -430,21 +470,32 @@ export default function ClinicianAdminDashboard() {
         </div>
       )}
 
-      {/* Real-time Clinician Urgent Alert Banner if high severity submissions exist */}
-      {assignments.some(a => a.clinical_severity && (a.clinical_severity.includes('Severe') || a.clinical_severity.includes('Extremely Severe'))) && (
-        <div className="mt-4 bg-red-50 border-2 border-red-200 rounded-2xl p-4 flex items-center justify-between">
+      {/* Real-time Clinician Urgent Alert Banner if high severity, suicide risk, or PTSD cutoff submissions exist */}
+      {assignments.some(a => a.clinical_severity && (
+        a.clinical_severity.includes('Severe') || 
+        a.clinical_severity.includes('Extremely Severe') ||
+        a.clinical_severity.includes('URGENT') ||
+        a.clinical_severity.includes('Suicide') ||
+        a.clinical_severity.includes('Probable PTSD') ||
+        a.clinical_severity.includes('Very High Distress') ||
+        a.clinical_severity.includes('High Substance Risk')
+      )) && (
+        <div className="mt-4 bg-red-50 border-2 border-red-300 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-xs animate-pulse">
-              !
+            <div className="w-9 h-9 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-sm animate-pulse shrink-0">
+              <ShieldAlert className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="font-extrabold text-sm text-red-900 block">High-Severity Clinical Screener Alert</span>
-              <span className="text-xs text-red-700">One or more clients have submitted assessments flagged with Severe distress. Please review the Submissions tab.</span>
+              <span className="font-extrabold text-sm text-red-900 block flex items-center gap-2">
+                High-Distress / Clinical Risk Alert Flagged
+                <span className="bg-red-200 text-red-900 text-[10px] px-2 py-0.2 rounded-full uppercase tracking-wider font-extrabold">Action Required</span>
+              </span>
+              <span className="text-xs text-red-700">One or more clients have submitted assessments flagged with high distress, suicidality, or probable PTSD. Please review the Submissions roster below.</span>
             </div>
           </div>
           <button
             onClick={() => setActiveTab('assignments')}
-            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
           >
             Review Submissions &rarr;
           </button>
@@ -637,8 +688,19 @@ export default function ClinicianAdminDashboard() {
                         </td>
                         <td className="py-4">
                           {asg.clinical_severity ? (
-                            <span className="font-bold text-[#F96100] bg-orange-50 px-2.5 py-1 rounded-md border border-orange-200">
-                              {asg.clinical_severity}
+                            <span className={`font-bold px-2.5 py-1 rounded-lg border text-[11px] inline-flex items-center gap-1 ${
+                              asg.clinical_severity.includes('URGENT') || asg.clinical_severity.includes('Suicide')
+                                ? 'bg-red-100 text-red-900 border-red-300 animate-pulse'
+                                : asg.clinical_severity.includes('Severe') || asg.clinical_severity.includes('Probable PTSD') || asg.clinical_severity.includes('Very High') || asg.clinical_severity.includes('High Substance')
+                                  ? 'bg-red-50 text-red-800 border-red-200'
+                                  : asg.clinical_severity.includes('Moderate') || asg.clinical_severity.includes('Significant') || asg.clinical_severity.includes('ADHD Indicated')
+                                    ? 'bg-amber-50 text-amber-800 border-amber-200'
+                                    : 'bg-green-50 text-green-800 border-green-200'
+                            }`}>
+                              {(asg.clinical_severity.includes('URGENT') || asg.clinical_severity.includes('Suicide')) && (
+                                <ShieldAlert className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                              )}
+                              <span>{asg.clinical_severity}</span>
                             </span>
                           ) : (
                             <span className="text-gray-400 italic">Pending client submission</span>
@@ -671,73 +733,187 @@ export default function ClinicianAdminDashboard() {
       {activeTab === 'forms' && (
         <div className="mt-8 space-y-6">
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E5DFD5] shadow-xs">
-            <div className="flex items-center justify-between mb-6">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-gray-100">
               <div>
-                <h2 className="text-xl font-extrabold text-[#130C76]">Clinical Assessment Library</h2>
-                <p className="text-xs text-gray-500 mt-1">Pre-loaded standardized psychological instruments and custom clinician-built screeners.</p>
-              </div>
-              <button
-                onClick={() => {
-                  setEditingFormId(null);
-                  setFormTitle('');
-                  setFormSlug('');
-                  setFormDescription('');
-                  setFormQuestions([{ id: 'q1', text: '', type: 'scale_0_3' }]);
-                  setIsFormModalOpen(true);
-                }}
-                className="bg-[#130C76] text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-[#0038A8] transition-colors flex items-center gap-1.5"
-              >
-                <Plus className="w-3.5 h-3.5 text-[#FFAC24]" /> Create New Form
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {forms.map((form) => (
-                <div key={form.id} className="p-6 rounded-2xl bg-[#FBF9F5] border border-[#E5DFD5] flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="bg-white border border-[#E5DFD5] text-[#130C76] text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full">
-                        {form.category}
-                      </span>
-                      {form.is_template && (
-                        <span className="text-[10px] text-gray-500 font-bold">Standard Template</span>
-                      )}
-                    </div>
-                    <h3 className="font-extrabold text-base text-[#130C76] mb-1">{form.title}</h3>
-                    <p className="text-xs text-gray-600 leading-relaxed mb-4">{form.description}</p>
-                    <span className="text-[11px] text-gray-400 font-semibold block">
-                      {form.questions?.length || 0} Questions configured
-                    </span>
-                  </div>
-
-                  <div className="mt-6 pt-4 border-t border-gray-200 flex items-center justify-between">
-                    <button
-                      onClick={() => {
-                        setEditingFormId(form.id);
-                        setFormTitle(form.title);
-                        setFormSlug(form.slug);
-                        setFormCategory(form.category);
-                        setFormDescription(form.description);
-                        setFormQuestions(form.questions || []);
-                        setIsFormModalOpen(true);
-                      }}
-                      className="text-xs font-bold text-[#130C76] hover:text-[#F96100] transition-colors flex items-center gap-1"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" /> Edit Form
-                    </button>
-                    <button
-                      onClick={() => {
-                        setAssignFormId(form.id);
-                        setIsAssignModalOpen(true);
-                      }}
-                      className="text-xs bg-[#F96100] hover:bg-[#d65300] text-white px-3 py-1.5 rounded-lg font-bold transition-colors"
-                    >
-                      Assign to Client
-                    </button>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl font-extrabold text-[#130C76]">Clinical Assessment Library</h2>
+                  <span className="bg-[#130C76]/10 text-[#130C76] text-xs font-bold px-2.5 py-0.5 rounded-full">
+                    {forms.length} Standardized Scales & Intakes
+                  </span>
                 </div>
-              ))}
+                <p className="text-xs text-gray-500 mt-1">
+                  Validated psychometric instruments grounded in scientific literature (NovoPsych Assessment Library) + Luke&apos;s somatic movement protocols.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                <button
+                  onClick={() => {
+                    setEditingFormId(null);
+                    setFormTitle('');
+                    setFormSlug('');
+                    setFormDescription('');
+                    setFormQuestions([{ id: 'q1', text: '', type: 'scale_0_3' }]);
+                    setIsFormModalOpen(true);
+                  }}
+                  className="bg-[#130C76] text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-[#0038A8] transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer shrink-0"
+                >
+                  <Plus className="w-3.5 h-3.5 text-[#FFAC24]" /> Custom Form
+                </button>
+              </div>
             </div>
+
+            {/* Category Filter Tabs & Search Bar */}
+            <div className="pt-6 pb-2 space-y-4">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                {/* Category Pills */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+                  {CATEGORY_TABS.map((cat) => {
+                    const count = cat === 'All' 
+                      ? forms.length 
+                      : forms.filter(f => f.category === cat).length;
+                    const isActive = selectedCategoryTab === cat;
+                    return (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setSelectedCategoryTab(cat)}
+                        className={`px-3 py-1.5 rounded-xl font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+                          isActive
+                            ? 'bg-[#130C76] text-white shadow-xs'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        <span>{cat}</span>
+                        <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+                          isActive ? 'bg-white/20 text-white' : 'bg-white text-gray-500'
+                        }`}>
+                          {count}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Quick Search */}
+                <div className="relative w-full sm:w-72 shrink-0">
+                  <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-3" />
+                  <input
+                    type="text"
+                    value={formSearchQuery}
+                    onChange={(e) => setFormSearchQuery(e.target.value)}
+                    placeholder="Search PHQ, K10, PCL, ADHD..."
+                    className="w-full pl-8 pr-4 py-2 rounded-xl border border-gray-200 text-xs focus:outline-hidden focus:border-[#F96100] bg-gray-50/50"
+                  />
+                  {formSearchQuery && (
+                    <button
+                      onClick={() => setFormSearchQuery('')}
+                      className="absolute right-2.5 top-2 text-xs text-gray-400 hover:text-gray-600"
+                    >
+                      &times;
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Cards Grid */}
+            {(() => {
+              const filteredForms = forms.filter((form) => {
+                const matchesCategory = selectedCategoryTab === 'All' || form.category === selectedCategoryTab;
+                const matchesSearch = 
+                  form.title.toLowerCase().includes(formSearchQuery.toLowerCase()) ||
+                  form.description.toLowerCase().includes(formSearchQuery.toLowerCase()) ||
+                  form.slug.toLowerCase().includes(formSearchQuery.toLowerCase()) ||
+                  (form.questions && form.questions.some(q => q.text.toLowerCase().includes(formSearchQuery.toLowerCase())));
+                return matchesCategory && matchesSearch;
+              });
+
+              return (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+                    {filteredForms.map((form) => (
+                      <div key={form.id} className="p-6 rounded-2xl bg-[#FBF9F5] border border-[#E5DFD5] flex flex-col justify-between hover:border-[#130C76]/30 transition-all shadow-2xs">
+                        <div>
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="bg-white border border-[#E5DFD5] text-[#130C76] text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full">
+                              {form.category}
+                            </span>
+                            {form.is_template ? (
+                              <span className="text-[10px] text-green-700 bg-green-50 border border-green-200 px-2 py-0.2 rounded-full font-bold">
+                                Validated Norms
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-gray-500 font-bold">Custom Form</span>
+                            )}
+                          </div>
+                          <h3 className="font-extrabold text-base text-[#130C76] mb-1.5">{form.title}</h3>
+                          <p className="text-xs text-gray-600 leading-relaxed mb-4 line-clamp-3">{form.description}</p>
+                          <div className="flex items-center gap-3 text-[11px] text-gray-400 font-semibold">
+                            <span>{form.questions?.length || 0} Questions configured</span>
+                            <span>•</span>
+                            <span className="font-mono text-gray-400">/{form.slug}</span>
+                          </div>
+                        </div>
+
+                        <div className="mt-6 pt-4 border-t border-gray-200 flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => setPreviewingForm(form)}
+                              className="text-xs font-bold text-gray-600 hover:text-[#130C76] p-1.5 rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-1 cursor-pointer"
+                              title="Preview Questions"
+                            >
+                              <Eye className="w-3.5 h-3.5 text-gray-500" />
+                              <span>Preview</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                setEditingFormId(form.id);
+                                setFormTitle(form.title);
+                                setFormSlug(form.slug);
+                                setFormCategory(form.category);
+                                setFormDescription(form.description);
+                                setFormQuestions(form.questions || []);
+                                setIsFormModalOpen(true);
+                              }}
+                              className="text-xs font-bold text-[#130C76] hover:text-[#F96100] p-1.5 rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-1 cursor-pointer"
+                              title="Edit Form"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                              <span>Edit</span>
+                            </button>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              setAssignFormId(form.id);
+                              setIsAssignModalOpen(true);
+                            }}
+                            className="text-xs bg-[#F96100] hover:bg-[#d65300] text-white px-3.5 py-1.5 rounded-xl font-bold transition-all shadow-xs cursor-pointer hover:scale-105"
+                          >
+                            Assign to Client
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {filteredForms.length === 0 && (
+                    <div className="py-16 text-center text-gray-500">
+                      <FileText className="w-10 h-10 text-gray-300 mx-auto mb-2" />
+                      <p className="text-sm font-bold text-gray-700">No assessments match your category or search.</p>
+                      <button
+                        onClick={() => { setSelectedCategoryTab('All'); setFormSearchQuery(''); }}
+                        className="mt-2 text-xs font-bold text-[#F96100] hover:underline cursor-pointer"
+                      >
+                        Clear filters & show all assessments
+                      </button>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
         </div>
       )}
@@ -1089,12 +1265,75 @@ export default function ClinicianAdminDashboard() {
                 </button>
                 <button
                   type="submit"
-                  className="bg-[#F96100] hover:bg-[#d65300] text-white px-6 py-2.5 rounded-xl text-xs font-bold shadow-xs"
+                  className="bg-[#F96100] hover:bg-[#d65300] text-white px-6 py-2.5 rounded-xl text-xs font-bold shadow-xs cursor-pointer"
                 >
                   Send Assignment
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: PREVIEW ASSESSMENT */}
+      {previewingForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-gray-100 max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between pb-4 border-b border-gray-100 shrink-0">
+              <div>
+                <span className="text-[10px] font-extrabold text-[#F96100] uppercase tracking-wider block">Assessment Preview</span>
+                <h3 className="font-extrabold text-xl text-[#130C76]">{previewingForm.title}</h3>
+                <span className="text-xs text-gray-500 font-semibold">{previewingForm.questions?.length || 0} Questions configured • Category: {previewingForm.category}</span>
+              </div>
+              <button onClick={() => setPreviewingForm(null)} className="text-gray-400 hover:text-gray-600 text-2xl font-bold cursor-pointer">
+                &times;
+              </button>
+            </div>
+
+            <div className="overflow-y-auto py-6 space-y-4 flex-1 pr-2">
+              <p className="text-xs text-gray-600 italic bg-gray-50 p-3 rounded-xl border border-gray-200">{previewingForm.description}</p>
+              {previewingForm.questions?.map((q, idx) => (
+                <div key={q.id || idx} className="p-3.5 bg-[#FBF9F5] rounded-xl border border-[#E5DFD5] space-y-1 text-xs">
+                  <div className="flex items-start gap-2.5">
+                    <span className="w-5 h-5 rounded-full bg-white border border-[#E5DFD5] text-[#130C76] flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">
+                      {idx + 1}
+                    </span>
+                    <div className="flex-1">
+                      <p className="font-bold text-gray-900">{q.text}</p>
+                      <div className="flex items-center gap-2 mt-1 text-[10px] text-gray-400">
+                        <span>Scale Type: <strong className="text-gray-600">{q.type}</strong></span>
+                        {q.scale && <span>• Axis: <strong className="text-gray-600">{q.scale}</strong></span>}
+                        {q.critical_alert && <span className="bg-red-100 text-red-800 px-1.5 py-0.2 rounded-full font-bold">Safety Alert Item</span>}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-4 border-t border-gray-100 flex items-center justify-between shrink-0">
+              <span className="text-xs text-gray-400">NovoPsych Validated Standardized Scale</span>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setPreviewingForm(null)}
+                  className="px-4 py-2 text-xs font-bold text-gray-600 hover:text-gray-800 cursor-pointer"
+                >
+                  Close Preview
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAssignFormId(previewingForm.id);
+                    setPreviewingForm(null);
+                    setIsAssignModalOpen(true);
+                  }}
+                  className="bg-[#F96100] hover:bg-[#d65300] text-white px-5 py-2 rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer"
+                >
+                  Assign This Form
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
