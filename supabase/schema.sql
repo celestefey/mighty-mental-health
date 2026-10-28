@@ -78,6 +78,9 @@ CREATE TABLE IF NOT EXISTS public.mmh_clinical_notes (
     plan TEXT,
     is_locked BOOLEAN NOT NULL DEFAULT false,
     locked_at TIMESTAMPTZ,
+    template_type TEXT DEFAULT 'SOAP',
+    content_json JSONB DEFAULT '{}'::jsonb,
+    gp_letter_text TEXT,
     is_demo BOOLEAN DEFAULT false,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -97,6 +100,33 @@ CREATE TABLE IF NOT EXISTS public.mmh_invoices (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- 7. Comprehensive Client Intake Form (Psychological Assessments Australia & NovoPsych Intake standard)
+CREATE TABLE IF NOT EXISTS public.mmh_client_intakes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    client_name TEXT NOT NULL,
+    client_email TEXT NOT NULL,
+    client_phone TEXT,
+    date_of_birth TEXT,
+    address TEXT,
+    emergency_contact_name TEXT,
+    emergency_contact_phone TEXT,
+    emergency_contact_relationship TEXT,
+    gp_name TEXT,
+    gp_clinic TEXT,
+    gp_phone TEXT,
+    gp_address TEXT,
+    medications TEXT,
+    medical_history TEXT,
+    psychiatric_history TEXT,
+    somatic_movement_profile JSONB DEFAULT '{}'::jsonb,
+    presenting_concerns TEXT,
+    therapy_goals TEXT,
+    safety_risk_history TEXT,
+    is_demo BOOLEAN DEFAULT false,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- Enable Row-Level Security (RLS) on all MMH tables
 ALTER TABLE public.mmh_services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.mmh_appointments ENABLE ROW LEVEL SECURITY;
@@ -104,9 +134,15 @@ ALTER TABLE public.mmh_forms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.mmh_form_assignments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.mmh_clinical_notes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.mmh_invoices ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.mmh_client_intakes ENABLE ROW LEVEL SECURITY;
 
 -- Public read access to active services
 CREATE POLICY "Public read active services" ON public.mmh_services FOR SELECT USING (is_active = true);
+
+-- Intakes policies
+CREATE POLICY "Public insert intakes" ON public.mmh_client_intakes FOR INSERT WITH CHECK (true);
+CREATE POLICY "Public read intakes" ON public.mmh_client_intakes FOR SELECT USING (true);
+CREATE POLICY "Allow delete demo intakes" ON public.mmh_client_intakes FOR DELETE TO public USING (is_demo = true);
 
 -- Form library policies
 CREATE POLICY "Public read forms" ON public.mmh_forms FOR SELECT USING (true);

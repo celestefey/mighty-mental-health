@@ -328,15 +328,83 @@
 
 ---
 
+### [REQ-020] NovoNote Clinical Scribe Templates, Formal GP Letters & Digital 4-Step Intake Suite
+- **User Instruction**:
+  - Provided links to NovoNote AI Scribe templates:
+    - *First Session Note Template* & *Intake Diagnostic Assessment*
+    - *Comprehensive Suicide & Harm Risk Assessment*
+    - *Drug & Alcohol (AOD) Initial Assessment*
+    - *GP Letter Brief After First Session*
+    - *GP Letter MHTP Progress Update & Review*
+    - *NovoPsych Clinical Intake* & *Psychological Assessments Australia Client Intake Form PDF*
+- **Category**: Clinical Documentation / Medical Correspondence / Patient Onboarding
+- **Status**: ✅ **Actioned & Verified**
+- **Implementation & Deliverables**:
+  - **Clinical Template Engine ([`src/lib/clinicalTemplates.ts`](src/lib/clinicalTemplates.ts))**:
+    - Created type-safe definitions for 6 structured clinical templates:
+      1. `SOAP`: Standard PACFA session progress note.
+      2. `first-session`: Comprehensive biopsychosocial clinical intake note with Mental Status Exam (MSE) and therapy goals.
+      3. `risk-assessment`: Structured suicide and harm risk assessment evaluating ideation, intent, lethal means, static/dynamic factors, and collaborative safety plans.
+      4. `aod`: Alcohol & Other Drugs assessment covering substance frequency, withdrawal history, tolerance, and somatic harm reduction.
+      5. `gp-first-session`: Formal medical letterhead communication for referring General Practitioners following intake.
+      6. `gp-progress-update`: Standard 6-session Mental Health Treatment Plan (MHTP) progress report with comparative psychometric trajectory for Medicare re-referral.
+    - Created automated `generateGpLetter(...)` generator with Luke's PACFA #28941 credentials, referring GP address block, session count, psychometric trajectory comparisons, and clinical continuity recommendations.
+  - **Comprehensive 4-Step Digital Intake ([`src/app/intake/page.tsx`](src/app/intake/page.tsx))**:
+    - Built digital onboarding intake inspired by Psychological Assessments Australia fillable PDF and NovoPsych Clinical Intake:
+      - **Step 1**: Personal demographics, emergency contact, Medicare & referring GP details.
+      - **Step 2**: Medical health, current prescription medications, and psychiatric history.
+      - **Step 3**: Somatic & movement baseline (frequency, sleep quality, acute autonomic arousal symptoms, and multi-select physical tension zones: neck, shoulders, jaw/TMJ, diaphragm, lower back).
+      - **Step 4**: Presenting concerns, personal therapy goals, safety risk screener, and informed consent.
+    - Backed by `public.mmh_client_intakes` in Supabase with RLS policies and demo seed support.
+  - **Admin EHR Overhaul ([`src/app/admin/page.tsx`](src/app/admin/page.tsx))**:
+    - Added **Client Intakes Tab**: Displays all intake submissions with instant risk flags, somatic tension tags, and a "View Full Intake" modal.
+    - Added **1-Click "Transfer Intake to Clinical Note"**: Pre-populates Luke's First Session Note with the client's biopsychosocial history and somatic baseline.
+    - Added **NovoNote AI Scribe Template Switcher**: Instant switching between SOAP, First Session, Risk Assessment, AOD, and GP Letters.
+    - Added **⚡ "Inject Latest Scores into (O)"**: Appends formatted assessment metrics into the clinical note.
+    - Added **Formal GP Correspondence Workspace**: Live letterhead compiler, "Copy Letter" to clipboard, and `@media print` clean PDF printing.
+    - Added **Encrypted Notes & Letters Archive**: Chronological record of saved notes with draft/locked audit indicators.
+- **Verification Evidence**:
+  - `npm run build` compiled all 10 routes in 3.2s with 0 errors.
+  - Supabase tables `mmh_client_intakes` and columns `template_type`, `gp_letter_text` verified.
+  - Deployed to GitHub and live Vercel production.
+
+---
+
+### [REQ-021] Interactive In-Chat Assessment Runner (Generative UI)
+- **User Instruction**: *"also i cant fill in the questionaires in the chat it just gives the questions"*
+- **Category**: Generative UI / In-Chat Clinical Interactivity
+- **Status**: ✅ **Actioned & Verified**
+- **Implementation & Deliverables**:
+  - Created standalone Generative UI widget [`novopsych-interactive-screener-suite.html`](file:///C:/Users/grkga/.gemini/antigravity/brain/3dba7672-441f-416e-a958-671cf07ec558/novopsych-interactive-screener-suite.html) strictly adhering to the `<generative_ui>` specification:
+    - Allowlisted gstatic Tailwind CSS dependency with semantic theme tokens (`--card`, `--foreground`, `--border`, `--sidebar`).
+    - Zero external CDNs or fonts to prevent CSP violations.
+    - Transparent root body with rounded card layout matching chat container.
+  - **Interactive Scale Runners**:
+    1. **PHQ-9 (Depression)**: 9 questions (0-3 scale), live score sum, severity badge, and automated Item 9 suicide crisis safeguard banner.
+    2. **K10 (Psychological Distress)**: 10 questions (1-5 scale) used for Australian GP Mental Health Care Plans.
+    3. **DASS-21 (Tripartite)**: 21 items with subscale breakdowns for Depression, Anxiety, and Stress.
+    4. **Athens Insomnia Scale (AIS)**: 8 items assessing nocturnal sleep and daytime functioning.
+    5. **PCL-5 (PTSD)**: 20 DSM-5 symptom items across intrusive, avoidance, negative alterations, and hyperarousal clusters.
+    6. **ASRS v1.1 (Adult ADHD)**: 6-question Part A clinical screener with diagnostic threshold counter.
+  - **Clinician Scribe Feature**:
+    - Live score summary box with interpretation.
+    - 1-click **"⚡ Generate GP / Scribe Summary"** that compiles clinical note text and copies to clipboard.
+  - Embedded directly into chat conversation via `<agent-embed>` tag.
+- **Verification Evidence**:
+  - Tested HTML artifact rendering in browser with dynamic scoring calculation and clipboard API.
+
+---
+
 ## 📌 Running Verification Matrix
 
 | Route / Component | Description | Build Status | Live Status |
 |---|---|---|---|
 | `/` | Public Marketing, Somatic Hero, 5 Pillars, Dual-Column Grid + Cal.com Switcher | `○ (Static)` | **Live on Vercel** |
+| `/intake` | Comprehensive 4-Step Client Onboarding Clinical Intake Form | `○ (Static)` | **Live on Vercel** |
 | `/portal` | Client Care Portal, Upcoming Sessions, Telehealth Room Launcher, Assigned Forms | `○ (Static)` | **Live on Vercel** |
-| `/admin` | Clinician EHR, Schedule, Form Builder/Editor, Client Assigner, SOAP Notes | `○ (Static)` | **Live on Vercel** |
+| `/admin` | Clinician EHR, Schedule, Form Library, Client Intakes, NovoNote & GP Letters | `○ (Static)` | **Live on Vercel** |
 | `/screeners/[id]` | Assessment Runner, DASS-21 / GAD-7, Auto-Scoring, Crisis Safety Card | `ƒ (Dynamic)` | **Live on Vercel** |
-| `/telehealth/[id]` | Embedded Telehealth Room, Video/Mic/Screen-Share, Consultation Chat | `ƒ (Dynamic)` | **Live on Vercel** |
+| `/telehealth/[id]` | Telehealth Room with Side-by-Side Clinician Workbench & Patient Slide-Over Drawer | `ƒ (Dynamic)` | **Live on Vercel** |
 | `/contact` | Practice Contact Details (Logan, QLD) and Inquiry Form | `○ (Static)` | **Live on Vercel** |
 | `/api/webhooks/intake` | Inbound intake form webhook with Antigravity metadata tracking | `ƒ (Dynamic)` | **Live on Vercel** |
 | `/api/webhooks/booking` | Inbound booking webhook with client attribution tracking | `ƒ (Dynamic)` | **Live on Vercel** |

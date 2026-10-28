@@ -268,6 +268,25 @@ export default function ClientPortalPage() {
               </span>
             </div>
 
+            {/* Comprehensive Clinical Intake Banner */}
+            <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#F96100] text-white flex items-center justify-center font-bold text-xs shadow-xs shrink-0">
+                  <FileText className="w-4 h-4 fill-white" />
+                </div>
+                <div>
+                  <span className="font-extrabold text-xs text-[#130C76] block">New Client Clinical Intake</span>
+                  <p className="text-[11px] text-gray-600">Complete your medical, somatic baseline, and GP details (Psychological Assessments Australia standard).</p>
+                </div>
+              </div>
+              <Link
+                href="/intake"
+                className="bg-[#130C76] hover:bg-[#0038A8] text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs shrink-0"
+              >
+                Start Digital Intake &rarr;
+              </Link>
+            </div>
+
             <div className="divide-y divide-gray-100 mt-4 space-y-4">
               {assignments.length > 0 ? (
                 assignments.map((assignment) => {

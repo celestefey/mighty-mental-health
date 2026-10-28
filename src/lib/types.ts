@@ -69,21 +69,63 @@ export interface MMHFormAssignment {
   form?: MMHForm;
 }
 
+export type ClinicalTemplateType = 
+  | 'SOAP'
+  | 'first-session'
+  | 'risk-assessment'
+  | 'aod'
+  | 'gp-first-session'
+  | 'gp-progress-update';
+
 export interface MMHClinicalNote {
   id: string;
   appointment_id?: string;
   client_name: string;
   client_email: string;
-  note_type: 'SOAP' | 'DAP';
+  note_type: 'SOAP' | 'DAP' | 'template';
+  template_type?: ClinicalTemplateType;
   subjective: string;
   objective: string;
   assessment: string;
   plan: string;
+  content_json?: Record<string, any>;
+  gp_letter_text?: string;
   is_locked: boolean;
   locked_at?: string;
   is_demo?: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface MMHClientIntake {
+  id?: string;
+  client_name: string;
+  client_email: string;
+  client_phone?: string;
+  date_of_birth?: string;
+  address?: string;
+  emergency_contact_name?: string;
+  emergency_contact_phone?: string;
+  emergency_contact_relationship?: string;
+  gp_name?: string;
+  gp_clinic?: string;
+  gp_phone?: string;
+  gp_address?: string;
+  medications?: string;
+  medical_history?: string;
+  psychiatric_history?: string;
+  somatic_movement_profile?: {
+    movement_frequency?: string;
+    tension_areas?: string[];
+    sleep_quality?: string;
+    panic_fight_flight_symptoms?: string;
+    physical_injuries_limitations?: string;
+  };
+  presenting_concerns?: string;
+  therapy_goals?: string;
+  safety_risk_history?: string;
+  is_demo?: boolean;
+  created_at?: string;
 }
 
 export interface MMHInvoice {
