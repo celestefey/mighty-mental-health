@@ -167,9 +167,9 @@ Coordinate with GP for medical withdrawal management if high dependence risk ide
 
   'gp-progress-update': {
     type: 'gp-progress-update',
-    title: 'GP Letter: MHTP Progress Update & Review',
+    title: 'GP Letter: Clinical Progress Update & Treatment Review',
     category: 'GP Correspondence',
-    description: 'Standard 6-session Mental Health Treatment Plan progress review with psychometric score trajectory for Medicare / PACFA re-referral.',
+    description: 'Standard 6-session clinical progress review with psychometric score trajectory for ongoing GP collaboration, Private Health Fund rebates (Medibank, Bupa, ahm, ARHG), or NDIS plan review.',
     isGpLetter: true,
     defaultSubjective: '',
     defaultObjective: '',
@@ -234,8 +234,8 @@ BASELINE PSYCHOMETRIC FINDINGS:
     : `${options.clientName} has attended ${sessions} sessions of psychotherapy and somatic regulation. Marked improvements have been observed in sleep architecture, distress tolerance, and nervous system pacing.`);
 
   const rec = options.recommendation || (options.templateType === 'gp-first-session'
-    ? `I have commenced an initial 6-session therapeutic block. I will provide a formal progress review upon completion of session 6 in accordance with Mental Health Treatment Plan guidelines.`
-    : `In light of the client's positive clinical engagement and remaining recovery goals, I recommend a re-referral for an additional 4 sessions (Sessions 7–10) under the Better Access / Mental Health Care Plan framework.`);
+    ? `I have commenced an initial 6-session therapeutic block. I will provide a formal clinical progress review upon completion of session 6 to support your ongoing medical and psychiatric care.`
+    : `In light of the client's positive clinical engagement and remaining recovery goals, I recommend continued collaborative psychotherapy. Eligible clients may access Private Health Fund rebates (Medibank, Bupa, ahm, ARHG) or NDIS funding.`);
 
   return `MIGHTY MENTAL HEALTH
 Exercise-Integrated Psychotherapy & Counselling

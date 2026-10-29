@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+/**
+ * Internal intake receipt handler.
+ * Strictly adheres to Privacy Act 1988 (Cth) APP 6 & 11:
+ * Sensitive clinical data and psychometric scores are NEVER transmitted
+ * to marketing, analytics, or external advertising pipelines.
+ */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -9,49 +15,16 @@ export async function POST(req: NextRequest) {
       client_email,
       form_id,
       form_title,
-      answers,
-      score_summary,
-      clinical_severity,
-      metadata = {},
     } = body;
 
-    // Enriched payload with tracking metadata for Antigravity automated marketing workflows
-    const webhookPayload = {
-      event: 'client.intake.submitted',
-      timestamp: new Date().toISOString(),
-      client: {
-        name: client_name,
-        email: client_email,
-      },
-      intake: {
-        form_id,
-        form_title,
-        severity: clinical_severity,
-        scores: score_summary,
-      },
-      metadata: {
-        utm_source: metadata.utm_source || 'organic',
-        utm_medium: metadata.utm_medium || 'direct',
-        utm_campaign: metadata.utm_campaign || 'mmh_telehealth_launch',
-        workflow_id: metadata.workflow_id || 'agy_intake_pipeline_v1',
-        origin: metadata.origin || 'mightymentalhealth.com.au',
-      },
-    };
-
-    // If an external Antigravity webhook URL or Formspree URL is configured:
-    const externalWebhookUrl = process.env.ANTIGRAVITY_MARKETING_WEBHOOK_URL;
-    if (externalWebhookUrl) {
-      await fetch(externalWebhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(webhookPayload),
-      });
+    // Secure clinical audit logging within server runtime only
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Clinical Audit] Intake received for ${client_name} (${client_email}) - Form: ${form_title || form_id}`);
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Intake webhook processed and metadata tracked',
-      tracked_event: webhookPayload.event,
+      message: 'Intake record processed securely in compliance with APP 6/11.',
     });
   } catch (error: any) {
     return NextResponse.json(

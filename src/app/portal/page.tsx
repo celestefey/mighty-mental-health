@@ -151,19 +151,6 @@ export default function ClientPortalPage() {
     }
   }
 
-  function handleDemoClientAccess(email: string) {
-    const mockSession = {
-      user: {
-        id: `client-${email}`,
-        email: email,
-        role: 'authenticated'
-      }
-    };
-    setSession(mockSession);
-    setClientEmail(email);
-    setEmailInput(email);
-  }
-
   async function handleSignOut() {
     await supabase.auth.signOut();
     setSession(null);
@@ -275,29 +262,6 @@ export default function ClientPortalPage() {
                   <Lock className="w-3.5 h-3.5 text-[#BA3D00]" />
                   Sign In with Password
                 </button>
-
-                {/* Quick Test Client Personas for Evaluator Review */}
-                <div className="pt-3 border-t border-gray-100 space-y-1.5">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-gray-400 block text-center">
-                    Quick Evaluator Client Profiles
-                  </span>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleDemoClientAccess('sarah.jenkins@example.com')}
-                      className="bg-[#FBF9F5] hover:bg-[#F3EFE6] border border-[#E5DFD5] text-[#130C76] py-2 px-2.5 rounded-xl text-[11px] font-bold text-center cursor-pointer transition-colors"
-                    >
-                      Sarah Jenkins (Intake)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDemoClientAccess('marcus.vance@example.com')}
-                      className="bg-[#FBF9F5] hover:bg-[#F3EFE6] border border-[#E5DFD5] text-[#130C76] py-2 px-2.5 rounded-xl text-[11px] font-bold text-center cursor-pointer transition-colors"
-                    >
-                      Marcus Vance (Review)
-                    </button>
-                  </div>
-                </div>
               </div>
             </form>
           )}
@@ -324,76 +288,15 @@ export default function ClientPortalPage() {
         </div>
 
         {/* Change Account or Switch */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <input
-              type="email"
-              value={emailInput}
-              onChange={(e) => setEmailInput(e.target.value)}
-              placeholder="Search your email..."
-              className="text-xs px-3 py-2 rounded-xl border border-gray-300 focus:outline-hidden focus:border-[#BA3D00]"
-            />
-            <button
-              onClick={() => setClientEmail(emailInput)}
-              className="text-xs bg-[#130C76] text-white font-bold px-3 py-2 rounded-xl hover:bg-[#0038A8] transition-colors"
-            >
-              Switch
-            </button>
+        <div className="flex items-center gap-3">
+          <div className="bg-[#FBF9F5] border border-[#E5DFD5] text-gray-700 px-3 py-1.5 rounded-xl text-xs font-medium">
+            Verified Client: <strong className="text-[#130C76]">{clientEmail}</strong>
           </div>
           <button
             onClick={handleSignOut}
-            className="text-xs bg-red-50 hover:bg-red-100 text-red-700 font-bold px-3 py-2 rounded-xl border border-red-200 transition-colors"
+            className="text-xs bg-red-50 hover:bg-red-100 text-red-700 font-bold px-3 py-2 rounded-xl border border-red-200 transition-colors cursor-pointer"
           >
             Sign Out
-          </button>
-        </div>
-      </div>
-
-      {/* Quick Switch Test Personas Bar */}
-      <div className="mt-4 bg-[#FBF9F5] border border-[#E5DFD5] rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-[#BA3D00]" />
-          <span className="font-extrabold text-[#130C76]">Quick Test Personas:</span>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={() => {
-              setClientEmail('sarah.jenkins@example.com');
-              setEmailInput('sarah.jenkins@example.com');
-            }}
-            className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
-              clientEmail === 'sarah.jenkins@example.com'
-                ? 'bg-[#130C76] text-white shadow-2xs'
-                : 'bg-white border border-[#E5DFD5] text-gray-700 hover:border-[#130C76]'
-            }`}
-          >
-            Sarah Jenkins (Severe DASS-21 + Invoice)
-          </button>
-          <button
-            onClick={() => {
-              setClientEmail('david.chen@example.com');
-              setEmailInput('david.chen@example.com');
-            }}
-            className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
-              clientEmail === 'david.chen@example.com'
-                ? 'bg-[#130C76] text-white shadow-2xs'
-                : 'bg-white border border-[#E5DFD5] text-gray-700 hover:border-[#130C76]'
-            }`}
-          >
-            David Chen (Pending GAD-7)
-          </button>
-          <button
-            onClick={() => {
-              setClientEmail('marcus.brody@example.com');
-              setEmailInput('marcus.brody@example.com');
-            }}
-            className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
-              clientEmail === 'marcus.brody@example.com'
-                ? 'bg-[#130C76] text-white shadow-2xs'
-                : 'bg-white border border-[#E5DFD5] text-gray-700 hover:border-[#130C76]'
-            }`}
-          >
-            Marcus Brody (Overdue Screener ⚠️)
           </button>
         </div>
       </div>

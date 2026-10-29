@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+/**
+ * Internal booking notification handler.
+ * Compliant with Australian Privacy Principles (APPs 6 & 11).
+ * Client booking and telehealth session information is kept strictly within practice boundaries.
+ */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -10,45 +15,15 @@ export async function POST(req: NextRequest) {
       service_title,
       scheduled_at,
       modality,
-      telehealth_room_id,
-      metadata = {},
     } = body;
 
-    const webhookPayload = {
-      event: 'appointment.scheduled',
-      timestamp: new Date().toISOString(),
-      booking: {
-        appointment_id,
-        service: service_title,
-        scheduled_at,
-        modality,
-        telehealth_url: `https://mightymentalhealth.com.au/telehealth/${telehealth_room_id}`,
-      },
-      client: {
-        name: client_name,
-        email: client_email,
-      },
-      metadata: {
-        utm_source: metadata.utm_source || 'website',
-        utm_medium: metadata.utm_medium || 'booking_grid',
-        client_ref_id: metadata.client_ref_id || 'ref_' + Math.random().toString(36).substring(2, 8),
-        workflow_id: metadata.workflow_id || 'agy_onboarding_pipeline_v1',
-      },
-    };
-
-    const externalWebhookUrl = process.env.ANTIGRAVITY_MARKETING_WEBHOOK_URL;
-    if (externalWebhookUrl) {
-      await fetch(externalWebhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(webhookPayload),
-      });
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Booking Audit] Confirmed appointment: ${appointment_id} for ${client_name} (${client_email}) at ${scheduled_at}`);
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Booking webhook dispatched to Antigravity marketing engine',
-      payload: webhookPayload,
+      message: 'Booking confirmed and logged in compliance with clinical privacy standards.',
     });
   } catch (error: any) {
     return NextResponse.json(

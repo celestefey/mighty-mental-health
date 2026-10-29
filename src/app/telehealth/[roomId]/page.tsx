@@ -78,10 +78,8 @@ export default function EmbeddedTelehealthRoomPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const roomId = params.roomId as string;
-  const initialRole = searchParams.get('role') === 'client' ? 'client' : 'clinician';
-
-  // Role perspective: 'clinician' (Luke's console) vs 'client' (Patient view)
-  const [activeRole, setActiveRole] = useState<'clinician' | 'client'>(initialRole);
+  const [activeRole, setActiveRole] = useState<'clinician' | 'client'>('client');
+  const [isAuthorizedClinician, setIsAuthorizedClinician] = useState(false);
 
   // Call & Media States
   const [isMicOn, setIsMicOn] = useState(true);
@@ -94,7 +92,7 @@ export default function EmbeddedTelehealthRoomPage() {
 
   // Chat State
   const [messages, setMessages] = useState<{ sender: string; text: string; time: string }[]>([
-    { sender: 'System', text: 'Encrypted consultation room initialized (256-bit AES). Australian Privacy Principles compliant.', time: 'Just now' },
+    { sender: 'System', text: 'Telehealth consultation room active. Audio/video stream connected.', time: 'Just now' },
     { sender: 'Luke Piatti (Clinician)', text: 'Hi! Whenever you are settled, take a deep breath. We will begin shortly.', time: 'Just now' }
   ]);
   const [chatInput, setChatInput] = useState('');
@@ -173,46 +171,63 @@ export default function EmbeddedTelehealthRoomPage() {
     };
   }, [isVideoOn]);
 
+  // Verify clinician authentication state
+  useEffect(() => {
+    async function checkClinicianAuth() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const email = session?.user?.email?.toLowerCase();
+        const role = session?.user?.user_metadata?.role;
+        const isLuke = email === 'luke@mightymentalhealth.com.au' || email === 'lukepiatti@gmail.com' || role === 'clinician';
+        setIsAuthorizedClinician(isLuke);
+        if (isLuke) {
+          setActiveRole('clinician');
+        } else {
+          setActiveRole('client');
+        }
+      } catch (err) {
+        setIsAuthorizedClinician(false);
+        setActiveRole('client');
+      }
+    }
+    checkClinicianAuth();
+  }, []);
+
   // Load appointment and patient profile
   useEffect(() => {
     async function loadRoomContext() {
       setLoadingData(true);
 
+      const cleanRoomId = (roomId || '').replace(/[^a-zA-Z0-9_-]/g, '');
+      if (!cleanRoomId) {
+        setAppointment(null);
+        setLoadingData(false);
+        return;
+      }
+
       // 1. Find appointment by telehealth_room_id or id
       const { data: apptData } = await supabase
         .from('mmh_appointments')
         .select('*, service:mmh_services(*)')
-        .or(`telehealth_room_id.eq.${roomId},id.eq.${roomId}`)
+        .or(`telehealth_room_id.eq.${cleanRoomId},id.eq.${cleanRoomId}`)
         .maybeSingle();
 
-      let currentAppt = apptData as MMHAppointment | null;
-
-      // Fallback if testing ad-hoc room
-      if (!currentAppt) {
-        const { data: defaultAppt } = await supabase
-          .from('mmh_appointments')
-          .select('*, service:mmh_services(*)')
-          .order('scheduled_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        currentAppt = defaultAppt as MMHAppointment | null;
-      }
-
+      const currentAppt = apptData as MMHAppointment | null;
       setAppointment(currentAppt);
 
-      // 2. Load available forms for Luke to dispatch
-      const { data: formsData } = await supabase
-        .from('mmh_forms')
-        .select('*')
-        .order('title', { ascending: true });
-      if (formsData) {
-        setAvailableForms(formsData as MMHForm[]);
-        if (formsData.length > 0 && !selectedDispatchFormId) {
-          setSelectedDispatchFormId(formsData[0].id);
-        }
-      }
-
       if (currentAppt) {
+        // 2. Load available forms for Luke to dispatch
+        const { data: formsData } = await supabase
+          .from('mmh_forms')
+          .select('*')
+          .order('title', { ascending: true });
+        if (formsData) {
+          setAvailableForms(formsData as MMHForm[]);
+          if (formsData.length > 0 && !selectedDispatchFormId) {
+            setSelectedDispatchFormId(formsData[0].id);
+          }
+        }
+
         await refreshPatientData(currentAppt.client_email);
       }
 
@@ -483,6 +498,30 @@ export default function EmbeddedTelehealthRoomPage() {
   const clientName = appointment?.client_name || 'Patient';
   const serviceTitle = appointment?.service?.title || 'Telehealth Consultation';
 
+  if (!loadingData && !appointment) {
+    return (
+      <div className="min-h-screen bg-[#FBF9F5] flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-3xl border border-[#E5DFD5] p-8 text-center space-y-4 shadow-sm">
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
+            <AlertCircle className="w-6 h-6" />
+          </div>
+          <h2 className="text-xl font-extrabold text-[#130C76]">Consultation Room Not Found</h2>
+          <p className="text-xs text-gray-600 leading-relaxed">
+            This telehealth consultation room does not exist, has expired, or is invalid. If you have an upcoming appointment with Luke Piatti, please check your appointment email confirmation or access the Client Portal.
+          </p>
+          <div className="pt-2">
+            <Link
+              href="/portal"
+              className="inline-block bg-[#130C76] hover:bg-[#0038A8] text-white px-5 py-2.5 rounded-xl font-bold text-xs transition-colors"
+            >
+              Go to Client Portal &rarr;
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0F1412] text-white flex flex-col justify-between overflow-x-hidden font-sans">
       
@@ -516,33 +555,35 @@ export default function EmbeddedTelehealthRoomPage() {
 
         {/* Perspective Switcher & Controls */}
         <div className="flex items-center gap-2.5">
-          {/* Dual Perspective Role Switcher */}
-          <div className="bg-black/40 border border-white/10 p-1 rounded-xl flex items-center text-xs">
-            <button
-              onClick={() => setActiveRole('clinician')}
-              className={`px-3 py-1 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                activeRole === 'clinician'
-                  ? 'bg-[#F96100] text-white shadow-xs'
-                  : 'text-white/60 hover:text-white'
-              }`}
-              title="Switch to Luke's Clinical Workbench view"
-            >
-              <Activity className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Luke&apos;s Console</span>
-            </button>
-            <button
-              onClick={() => setActiveRole('client')}
-              className={`px-3 py-1 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                activeRole === 'client'
-                  ? 'bg-[#F96100] text-white shadow-xs'
-                  : 'text-white/60 hover:text-white'
-              }`}
-              title="Switch to Patient view with slide-over drawer"
-            >
-              <Users className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Patient View</span>
-            </button>
-          </div>
+          {/* Dual Perspective Role Switcher (Restricted to Authorized Practice Clinician) */}
+          {isAuthorizedClinician && (
+            <div className="bg-black/40 border border-white/10 p-1 rounded-xl flex items-center text-xs">
+              <button
+                onClick={() => setActiveRole('clinician')}
+                className={`px-3 py-1 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  activeRole === 'clinician'
+                    ? 'bg-[#F96100] text-white shadow-xs'
+                    : 'text-white/60 hover:text-white'
+                }`}
+                title="Switch to Luke's Clinical Workbench view"
+              >
+                <Activity className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Luke&apos;s Console</span>
+              </button>
+              <button
+                onClick={() => setActiveRole('client')}
+                className={`px-3 py-1 rounded-lg font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  activeRole === 'client'
+                    ? 'bg-[#F96100] text-white shadow-xs'
+                    : 'text-white/60 hover:text-white'
+                }`}
+                title="Switch to Patient view with slide-over drawer"
+              >
+                <Users className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Patient View</span>
+              </button>
+            </div>
+          )}
 
           {/* Crisis Button */}
           <a

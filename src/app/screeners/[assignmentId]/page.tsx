@@ -37,6 +37,7 @@ export default function ScreenerSubmissionPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<any>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchAssignment() {
@@ -78,6 +79,17 @@ export default function ScreenerSubmissionPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!assignment || !assignment.form) return;
+    setValidationError(null);
+
+    const questions: ScreenerQuestion[] = assignment.form.questions || [];
+    const unanswered = questions.filter(
+      (q) => answers[q.id] === undefined || answers[q.id] === null || answers[q.id] === ''
+    );
+    if (unanswered.length > 0) {
+      setValidationError(`Please complete all ${questions.length} questions before submitting (currently missing ${unanswered.length} ${unanswered.length === 1 ? 'question' : 'questions'}).`);
+      return;
+    }
+
     setIsSubmitting(true);
 
     let scoreSummary: any = {};
@@ -135,7 +147,7 @@ export default function ScreenerSubmissionPage() {
       severityFlag = 'Intake Submitted';
     }
 
-    await supabase
+    const { error: updateError } = await supabase
       .from('mmh_form_assignments')
       .update({
         status: 'completed',
@@ -145,6 +157,12 @@ export default function ScreenerSubmissionPage() {
         completed_at: new Date().toISOString(),
       })
       .eq('id', assignment.id);
+
+    if (updateError) {
+      setValidationError(`Failed to submit screener: ${updateError.message || 'Database error'}. Please try again.`);
+      setIsSubmitting(false);
+      return;
+    }
 
     // Dispatch real-time clinical notification alert to Luke
     try {
@@ -432,6 +450,12 @@ export default function ScreenerSubmissionPage() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-8">
+            {validationError && (
+              <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-900 text-xs font-semibold flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                <span>{validationError}</span>
+              </div>
+            )}
             {/* Standard Instruction Banners for Validated Scales */}
             {slug === 'dass-21' && (
               <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 text-xs text-amber-900 space-y-1">

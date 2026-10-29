@@ -37,7 +37,9 @@ import {
 import { supabase } from '@/lib/supabase';
 import { MMHAppointment, MMHForm, MMHFormAssignment, MMHClinicalNote, MMHClientIntake, ClinicalTemplateType } from '@/lib/types';
 import { CLINICAL_TEMPLATES, generateGpLetter } from '@/lib/clinicalTemplates';
+import ClientChartDossier from '@/components/admin/ClientChartDossier';
 import Link from 'next/link';
+import { useMemo } from 'react';
 
 const CATEGORY_TABS = [
   'All',
@@ -49,7 +51,9 @@ const CATEGORY_TABS = [
 ];
 
 export default function ClinicianAdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'schedule' | 'forms' | 'assignments' | 'intakes' | 'notes'>('schedule');
+  const [activeTab, setActiveTab] = useState<'schedule' | 'clients' | 'forms' | 'assignments' | 'intakes' | 'notes'>('schedule');
+  const [selectedClientEmail, setSelectedClientEmail] = useState<string | null>(null);
+  const [clientDossierInitialTab, setClientDossierInitialTab] = useState<'movement' | 'psychometrics' | 'notes' | 'forms' | 'appointments' | 'medical'>('movement');
   
   // Data states
   const [appointments, setAppointments] = useState<MMHAppointment[]>([]);
@@ -125,13 +129,29 @@ export default function ClinicianAdminDashboard() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [authMagicSent, setAuthMagicSent] = useState(false);
 
+  const isClinicianEmail = (email?: string | null) => {
+    if (!email) return false;
+    const lower = email.toLowerCase().trim();
+    return lower === 'luke@mightymentalhealth.com.au' || lower === 'lukepiatti@gmail.com';
+  };
+
   useEffect(() => {
     async function checkAuth() {
       try {
         const { data: { session: existingSession } } = await supabase.auth.getSession();
-        setSession(existingSession);
         if (existingSession) {
-          loadAllAdminData();
+          const email = existingSession.user?.email;
+          const role = existingSession.user?.user_metadata?.role;
+          if (isClinicianEmail(email) || role === 'clinician') {
+            setSession(existingSession);
+            loadAllAdminData();
+          } else {
+            await supabase.auth.signOut();
+            setSession(null);
+            setAuthError('Access Denied: Restricted to Luke Piatti (PACFA Reg. #28941). You are signed in with an unauthorized account.');
+          }
+        } else {
+          setSession(null);
         }
       } catch (err) {
         console.warn('Auth check notice:', err);
@@ -141,10 +161,20 @@ export default function ClinicianAdminDashboard() {
     }
     checkAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
-      setSession(currentSession);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, currentSession) => {
       if (currentSession) {
-        loadAllAdminData();
+        const email = currentSession.user?.email;
+        const role = currentSession.user?.user_metadata?.role;
+        if (isClinicianEmail(email) || role === 'clinician') {
+          setSession(currentSession);
+          loadAllAdminData();
+        } else {
+          await supabase.auth.signOut();
+          setSession(null);
+          setAuthError('Access Denied: Restricted to Luke Piatti (PACFA Reg. #28941).');
+        }
+      } else {
+        setSession(null);
       }
     });
 
@@ -163,8 +193,16 @@ export default function ClinicianAdminDashboard() {
       if (error) {
         setAuthError(error.message);
       } else {
-        setSession(data.session);
-        loadAllAdminData();
+        const email = data.session?.user?.email;
+        const role = data.session?.user?.user_metadata?.role;
+        if (isClinicianEmail(email) || role === 'clinician') {
+          setSession(data.session);
+          loadAllAdminData();
+        } else {
+          await supabase.auth.signOut();
+          setSession(null);
+          setAuthError('Access Denied: Account is not authorized as practice clinician.');
+        }
       }
     } catch (err: any) {
       setAuthError(err.message || 'Authentication failed');
@@ -194,18 +232,6 @@ export default function ClinicianAdminDashboard() {
     } finally {
       setAuthSubmitting(false);
     }
-  }
-
-  async function handleClinicianBypass() {
-    const mockSession = {
-      user: {
-        id: 'clinician-luke-piatti',
-        email: 'luke@mightymentalhealth.com.au',
-        user_metadata: { name: 'Luke Piatti', role: 'clinician' }
-      }
-    };
-    setSession(mockSession);
-    loadAllAdminData();
   }
 
   async function handleSignOut() {
@@ -436,18 +462,31 @@ export default function ClinicianAdminDashboard() {
     setTimeout(() => setGpCopySuccess(false), 2500);
   }
 
+  function escapeHtml(str: string | number | undefined | null): string {
+    if (str === undefined || str === null) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   // Print GP Letter with full RACGP & PACFA Australian Medical Letterhead
   function handlePrintGpLetter() {
     if (!gpLetterOutput) return;
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
 
-    const patientName = gpClientName || selectedApptForNote?.client_name || 'Patient';
-    const patientDob = gpClientDob || 'On file';
-    const doctorName = gpName || 'Referring General Practitioner';
-    const clinicName = gpClinic || 'General Practice Clinic';
-    const clinicAddress = gpAddress || 'Logan, Queensland';
-    const currentDate = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
+    const patientName = escapeHtml(gpClientName || selectedApptForNote?.client_name || 'Patient');
+    const patientDob = escapeHtml(gpClientDob || 'On file');
+    const doctorName = escapeHtml(gpName || 'Referring General Practitioner');
+    const clinicName = escapeHtml(gpClinic || 'General Practice Clinic');
+    const clinicAddress = escapeHtml(gpAddress || 'Logan, Queensland');
+    const currentDate = escapeHtml(new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' }));
+    const safeLetterOutput = escapeHtml(gpLetterOutput);
+    const safeCompleted = escapeHtml(gpSessionsCompleted);
+    const safeTotal = escapeHtml(gpTotalSessionsAllowed);
 
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -615,8 +654,8 @@ export default function ClinicianAdminDashboard() {
               <h4>Patient Demographics</h4>
               <div class="meta-row"><span class="meta-label">Patient Name:</span><span class="meta-value">${patientName}</span></div>
               <div class="meta-row"><span class="meta-label">Date of Birth:</span><span class="meta-value">${patientDob}</span></div>
-              <div class="meta-row"><span class="meta-label">Referral Type:</span><span class="meta-value">Mental Health Treatment Plan (MHTP)</span></div>
-              <div class="meta-row"><span class="meta-label">Sessions Completed:</span><span class="meta-value">${gpSessionsCompleted} of ${gpTotalSessionsAllowed} Authorised</span></div>
+              <div class="meta-row"><span class="meta-label">Referral Type:</span><span class="meta-value">General Practitioner / Allied Health Clinical Referral</span></div>
+              <div class="meta-row"><span class="meta-label">Sessions Completed:</span><span class="meta-value">${safeCompleted} of ${safeTotal} Authorised</span></div>
             </div>
             <div class="meta-block">
               <h4>Referring General Practitioner</h4>
@@ -627,7 +666,7 @@ export default function ClinicianAdminDashboard() {
             </div>
           </div>
 
-          <div class="letter-content">${gpLetterOutput.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+          <div class="letter-content">${safeLetterOutput}</div>
 
           <div class="signature-block">
             <div class="sig-name">Luke Piatti (MCouns, UQ)</div>
@@ -644,6 +683,71 @@ export default function ClinicianAdminDashboard() {
     setTimeout(() => {
       printWindow.print();
     }, 400);
+  }
+
+  // Unique Clients Count for Tab Counter
+  const uniqueClientsCount = useMemo(() => {
+    const emails = new Set<string>();
+    intakes.forEach(i => i.client_email && emails.add(i.client_email.toLowerCase().trim()));
+    appointments.forEach(a => a.client_email && emails.add(a.client_email.toLowerCase().trim()));
+    assignments.forEach(as => as.client_email && emails.add(as.client_email.toLowerCase().trim()));
+    clinicalNotes.forEach(n => n.client_email && emails.add(n.client_email.toLowerCase().trim()));
+    return emails.size;
+  }, [intakes, appointments, assignments, clinicalNotes]);
+
+  // Open 360° Client Chart & Dossier
+  function handleOpenClientChart(clientEmail: string, tab: 'movement' | 'psychometrics' | 'notes' | 'forms' | 'appointments' | 'medical' = 'movement') {
+    setSelectedClientEmail(clientEmail.toLowerCase());
+    setClientDossierInitialTab(tab);
+    setActiveTab('clients');
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  // Draft Note for Client from Dossier
+  function handleDraftNoteForClient(client: { name: string; email: string; apptId?: string }) {
+    const matchingAppt = appointments.find(a => a.client_email?.toLowerCase() === client.email.toLowerCase());
+    if (matchingAppt) {
+      setSelectedApptForNote(matchingAppt);
+    }
+    setGpClientName(client.name);
+    const matchingIntake = intakes.find(i => i.client_email?.toLowerCase() === client.email.toLowerCase());
+    if (matchingIntake) {
+      if (matchingIntake.gp_name) setGpName(matchingIntake.gp_name);
+      if (matchingIntake.gp_clinic) setGpClinic(matchingIntake.gp_clinic);
+      if (matchingIntake.gp_address) setGpAddress(matchingIntake.gp_address);
+      if (matchingIntake.date_of_birth) setGpClientDob(matchingIntake.date_of_birth);
+    }
+    setSelectedNoteTemplate('SOAP');
+    setActiveTab('notes');
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  // Generate GP Letter for Client from Dossier
+  function handleGenerateGpLetterForClient(client: { name: string; email: string; dob?: string; gp?: any }) {
+    setGpClientName(client.name);
+    if (client.dob) setGpClientDob(client.dob);
+    if (client.gp?.name) setGpName(client.gp.name);
+    if (client.gp?.clinic) setGpClinic(client.gp.clinic);
+    if (client.gp?.address) setGpAddress(client.gp.address);
+    setSelectedNoteTemplate('gp-progress-update');
+    setActiveTab('notes');
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  // Assign Screener for Client from Dossier
+  function handleAssignFormForClient(client: { name: string; email: string }) {
+    setAssignClientName(client.name);
+    setAssignClientEmail(client.email);
+    if (forms.length > 0 && !assignFormId) {
+      setAssignFormId(forms[0].id);
+    }
+    setIsAssignModalOpen(true);
   }
 
   // Transfer Intake details into First Session Clinical Note
@@ -828,15 +932,63 @@ Protective factors identified; safe for outpatient psychotherapy & somatic movem
           therapy_goals: 'Acquire concrete autonomic down-regulation techniques and somatic tools for nervous system balance.',
           safety_risk_history: 'No suicidal ideation, intent or self-harm history.',
           is_demo: true,
+        },
+        {
+          client_name: 'Marcus Brody',
+          client_email: 'marcus.brody@example.com',
+          client_phone: '0434 567 890',
+          date_of_birth: '1995-04-18',
+          address: '28 Bluebell St, Underwood QLD 4119',
+          emergency_contact_name: 'Chloe Brody',
+          emergency_contact_phone: '0434 112 334',
+          emergency_contact_relationship: 'Partner',
+          gp_name: 'Dr. Katherine Bell',
+          gp_clinic: 'Underwood Medical Centre',
+          gp_phone: '07 3341 8888',
+          gp_address: '2974 Logan Rd, Underwood QLD 4119',
+          medications: 'Creatine monohydrate 5g, Whey protein; nil prescription psychoactive medication.',
+          medical_history: 'Right AC joint impingement (bench press flare-up 2024), tight posterior chain.',
+          psychiatric_history: 'Performance anxiety and hyperarousal around athletic competition and work performance.',
+          somatic_movement_profile: {
+            movement_frequency: 'Barbell strength training 4x/week (squat, bench, deadlift)',
+            tension_areas: ['Upper Thoracic / Between Shoulder Blades', 'Right Anterior Shoulder (AC Joint)', 'Psoas / Hip Flexors'],
+            sleep_quality: '5.5 hrs interrupted sleep, high pre-bed CNS stimulation and cortisol',
+            panic_fight_flight_symptoms: 'Restless motor agitation, elevated resting heart rate post-work',
+            physical_injuries_limitations: 'Right shoulder overhead press caution; needs warm-up for heavy squats'
+          },
+          presenting_concerns: 'High sympathetic drive interfering with nervous system recovery, athletic fatigue, sleep deficits, and perfectionism.',
+          therapy_goals: 'Learn down-regulation somatic protocols post-workout, integrate cognitive processing with physical pacing, improve parasympathetic sleep rebound.',
+          safety_risk_history: 'Nil suicidal ideation or intent. High athletic drive and resilience.',
+          is_demo: true,
         }
       ]);
 
-      // 3. Insert Assignments
+      // 3. Insert Assignments (Longitudinal Multi-Point Trajectories)
       const sarahDeadline = new Date(now.getTime() - 2 * 3600 * 1000).toISOString();
       const davidDeadline = new Date(now.getTime() + 24 * 3600 * 1000).toISOString();
       const marcusDeadline = new Date(now.getTime() - 24 * 3600 * 1000).toISOString(); // Overdue!
 
       if (dassForm) {
+        // Sarah Jenkins - Baseline DASS-21 (4 Weeks Ago)
+        await supabase.from('mmh_form_assignments').insert({
+          form_id: dassForm.id,
+          client_name: 'Sarah Jenkins',
+          client_email: 'sarah.jenkins@example.com',
+          deadline: new Date(now.getTime() - 28 * 24 * 3600 * 1000).toISOString(),
+          status: 'completed',
+          clinical_severity: 'D: Severe (22) | A: Extremely Severe (24) | S: Extremely Severe (30)',
+          score_summary: {
+            depression: 22,
+            anxiety: 24,
+            stress: 30,
+            total_score: 76,
+            requiresUrgentAttention: true
+          },
+          completed_at: new Date(now.getTime() - 27 * 24 * 3600 * 1000).toISOString(),
+          is_demo: true,
+        });
+
+        // Sarah Jenkins - Session 4 Review DASS-21 (Yesterday: Demonstrates -27% depression, -25% anxiety, -13% stress)
         await supabase.from('mmh_form_assignments').insert({
           form_id: dassForm.id,
           client_name: 'Sarah Jenkins',
@@ -848,7 +1000,8 @@ Protective factors identified; safe for outpatient psychotherapy & somatic movem
             depression: 16,
             anxiety: 18,
             stress: 26,
-            requiresUrgentAttention: true
+            total_score: 60,
+            requiresUrgentAttention: false
           },
           completed_at: new Date(now.getTime() - 3 * 3600 * 1000).toISOString(),
           is_demo: true,
@@ -856,12 +1009,35 @@ Protective factors identified; safe for outpatient psychotherapy & somatic movem
       }
 
       if (k10Form) {
+        // David Chen - Baseline K10 (2 Weeks Ago)
+        await supabase.from('mmh_form_assignments').insert({
+          form_id: k10Form.id,
+          client_name: 'David Chen',
+          client_email: 'david.chen@example.com',
+          deadline: new Date(now.getTime() - 14 * 24 * 3600 * 1000).toISOString(),
+          status: 'completed',
+          clinical_severity: 'K10: High Distress (Score 28)',
+          score_summary: {
+            total_score: 28,
+            distressLevel: 'High'
+          },
+          completed_at: new Date(now.getTime() - 13 * 24 * 3600 * 1000).toISOString(),
+          is_demo: true,
+        });
+
+        // David Chen - Follow-up K10 (Yesterday: -21% Delta Improvement)
         await supabase.from('mmh_form_assignments').insert({
           form_id: k10Form.id,
           client_name: 'David Chen',
           client_email: 'david.chen@example.com',
           deadline: davidDeadline,
-          status: 'assigned',
+          status: 'completed',
+          clinical_severity: 'K10: Moderate Distress (Score 22)',
+          score_summary: {
+            total_score: 22,
+            distressLevel: 'Moderate'
+          },
+          completed_at: new Date(now.getTime() - 2 * 3600 * 1000).toISOString(),
           is_demo: true,
         });
       } else if (gadForm) {
@@ -871,6 +1047,42 @@ Protective factors identified; safe for outpatient psychotherapy & somatic movem
           client_email: 'david.chen@example.com',
           deadline: davidDeadline,
           status: 'assigned',
+          is_demo: true,
+        });
+      }
+
+      if (pclForm) {
+        // Marcus Brody - PCL-5 Assessment
+        await supabase.from('mmh_form_assignments').insert({
+          form_id: pclForm.id,
+          client_name: 'Marcus Brody',
+          client_email: 'marcus.brody@example.com',
+          deadline: new Date(now.getTime() - 3 * 24 * 3600 * 1000).toISOString(),
+          status: 'completed',
+          clinical_severity: 'PCL-5: Probable Clinical Hyperarousal (Score 42)',
+          score_summary: {
+            total_score: 42,
+            probablePTSD: true
+          },
+          completed_at: new Date(now.getTime() - 2 * 24 * 3600 * 1000).toISOString(),
+          is_demo: true,
+        });
+      }
+
+      if (aisForm) {
+        // Marcus Brody - Athens Insomnia Scale
+        await supabase.from('mmh_form_assignments').insert({
+          form_id: aisForm.id,
+          client_name: 'Marcus Brody',
+          client_email: 'marcus.brody@example.com',
+          deadline: new Date(now.getTime() - 3 * 24 * 3600 * 1000).toISOString(),
+          status: 'completed',
+          clinical_severity: 'AIS: Marked Insomnia & CNS Overreach (Score 11)',
+          score_summary: {
+            total_score: 11,
+            insomniaSeverity: 'Marked'
+          },
+          completed_at: new Date(now.getTime() - 2 * 24 * 3600 * 1000).toISOString(),
           is_demo: true,
         });
       }
@@ -886,32 +1098,52 @@ Protective factors identified; safe for outpatient psychotherapy & somatic movem
         });
       }
 
-      if (aisForm) {
-        await supabase.from('mmh_form_assignments').insert({
-          form_id: aisForm.id,
-          client_name: 'Marcus Brody',
-          client_email: 'marcus.brody@example.com',
-          deadline: davidDeadline,
-          status: 'assigned',
-          is_demo: true,
-        });
-      }
-
-      // 4. Insert Clinical note & Invoice for Sarah Jenkins
+      // 4. Insert Clinical notes & Invoices
       if (insertedAppts && insertedAppts.length > 0) {
-        await supabase.from('mmh_clinical_notes').insert({
-          appointment_id: insertedAppts[0].id,
-          client_name: 'Sarah Jenkins',
-          client_email: 'sarah.jenkins@example.com',
-          note_type: 'SOAP',
-          template_type: 'first-session',
-          subjective: 'Client presents with autonomic arousal, chronic deadline pressure, upper trapezius tightness, and fragmented sleep.',
-          objective: 'Observed clavicular shallow breathing. DASS-21 Anxiety score is 18 (Severe) and Stress is 26 (Severe).',
-          assessment: 'Somatic distress consistent with sympathetic nervous system overdrive.',
-          plan: 'Prescribed box breathing down-regulation; vagal nerve pacing; 1-week follow up.',
-          is_locked: false,
-          is_demo: true,
-        });
+        await supabase.from('mmh_clinical_notes').insert([
+          {
+            appointment_id: insertedAppts[0].id,
+            client_name: 'Sarah Jenkins',
+            client_email: 'sarah.jenkins@example.com',
+            note_type: 'SOAP',
+            template_type: 'first-session',
+            subjective: 'Client presents with autonomic arousal, chronic deadline pressure, upper trapezius tightness, and fragmented sleep.',
+            objective: 'Observed clavicular shallow breathing. Baseline DASS-21 Anxiety score is 24 (Extremely Severe) and Stress is 30 (Extremely Severe).',
+            assessment: 'Somatic distress consistent with sympathetic nervous system overdrive.',
+            plan: 'Prescribed box breathing down-regulation; vagal nerve pacing; 1-week follow up.',
+            is_locked: true,
+            created_at: new Date(now.getTime() - 21 * 24 * 3600 * 1000).toISOString(),
+            is_demo: true,
+          },
+          {
+            appointment_id: insertedAppts[0].id,
+            client_name: 'Sarah Jenkins',
+            client_email: 'sarah.jenkins@example.com',
+            note_type: 'SOAP',
+            template_type: 'SOAP',
+            subjective: 'Session 4 Review. Reports marked reduction in chest tightness and improved work boundary enforcement.',
+            objective: 'DASS-21 follow-up shows significant improvement: Depression down to 16 (-27%), Anxiety down to 18 (-25%), Stress down to 26 (-13%). Vagal breathing practiced 5x/wk.',
+            assessment: 'Positive therapeutic trajectory. Sympathetic down-regulation progressing well.',
+            plan: 'Continue exercise-integrated somatic grounding; maintain pacing protocol; review in 2 weeks.',
+            is_locked: false,
+            created_at: new Date(now.getTime() - 2 * 3600 * 1000).toISOString(),
+            is_demo: true,
+          },
+          {
+            appointment_id: insertedAppts.length > 2 ? insertedAppts[2].id : insertedAppts[0].id,
+            client_name: 'Marcus Brody',
+            client_email: 'marcus.brody@example.com',
+            note_type: 'SOAP',
+            template_type: 'first-session',
+            subjective: 'Athlete presenting with pre-competition performance anxiety and elevated sympathetic activation.',
+            objective: 'PCL-5 score 42. Athens Insomnia Scale 11. Right AC joint rotator cuff precaution noted.',
+            assessment: 'Performance hyperarousal with central nervous system overreach.',
+            plan: 'Prescribe post-workout parasympathetic breath reset; bilateral tempo pacing; avoid heavy overhead shoulder pressing until acute impingement settles.',
+            is_locked: false,
+            created_at: new Date(now.getTime() - 24 * 3600 * 1000).toISOString(),
+            is_demo: true,
+          }
+        ]);
 
         await supabase.from('mmh_invoices').insert({
           appointment_id: insertedAppts[0].id,
@@ -1058,16 +1290,6 @@ Protective factors identified; safe for outpatient psychotherapy & somatic movem
                   Email Secure Magic Link
                 </button>
 
-                <div className="pt-2 border-t border-gray-100">
-                  <button
-                    type="button"
-                    onClick={handleClinicianBypass}
-                    className="w-full bg-[#FBF9F5] hover:bg-[#F3EFE6] border border-[#E5DFD5] text-[#130C76] py-2 px-3 rounded-xl font-semibold text-[11px] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <ShieldCheck className="w-3.5 h-3.5 text-green-600" />
-                    Clinician Fast-Unlock (Solo Practice Demo)
-                  </button>
-                </div>
               </div>
             </form>
           )}

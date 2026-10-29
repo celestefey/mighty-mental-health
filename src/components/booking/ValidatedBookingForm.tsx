@@ -55,6 +55,7 @@ export function ValidatedBookingForm({
   onCancel,
 }: ValidatedBookingFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
 
   const {
     register,
@@ -76,10 +77,30 @@ export function ValidatedBookingForm({
 
   const onSubmit = async (values: BookingFormValues) => {
     setIsSubmitting(true);
-    const roomId = 'mmh-' + Math.random().toString(36).substring(2, 9);
-    const scheduledDateTime = new Date(`${selectedDate} ${selectedTime}`).toISOString();
+    setSubmissionError(null);
 
-    // 1. Store in Supabase
+    const roomId = 'mmh-' + Math.random().toString(36).substring(2, 9);
+
+    // Parse time like "09:00 AM" into 24-hour Brisbane AEST (+10:00)
+    let hours = 9;
+    let minutes = 0;
+    try {
+      const parts = selectedTime.trim().split(' ');
+      const timeParts = (parts[0] || '09:00').split(':');
+      hours = parseInt(timeParts[0], 10);
+      minutes = parseInt(timeParts[1], 10) || 0;
+      const modifier = parts[1]?.toUpperCase();
+      if (modifier === 'PM' && hours < 12) hours += 12;
+      if (modifier === 'AM' && hours === 12) hours = 0;
+    } catch {
+      hours = 9;
+      minutes = 0;
+    }
+    const hh = hours.toString().padStart(2, '0');
+    const mm = minutes.toString().padStart(2, '0');
+    const scheduledDateTime = `${selectedDate}T${hh}:${mm}:00+10:00`;
+
+    // 1. Store appointment in Supabase
     const { data, error } = await supabase
       .from('mmh_appointments')
       .insert({
@@ -94,9 +115,6 @@ export function ValidatedBookingForm({
         telehealth_room_id: roomId,
         notes: values.clientNotes,
         metadata: {
-          utm_source: values.utm_source,
-          utm_medium: values.utm_medium,
-          utm_campaign: values.utm_campaign,
           client_ref_id: values.client_ref_id,
         },
         is_demo: false,
@@ -104,46 +122,42 @@ export function ValidatedBookingForm({
       .select()
       .single();
 
-    // 2. Fire Antigravity marketing automation webhook with metadata tracking
+    if (error) {
+      setSubmissionError(`Unable to save booking: ${error.message || 'Database unavailable'}. Please contact Luke at luke@mightymentalhealth.com.au`);
+      setIsSubmitting(false);
+      return;
+    }
+
+    // 2. Dispatch internal booking confirmation log
     try {
       await fetch('/api/webhooks/booking', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          appointment_id: data?.id || 'demo-' + roomId,
+          appointment_id: data.id,
           client_name: values.clientName,
           client_email: values.clientEmail,
           service_title: selectedService.title,
           scheduled_at: scheduledDateTime,
           modality: selectedModality,
           telehealth_room_id: roomId,
-          metadata: {
-            utm_source: values.utm_source,
-            utm_medium: values.utm_medium,
-            utm_campaign: values.utm_campaign,
-            client_ref_id: values.client_ref_id,
-            workflow_id: 'agy_telehealth_onboarding_v1',
-          },
         }),
       });
     } catch (err) {
-      // Non-blocking webhook logging
-      console.warn('Webhook logging note:', err);
+      console.warn('Booking confirmation logging note:', err);
     }
 
     setIsSubmitting(false);
-    onSuccess(data || {
-      id: 'mmh-demo-app',
-      client_name: values.clientName,
-      client_email: values.clientEmail,
-      scheduled_at: scheduledDateTime,
-      telehealth_room_id: roomId,
-      modality: selectedModality,
-    });
+    onSuccess(data);
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {submissionError && (
+        <div className="p-3 bg-red-50 border border-red-200 text-red-900 rounded-xl text-xs font-semibold">
+          {submissionError}
+        </div>
+      )}
       <div className="flex items-center justify-between pb-3 border-b border-gray-100">
         <div>
           <h3 className="font-extrabold text-xl text-[#130C76]">Client Details</h3>

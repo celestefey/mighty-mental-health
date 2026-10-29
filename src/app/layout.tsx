@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     'Exercise-Integrated Counselling Queensland',
     'Counselling Logan Central',
     'Luke Piatti Counsellor',
-    'Mental Health Care Plan Brisbane',
+    'Private Health Rebates Counsellor',
     'PACFA Registered Counsellor',
     'Active Therapy Gym Workouts',
     'Telehealth Psychology Australia',
@@ -67,7 +67,8 @@ const jsonLdSchema = {
     latitude: -27.6416,
     longitude: 153.1094,
   },
-  telephone: '+61 412 345 678',
+  email: 'luke@mightymentalhealth.com.au',
+  telephone: '+61 400 000 000',
   priceRange: '$120 - $210 AUD',
   areaServed: [
     { '@type': 'AdministrativeArea', name: 'Logan, Queensland' },

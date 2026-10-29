@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+/**
+ * Clinical Alert Dispatcher for Luke Piatti (Practice Clinician).
+ * Evaluates screener severity (e.g., PHQ-9 item 9 suicidal ideation, severe DASS-21)
+ * and dispatches urgent alerts via secure practice channels (CLINICIAN_ALERT_WEBHOOK_URL).
+ * Never uses marketing endpoints or returns false success indicators.
+ */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -45,24 +51,36 @@ export async function POST(req: NextRequest) {
       urgent_action_required: isHighSeverity,
     };
 
-    // Forward to transactional alert webhook (e.g. Resend / Zoho SMTP / Antigravity alerting engine)
-    const externalWebhookUrl = process.env.ANTIGRAVITY_MARKETING_WEBHOOK_URL;
-    if (externalWebhookUrl) {
-      await fetch(externalWebhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          event: 'clinician.alert.screener_submitted',
-          alert: alertPayload,
-        }),
-      });
+    let alertDispatched = false;
+    const alertWebhookUrl = process.env.CLINICIAN_ALERT_WEBHOOK_URL;
+
+    if (alertWebhookUrl) {
+      try {
+        const response = await fetch(alertWebhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event: 'clinician.alert.screener_submitted',
+            alert: alertPayload,
+          }),
+        });
+        alertDispatched = response.ok;
+      } catch (dispatchErr) {
+        console.error('[Clinical Alert Error] Failed to reach alert webhook:', dispatchErr);
+      }
+    } else {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[Clinical Alert Local Log] ${alertPayload.subject}`, alertPayload);
+      }
     }
 
     return NextResponse.json({
       success: true,
-      alert_dispatched: true,
+      alert_dispatched: alertDispatched,
       is_high_risk: isHighSeverity,
-      alert: alertPayload,
+      message: alertDispatched 
+        ? 'Alert dispatched successfully to clinician gateway' 
+        : 'Alert logged locally; configure CLINICIAN_ALERT_WEBHOOK_URL for external dispatch.',
     });
   } catch (error: any) {
     return NextResponse.json(

@@ -136,36 +136,96 @@ ALTER TABLE public.mmh_clinical_notes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.mmh_invoices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.mmh_client_intakes ENABLE ROW LEVEL SECURITY;
 
--- Public read access to active services
+-- ==============================================================================
+-- Hardened Production Row-Level Security (RLS) & Access Control
+-- Compliant with Australian Privacy Act (APPs 6 & 11) & PACFA Documentation Rules
+-- ==============================================================================
+
+-- Helper function to verify clinician role (Luke Piatti or service_role)
+CREATE OR REPLACE FUNCTION public.is_clinician()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN (
+    auth.role() = 'service_role' OR
+    (auth.jwt() ->> 'email') = 'luke@mightymentalhealth.com.au' OR
+    (auth.jwt() -> 'app_metadata' ->> 'role') = 'clinician' OR
+    (auth.jwt() -> 'user_metadata' ->> 'role') = 'clinician'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 1. Services: Public read active services; clinician manages
 CREATE POLICY "Public read active services" ON public.mmh_services FOR SELECT USING (is_active = true);
+CREATE POLICY "Clinician manage services" ON public.mmh_services FOR ALL USING (public.is_clinician());
 
--- Intakes policies
-CREATE POLICY "Public insert intakes" ON public.mmh_client_intakes FOR INSERT WITH CHECK (true);
-CREATE POLICY "Public read intakes" ON public.mmh_client_intakes FOR SELECT USING (true);
-CREATE POLICY "Allow delete demo intakes" ON public.mmh_client_intakes FOR DELETE TO public USING (is_demo = true);
+-- 2. Client Intakes: Public insert allowed (onboarding); reading strictly restricted to clinician or client owner
+CREATE POLICY "Allow onboarding intake insertion" ON public.mmh_client_intakes FOR INSERT WITH CHECK (true);
+CREATE POLICY "Restricted intake read" ON public.mmh_client_intakes FOR SELECT USING (
+  public.is_clinician() OR 
+  (auth.jwt() ->> 'email' IS NOT NULL AND lower(client_email) = lower(auth.jwt() ->> 'email'))
+);
+CREATE POLICY "Clinician modify intakes" ON public.mmh_client_intakes FOR UPDATE USING (public.is_clinician());
+CREATE POLICY "Clinician delete intakes" ON public.mmh_client_intakes FOR DELETE USING (public.is_clinician());
 
--- Form library policies
-CREATE POLICY "Public read forms" ON public.mmh_forms FOR SELECT USING (true);
-CREATE POLICY "Public modify forms" ON public.mmh_forms FOR ALL USING (true);
+-- 3. Form library: Public read templates/active forms; clinician only can modify questions & scoring
+CREATE POLICY "Public read forms library" ON public.mmh_forms FOR SELECT USING (is_template = true OR public.is_clinician());
+CREATE POLICY "Clinician manage forms library" ON public.mmh_forms FOR ALL USING (public.is_clinician());
 
--- Appointment policies
+-- 4. Appointments: Clients book; viewing restricted to clinician or client owner
 CREATE POLICY "Allow appointment booking" ON public.mmh_appointments FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow appointment read" ON public.mmh_appointments FOR SELECT USING (true);
-CREATE POLICY "Allow appointment update" ON public.mmh_appointments FOR UPDATE USING (true);
+CREATE POLICY "Restricted appointment read" ON public.mmh_appointments FOR SELECT USING (
+  public.is_clinician() OR 
+  (auth.jwt() ->> 'email' IS NOT NULL AND lower(client_email) = lower(auth.jwt() ->> 'email'))
+);
+CREATE POLICY "Clinician modify appointments" ON public.mmh_appointments FOR UPDATE USING (public.is_clinician());
+CREATE POLICY "Clinician delete appointments" ON public.mmh_appointments FOR DELETE USING (public.is_clinician());
 
--- Form assignments policies
-CREATE POLICY "Form assignments read" ON public.mmh_form_assignments FOR SELECT USING (true);
-CREATE POLICY "Form assignments insert" ON public.mmh_form_assignments FOR INSERT WITH CHECK (true);
-CREATE POLICY "Form assignments update" ON public.mmh_form_assignments FOR UPDATE USING (true);
+-- 5. Form assignments: Clinician assigns; reading and submission restricted to client owner or clinician
+CREATE POLICY "Clinician insert assignments" ON public.mmh_form_assignments FOR INSERT WITH CHECK (public.is_clinician());
+CREATE POLICY "Restricted assignments read" ON public.mmh_form_assignments FOR SELECT USING (
+  public.is_clinician() OR 
+  (auth.jwt() ->> 'email' IS NOT NULL AND lower(client_email) = lower(auth.jwt() ->> 'email'))
+);
+CREATE POLICY "Client submit assignment answers" ON public.mmh_form_assignments FOR UPDATE USING (
+  public.is_clinician() OR 
+  (auth.jwt() ->> 'email' IS NOT NULL AND lower(client_email) = lower(auth.jwt() ->> 'email'))
+);
+CREATE POLICY "Clinician delete assignments" ON public.mmh_form_assignments FOR DELETE USING (public.is_clinician());
 
--- Clinical notes policies (Clinician only)
-CREATE POLICY "Clinical notes read" ON public.mmh_clinical_notes FOR SELECT USING (true);
-CREATE POLICY "Clinical notes insert" ON public.mmh_clinical_notes FOR INSERT WITH CHECK (true);
-CREATE POLICY "Clinical notes update" ON public.mmh_clinical_notes FOR UPDATE USING (true);
+-- 6. Clinical notes: STRICTLY CLINICIAN ONLY for all operations (ZERO public/client access)
+CREATE POLICY "Clinician read clinical notes" ON public.mmh_clinical_notes FOR SELECT USING (public.is_clinician());
+CREATE POLICY "Clinician insert clinical notes" ON public.mmh_clinical_notes FOR INSERT WITH CHECK (public.is_clinician());
+CREATE POLICY "Clinician update clinical notes" ON public.mmh_clinical_notes FOR UPDATE USING (public.is_clinician());
+CREATE POLICY "Clinician delete clinical notes" ON public.mmh_clinical_notes FOR DELETE USING (public.is_clinician());
 
--- Invoices policies
-CREATE POLICY "Invoices read" ON public.mmh_invoices FOR SELECT USING (true);
-CREATE POLICY "Invoices insert" ON public.mmh_invoices FOR INSERT WITH CHECK (true);
+-- 7. Invoices: Reading restricted to clinician or client owner; clinician manages
+CREATE POLICY "Restricted invoice read" ON public.mmh_invoices FOR SELECT USING (
+  public.is_clinician() OR 
+  (auth.jwt() ->> 'email' IS NOT NULL AND lower(client_email) = lower(auth.jwt() ->> 'email'))
+);
+CREATE POLICY "Clinician manage invoices" ON public.mmh_invoices FOR ALL USING (public.is_clinician());
+
+-- 8. Clinical Note Immutability Trigger (Postgres-enforced locking)
+CREATE OR REPLACE FUNCTION public.prevent_locked_clinical_note_mutation()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF OLD.is_locked = true AND (
+    NEW.subjective IS DISTINCT FROM OLD.subjective OR
+    NEW.objective IS DISTINCT FROM OLD.objective OR
+    NEW.assessment IS DISTINCT FROM OLD.assessment OR
+    NEW.plan IS DISTINCT FROM OLD.plan OR
+    NEW.gp_letter_text IS DISTINCT FROM OLD.gp_letter_text
+  ) THEN
+    RAISE EXCEPTION 'PACFA Integrity Protection: Cannot modify clinical text of a locked and signed clinical note.';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_prevent_locked_note_mutation ON public.mmh_clinical_notes;
+CREATE TRIGGER trg_prevent_locked_note_mutation
+BEFORE UPDATE ON public.mmh_clinical_notes
+FOR EACH ROW EXECUTE FUNCTION public.prevent_locked_clinical_note_mutation();
 
 -- ==============================================================================
 -- Seed Standard Services & Psychometric Instruments
@@ -176,12 +236,6 @@ INSERT INTO public.mmh_services (title, slug, duration_minutes, price_cents, mod
 ('60-Min Psychotherapy & Counselling', 'psychotherapy-counselling', 60, 21000, ARRAY['video', 'phone'], 'Deep evidence-based psychotherapy (PACFA accredited) addressing root causes, emotional trauma, cognitive processing, and core values.'),
 ('30-Min Somatic & Movement Consultation', 'somatic-movement', 30, 12000, ARRAY['video', 'phone'], 'Tailored physical movement prescriptions, progressive resistance, walking protocols, and vagal nerve/somatic nervous system resets.')
 ON CONFLICT (slug) DO NOTHING;
-
--- Demo Isolation Deletion Policies (Allow clearing test sandbox data without affecting production)
-CREATE POLICY "Allow delete demo appointments" ON public.mmh_appointments FOR DELETE TO public USING (is_demo = true);
-CREATE POLICY "Allow delete demo assignments" ON public.mmh_form_assignments FOR DELETE TO public USING (is_demo = true);
-CREATE POLICY "Allow delete demo clinical notes" ON public.mmh_clinical_notes FOR DELETE TO public USING (is_demo = true);
-CREATE POLICY "Allow delete demo invoices" ON public.mmh_invoices FOR DELETE TO public USING (is_demo = true);
 
 INSERT INTO public.mmh_forms (title, slug, category, description, is_template, questions, scoring_rules) VALUES
 (

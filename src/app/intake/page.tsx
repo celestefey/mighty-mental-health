@@ -264,8 +264,9 @@ export default function ClientIntakePage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Full Legal Name *</label>
+                      <label htmlFor="intake-client-name" className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Full Legal Name *</label>
                       <input
+                        id="intake-client-name"
                         type="text"
                         required
                         value={clientName}
@@ -275,8 +276,9 @@ export default function ClientIntakePage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Preferred Name</label>
+                      <label htmlFor="intake-preferred-name" className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Preferred Name</label>
                       <input
+                        id="intake-preferred-name"
                         type="text"
                         value={preferredName}
                         onChange={(e) => setPreferredName(e.target.value)}
@@ -288,8 +290,9 @@ export default function ClientIntakePage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Date of Birth *</label>
+                      <label htmlFor="intake-dob" className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Date of Birth *</label>
                       <input
+                        id="intake-dob"
                         type="date"
                         required
                         value={dateOfBirth}
@@ -298,8 +301,9 @@ export default function ClientIntakePage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Email Address *</label>
+                      <label htmlFor="intake-email" className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Email Address *</label>
                       <input
+                        id="intake-email"
                         type="email"
                         required
                         value={clientEmail}
@@ -309,8 +313,9 @@ export default function ClientIntakePage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Mobile Phone *</label>
+                      <label htmlFor="intake-phone" className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Mobile Phone *</label>
                       <input
+                        id="intake-phone"
                         type="tel"
                         required
                         value={clientPhone}
@@ -322,8 +327,9 @@ export default function ClientIntakePage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Residential Address</label>
+                    <label htmlFor="intake-address" className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Residential Address</label>
                     <input
+                      id="intake-address"
                       type="text"
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
@@ -338,27 +344,42 @@ export default function ClientIntakePage() {
                       Emergency Contact (Next of Kin):
                     </span>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <input
-                        type="text"
-                        value={emergencyName}
-                        onChange={(e) => setEmergencyName(e.target.value)}
-                        placeholder="Contact Name"
-                        className="px-3 py-2 rounded-xl bg-white border border-gray-300 text-xs"
-                      />
-                      <input
-                        type="tel"
-                        value={emergencyPhone}
-                        onChange={(e) => setEmergencyPhone(e.target.value)}
-                        placeholder="Contact Phone"
-                        className="px-3 py-2 rounded-xl bg-white border border-gray-300 text-xs"
-                      />
-                      <input
-                        type="text"
-                        value={emergencyRel}
-                        onChange={(e) => setEmergencyRel(e.target.value)}
-                        placeholder="Relationship (e.g. Partner, Parent)"
-                        className="px-3 py-2 rounded-xl bg-white border border-gray-300 text-xs"
-                      />
+                      <div>
+                        <label htmlFor="intake-emergency-name" className="sr-only">Emergency Contact Name</label>
+                        <input
+                          id="intake-emergency-name"
+                          type="text"
+                          aria-label="Emergency Contact Name"
+                          value={emergencyName}
+                          onChange={(e) => setEmergencyName(e.target.value)}
+                          placeholder="Contact Name"
+                          className="w-full px-3 py-2 rounded-xl bg-white border border-gray-300 text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="intake-emergency-phone" className="sr-only">Emergency Contact Phone</label>
+                        <input
+                          id="intake-emergency-phone"
+                          type="tel"
+                          aria-label="Emergency Contact Phone"
+                          value={emergencyPhone}
+                          onChange={(e) => setEmergencyPhone(e.target.value)}
+                          placeholder="Contact Phone"
+                          className="w-full px-3 py-2 rounded-xl bg-white border border-gray-300 text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="intake-emergency-rel" className="sr-only">Emergency Contact Relationship</label>
+                        <input
+                          id="intake-emergency-rel"
+                          type="text"
+                          aria-label="Emergency Contact Relationship"
+                          value={emergencyRel}
+                          onChange={(e) => setEmergencyRel(e.target.value)}
+                          placeholder="Relationship (e.g. Partner, Parent)"
+                          className="w-full px-3 py-2 rounded-xl bg-white border border-gray-300 text-xs"
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -368,27 +389,42 @@ export default function ClientIntakePage() {
                       <Stethoscope className="w-4 h-4 text-[#130C76]" /> Referring Doctor / General Practitioner (GP):
                     </span>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <input
-                        type="text"
-                        value={gpName}
-                        onChange={(e) => setGpName(e.target.value)}
-                        placeholder="GP Name (e.g. Dr. John Smith)"
-                        className="px-3 py-2 rounded-xl bg-white border border-gray-300 text-xs"
-                      />
-                      <input
-                        type="text"
-                        value={gpClinic}
-                        onChange={(e) => setGpClinic(e.target.value)}
-                        placeholder="Clinic / Medical Centre"
-                        className="px-3 py-2 rounded-xl bg-white border border-gray-300 text-xs"
-                      />
-                      <input
-                        type="text"
-                        value={medicareNumber}
-                        onChange={(e) => setMedicareNumber(e.target.value)}
-                        placeholder="Medicare Number (Optional)"
-                        className="px-3 py-2 rounded-xl bg-white border border-gray-300 text-xs"
-                      />
+                      <div>
+                        <label htmlFor="intake-gp-name" className="sr-only">GP Name</label>
+                        <input
+                          id="intake-gp-name"
+                          type="text"
+                          aria-label="GP Doctor Name"
+                          value={gpName}
+                          onChange={(e) => setGpName(e.target.value)}
+                          placeholder="GP Name (e.g. Dr. John Smith)"
+                          className="w-full px-3 py-2 rounded-xl bg-white border border-gray-300 text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="intake-gp-clinic" className="sr-only">Medical Practice Clinic</label>
+                        <input
+                          id="intake-gp-clinic"
+                          type="text"
+                          aria-label="Medical Practice Clinic Name"
+                          value={gpClinic}
+                          onChange={(e) => setGpClinic(e.target.value)}
+                          placeholder="Clinic / Medical Centre"
+                          className="w-full px-3 py-2 rounded-xl bg-white border border-gray-300 text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="intake-medicare" className="sr-only">Medicare Number</label>
+                        <input
+                          id="intake-medicare"
+                          type="text"
+                          aria-label="Medicare Number (Optional)"
+                          value={medicareNumber}
+                          onChange={(e) => setMedicareNumber(e.target.value)}
+                          placeholder="Medicare Number (Optional)"
+                          className="w-full px-3 py-2 rounded-xl bg-white border border-gray-300 text-xs"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -404,10 +440,11 @@ export default function ClientIntakePage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                    <label htmlFor="intake-medications" className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                       Current Medications (Dosage & Reason)
                     </label>
                     <textarea
+                      id="intake-medications"
                       rows={2}
                       value={medications}
                       onChange={(e) => setMedications(e.target.value)}
@@ -418,10 +455,11 @@ export default function ClientIntakePage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                    <label htmlFor="intake-psychiatric-history" className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                       Past Psychological / Psychiatric Diagnoses
                     </label>
                     <textarea
+                      id="intake-psychiatric-history"
                       rows={2}
                       value={psychiatricHistory}
                       onChange={(e) => setPsychiatricHistory(e.target.value)}
@@ -431,10 +469,11 @@ export default function ClientIntakePage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                    <label htmlFor="intake-previous-therapy" className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                       Previous Counselling / Psychotherapy Experience
                     </label>
                     <textarea
+                      id="intake-previous-therapy"
                       rows={2}
                       value={previousTherapy}
                       onChange={(e) => setPreviousTherapy(e.target.value)}
@@ -444,10 +483,11 @@ export default function ClientIntakePage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                    <label htmlFor="intake-medical-history" className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                       General Medical History & Chronic Conditions
                     </label>
                     <textarea
+                      id="intake-medical-history"
                       rows={2}
                       value={medicalHistory}
                       onChange={(e) => setMedicalHistory(e.target.value)}
@@ -558,10 +598,11 @@ export default function ClientIntakePage() {
 
                   {/* Physical Limitations */}
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                    <label htmlFor="intake-physical-limitations" className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                       Any physical injuries, joint issues, or mobility limits Luke should accommodate?
                     </label>
                     <input
+                      id="intake-physical-limitations"
                       type="text"
                       value={physicalLimitations}
                       onChange={(e) => setPhysicalLimitations(e.target.value)}
@@ -582,10 +623,11 @@ export default function ClientIntakePage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                    <label htmlFor="intake-presenting-concerns" className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                       What are the main challenges or symptoms bringing you to Mighty Mental Health? *
                     </label>
                     <textarea
+                      id="intake-presenting-concerns"
                       rows={3}
                       required
                       value={presentingConcerns}
@@ -596,10 +638,11 @@ export default function ClientIntakePage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                    <label htmlFor="intake-therapy-goals" className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
                       What are your primary goals for therapy and somatic coaching? *
                     </label>
                     <textarea
+                      id="intake-therapy-goals"
                       rows={2}
                       required
                       value={therapyGoals}
@@ -641,8 +684,9 @@ export default function ClientIntakePage() {
 
                   {/* Consent Checkbox */}
                   <div className="pt-2">
-                    <label className="flex items-start gap-3 p-4 rounded-2xl bg-gray-50 border border-gray-200 cursor-pointer">
+                    <label htmlFor="intake-consent-agreed" className="flex items-start gap-3 p-4 rounded-2xl bg-gray-50 border border-gray-200 cursor-pointer">
                       <input
+                        id="intake-consent-agreed"
                         type="checkbox"
                         checked={consentAgreed}
                         onChange={(e) => setConsentAgreed(e.target.checked)}
