@@ -95,7 +95,7 @@ export default function EmbeddedTelehealthRoomPage() {
   // Chat State
   const [messages, setMessages] = useState<{ sender: string; text: string; time: string }[]>([
     { sender: 'System', text: 'Encrypted consultation room initialized (256-bit AES). Australian Privacy Principles compliant.', time: 'Just now' },
-    { sender: 'Luke (Clinician)', text: 'Hi! Whenever you are settled, take a deep breath. We will begin shortly.', time: 'Just now' }
+    { sender: 'Luke Piatti (Clinician)', text: 'Hi! Whenever you are settled, take a deep breath. We will begin shortly.', time: 'Just now' }
   ]);
   const [chatInput, setChatInput] = useState('');
 
@@ -632,11 +632,11 @@ export default function EmbeddedTelehealthRoomPage() {
                   L
                 </div>
                 <div>
-                  <h3 className="font-extrabold text-xl text-white">Luke MCouns (UQ)</h3>
-                  <p className="text-xs text-[#FFAC24] font-medium mt-0.5">PACFA Registered Clinician #28941 • Somatic Movement Coach</p>
+                  <h3 className="font-extrabold text-xl text-white">Luke Piatti (MCouns, UQ)</h3>
+                  <p className="text-xs text-[#FFAC24] font-medium mt-0.5">PACFA Registered Clinician #28941 • Exercise-Integrated Counsellor</p>
                 </div>
                 <div className="inline-flex items-center gap-1.5 bg-black/40 px-3 py-1 rounded-full text-[11px] text-white/80 border border-white/10">
-                  <Sparkles className="w-3.5 h-3.5 text-[#F96100]" /> Somatic Nervous System Regulation in session
+                  <Sparkles className="w-3.5 h-3.5 text-[#FFAC24]" /> Exercise & Psychotherapy in session
                 </div>
               </div>
             )}

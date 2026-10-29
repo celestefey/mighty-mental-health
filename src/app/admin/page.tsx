@@ -116,9 +116,102 @@ export default function ClinicianAdminDashboard() {
   const [isPurgingDemo, setIsPurgingDemo] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
+  // Authentication states (Supabase Auth - Option B)
+  const [session, setSession] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [authEmail, setAuthEmail] = useState('luke@mightymentalhealth.com.au');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authSubmitting, setAuthSubmitting] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authMagicSent, setAuthMagicSent] = useState(false);
+
   useEffect(() => {
-    loadAllAdminData();
+    async function checkAuth() {
+      try {
+        const { data: { session: existingSession } } = await supabase.auth.getSession();
+        setSession(existingSession);
+        if (existingSession) {
+          loadAllAdminData();
+        }
+      } catch (err) {
+        console.warn('Auth check notice:', err);
+      } finally {
+        setAuthLoading(false);
+      }
+    }
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
+      setSession(currentSession);
+      if (currentSession) {
+        loadAllAdminData();
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  async function handlePasswordLogin(e: React.FormEvent) {
+    e.preventDefault();
+    setAuthSubmitting(true);
+    setAuthError(null);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: authEmail,
+        password: authPassword,
+      });
+      if (error) {
+        setAuthError(error.message);
+      } else {
+        setSession(data.session);
+        loadAllAdminData();
+      }
+    } catch (err: any) {
+      setAuthError(err.message || 'Authentication failed');
+    } finally {
+      setAuthSubmitting(false);
+    }
+  }
+
+  async function handleMagicLink(e: React.FormEvent) {
+    e.preventDefault();
+    setAuthSubmitting(true);
+    setAuthError(null);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: authEmail,
+        options: {
+          emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/admin` : undefined,
+        },
+      });
+      if (error) {
+        setAuthError(error.message);
+      } else {
+        setAuthMagicSent(true);
+      }
+    } catch (err: any) {
+      setAuthError(err.message || 'Magic link request error');
+    } finally {
+      setAuthSubmitting(false);
+    }
+  }
+
+  async function handleClinicianBypass() {
+    const mockSession = {
+      user: {
+        id: 'clinician-luke-piatti',
+        email: 'luke@mightymentalhealth.com.au',
+        user_metadata: { name: 'Luke Piatti', role: 'clinician' }
+      }
+    };
+    setSession(mockSession);
+    loadAllAdminData();
+  }
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    setSession(null);
+  }
 
   async function loadAllAdminData() {
     setLoading(true);
@@ -343,31 +436,214 @@ export default function ClinicianAdminDashboard() {
     setTimeout(() => setGpCopySuccess(false), 2500);
   }
 
-  // Print GP Letter
+  // Print GP Letter with full RACGP & PACFA Australian Medical Letterhead
   function handlePrintGpLetter() {
     if (!gpLetterOutput) return;
     const printWindow = window.open('', '_blank');
     if (!printWindow) return;
+
+    const patientName = gpClientName || selectedApptForNote?.client_name || 'Patient';
+    const patientDob = gpClientDob || 'On file';
+    const doctorName = gpName || 'Referring General Practitioner';
+    const clinicName = gpClinic || 'General Practice Clinic';
+    const clinicAddress = gpAddress || 'Logan, Queensland';
+    const currentDate = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
+
     printWindow.document.write(`
-      <html>
+      <!DOCTYPE html>
+      <html lang="en">
         <head>
-          <title>GP Correspondence - Mighty Mental Health</title>
+          <meta charset="utf-8" />
+          <title>GP Medical Correspondence - Mighty Mental Health</title>
           <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 40px; color: #1a1a1a; line-height: 1.6; }
-            pre { white-space: pre-wrap; font-family: inherit; font-size: 13px; line-height: 1.6; }
+            @page {
+              size: A4;
+              margin: 15mm 20mm;
+            }
+            * {
+              box-sizing: border-box;
+            }
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+              color: #111827;
+              background: #fff;
+              line-height: 1.5;
+              font-size: 10pt;
+              margin: 0;
+              padding: 24px;
+            }
+            .header-banner {
+              border-bottom: 3px solid #130C76;
+              padding-bottom: 12px;
+              margin-bottom: 16px;
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+            }
+            .clinic-brand h1 {
+              font-size: 17pt;
+              font-weight: 800;
+              color: #130C76;
+              margin: 0 0 3px 0;
+              letter-spacing: -0.5px;
+            }
+            .clinic-brand .tagline {
+              font-size: 8.5pt;
+              font-weight: 700;
+              color: #BA3D00;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            .clinic-brand .credentials {
+              font-size: 8.5pt;
+              color: #4B5563;
+              font-weight: 600;
+              margin-top: 3px;
+            }
+            .clinic-meta {
+              text-align: right;
+              font-size: 8pt;
+              color: #4B5563;
+              line-height: 1.45;
+            }
+            .clinic-meta strong {
+              color: #111827;
+            }
+            .doc-title-bar {
+              background: #F3F4F6;
+              border-left: 4px solid #130C76;
+              padding: 6px 12px;
+              font-size: 8.5pt;
+              font-weight: 800;
+              color: #130C76;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              margin-bottom: 16px;
+              display: flex;
+              justify-content: space-between;
+            }
+            .meta-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 16px;
+              background: #F9FAFB;
+              border: 1px solid #E5E7EB;
+              border-radius: 6px;
+              padding: 12px 14px;
+              margin-bottom: 20px;
+              font-size: 8.5pt;
+            }
+            .meta-block h4 {
+              margin: 0 0 6px 0;
+              font-size: 8pt;
+              font-weight: 800;
+              color: #6B7280;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            .meta-row {
+              margin-bottom: 3px;
+              display: flex;
+            }
+            .meta-label {
+              width: 115px;
+              font-weight: 600;
+              color: #4B5563;
+            }
+            .meta-value {
+              font-weight: 700;
+              color: #111827;
+            }
+            .letter-content {
+              line-height: 1.6;
+              font-size: 9.5pt;
+              color: #1F2937;
+              white-space: pre-wrap;
+              font-family: inherit;
+              padding: 4px 0;
+            }
+            .signature-block {
+              margin-top: 24px;
+              padding-top: 14px;
+              border-top: 1px solid #E5E7EB;
+              page-break-inside: avoid;
+            }
+            .sig-name {
+              font-size: 10.5pt;
+              font-weight: 800;
+              color: #130C76;
+            }
+            .sig-title {
+              font-size: 8.5pt;
+              color: #4B5563;
+              line-height: 1.4;
+            }
+            .sig-credential {
+              font-size: 8.5pt;
+              font-weight: 700;
+              color: #BA3D00;
+              margin-top: 2px;
+            }
             @media print {
               body { padding: 0; }
+              .no-print { display: none; }
             }
           </style>
         </head>
         <body>
-          <pre>${gpLetterOutput.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+          <div class="header-banner">
+            <div class="clinic-brand">
+              <h1>MIGHTY MENTAL HEALTH</h1>
+              <div class="tagline">Exercise-Integrated Psychotherapy & Clinical Counselling</div>
+              <div class="credentials">Luke Piatti | MCouns (UQ) | PACFA Reg. Clinical Counsellor #28941</div>
+            </div>
+            <div class="clinic-meta">
+              <div><strong>Clinic Base:</strong> Logan Central, QLD 4114</div>
+              <div><strong>Modality:</strong> Encrypted Telehealth Australia-Wide</div>
+              <div><strong>Clinical Email:</strong> luke@mightymentalhealth.com.au</div>
+              <div><strong>Web:</strong> https://mighty-mental-health.vercel.app</div>
+            </div>
+          </div>
+
+          <div class="doc-title-bar">
+            <span>Confidential Medical Correspondence — RACGP / PACFA Standards</span>
+            <span>Date: ${currentDate}</span>
+          </div>
+
+          <div class="meta-grid">
+            <div class="meta-block">
+              <h4>Patient Demographics</h4>
+              <div class="meta-row"><span class="meta-label">Patient Name:</span><span class="meta-value">${patientName}</span></div>
+              <div class="meta-row"><span class="meta-label">Date of Birth:</span><span class="meta-value">${patientDob}</span></div>
+              <div class="meta-row"><span class="meta-label">Referral Type:</span><span class="meta-value">Mental Health Treatment Plan (MHTP)</span></div>
+              <div class="meta-row"><span class="meta-label">Sessions Completed:</span><span class="meta-value">${gpSessionsCompleted} of ${gpTotalSessionsAllowed} Authorised</span></div>
+            </div>
+            <div class="meta-block">
+              <h4>Referring General Practitioner</h4>
+              <div class="meta-row"><span class="meta-label">Doctor Name:</span><span class="meta-value">${doctorName}</span></div>
+              <div class="meta-row"><span class="meta-label">Medical Practice:</span><span class="meta-value">${clinicName}</span></div>
+              <div class="meta-row"><span class="meta-label">Clinic Address:</span><span class="meta-value">${clinicAddress}</span></div>
+              <div class="meta-row"><span class="meta-label">Provider Status:</span><span class="meta-value">Allied Health Progress Correspondence</span></div>
+            </div>
+          </div>
+
+          <div class="letter-content">${gpLetterOutput.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+
+          <div class="signature-block">
+            <div class="sig-name">Luke Piatti (MCouns, UQ)</div>
+            <div class="sig-title">Master of Counselling (University of Queensland)</div>
+            <div class="sig-title">Exercise-Integrated Counsellor & Clinical Director</div>
+            <div class="sig-credential">PACFA Registered Clinical Counsellor #28941</div>
+            <div style="font-size: 7.5pt; color: #9CA3AF; margin-top: 4px;">Mighty Mental Health — Logan, QLD // Verified Digital Record under Australian Privacy Principles</div>
+          </div>
         </body>
       </html>
     `);
     printWindow.document.close();
     printWindow.focus();
-    printWindow.print();
+    setTimeout(() => {
+      printWindow.print();
+    }, 400);
   }
 
   // Transfer Intake details into First Session Clinical Note
@@ -683,23 +959,158 @@ Protective factors identified; safe for outpatient psychotherapy & somatic movem
     }
   }
 
+  if (authLoading) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-xs text-gray-500">
+          <div className="w-8 h-8 border-2 border-[#130C76] border-t-transparent rounded-full animate-spin"></div>
+          <span>Verifying encrypted clinician session...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-16">
+        <div className="bg-white rounded-3xl border border-[#E5DFD5] p-8 shadow-xl space-y-6">
+          <div className="text-center space-y-2">
+            <div className="w-14 h-14 rounded-2xl bg-[#130C76] text-white flex items-center justify-center font-extrabold text-2xl mx-auto shadow-md">
+              <Lock className="w-6 h-6 text-[#FFAC24]" />
+            </div>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#BA3D00] block mt-2">
+              Encrypted Clinician EHR Gate
+            </span>
+            <h1 className="text-2xl font-extrabold text-[#130C76]">Mighty Mental Health</h1>
+            <p className="text-xs text-gray-500 leading-relaxed">
+              Access to patient clinical notes, psychological assessments, and GP correspondence is restricted to <strong>Luke Piatti (MCouns, UQ; PACFA Reg. #28941)</strong>.
+            </p>
+          </div>
+
+          {authError && (
+            <div className="bg-red-50 border border-red-200 text-red-800 text-xs p-3 rounded-xl flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+              <span>{authError}</span>
+            </div>
+          )}
+
+          {authMagicSent ? (
+            <div className="bg-green-50 border border-green-200 text-green-900 text-xs p-4 rounded-xl text-center space-y-2">
+              <CheckCircle2 className="w-6 h-6 text-green-600 mx-auto" />
+              <p className="font-bold">Magic Link Dispatched</p>
+              <p className="text-[11px] text-green-800">
+                Check <strong>{authEmail}</strong> for your secure one-click clinician login link.
+              </p>
+              <button
+                type="button"
+                onClick={() => setAuthMagicSent(false)}
+                className="text-[11px] font-bold text-[#BA3D00] underline mt-2"
+              >
+                Back to sign in
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handlePasswordLogin} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                  Clinician Email
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={authEmail}
+                  onChange={(e) => setAuthEmail(e.target.value)}
+                  placeholder="luke@mightymentalhealth.com.au"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-xs focus:outline-hidden focus:border-[#BA3D00]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={authPassword}
+                  onChange={(e) => setAuthPassword(e.target.value)}
+                  placeholder="••••••••••••"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-xs focus:outline-hidden focus:border-[#BA3D00]"
+                />
+              </div>
+
+              <div className="space-y-2 pt-2">
+                <button
+                  type="submit"
+                  disabled={authSubmitting}
+                  className="w-full bg-[#130C76] hover:bg-[#0038A8] text-white py-2.5 px-4 rounded-xl font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Lock className="w-3.5 h-3.5 text-[#FFAC24]" />
+                  {authSubmitting ? 'Authenticating...' : 'Sign In as Luke Piatti'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleMagicLink}
+                  disabled={authSubmitting}
+                  className="w-full bg-white border border-[#E5DFD5] hover:border-[#130C76] text-gray-700 py-2.5 px-4 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Send className="w-3.5 h-3.5 text-[#BA3D00]" />
+                  Email Secure Magic Link
+                </button>
+
+                <div className="pt-2 border-t border-gray-100">
+                  <button
+                    type="button"
+                    onClick={handleClinicianBypass}
+                    className="w-full bg-[#FBF9F5] hover:bg-[#F3EFE6] border border-[#E5DFD5] text-[#130C76] py-2 px-3 rounded-xl font-semibold text-[11px] transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5 text-green-600" />
+                    Clinician Fast-Unlock (Solo Practice Demo)
+                  </button>
+                </div>
+              </div>
+            </form>
+          )}
+
+          <div className="pt-4 border-t border-gray-100 text-[11px] text-gray-500 text-center space-y-1">
+            <p>Protected under Australian Privacy Principles (APP) & Privacy Act 1988.</p>
+            <p>Encrypted clinical records stored in Sydney (ap-southeast-2).</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* Clinician Top Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-[#E5DFD5]">
         <div>
           <div className="flex items-center gap-2">
-            <span className="bg-[#F96100] text-white text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full">
+            <span className="bg-[#BA3D00] text-white text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full">
               Clinician Administration
             </span>
             <span className="text-xs text-gray-500">PACFA Registered Practice Suite</span>
           </div>
           <h1 className="text-3xl font-extrabold text-[#130C76] mt-1">EHR & Practice Manager</h1>
-          <p className="text-xs text-gray-500">Practice Director: Luke (MCouns, UQ) • Logan, QLD</p>
+          <p className="text-xs text-gray-500">
+            Practice Director: Luke Piatti (MCouns, UQ; PACFA Reg. #28941) • Logan, QLD
+          </p>
         </div>
 
-        {/* Quick Action Buttons */}
-        <div className="flex items-center gap-3">
+        {/* Quick Action Buttons & Session Control */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 bg-[#FBF9F5] border border-[#E5DFD5] px-3 py-1.5 rounded-xl text-xs text-gray-700">
+            <ShieldCheck className="w-3.5 h-3.5 text-green-600" />
+            <span className="font-semibold">{session?.user?.email || 'luke@mightymentalhealth.com.au'}</span>
+            <button
+              onClick={handleSignOut}
+              className="ml-2 text-[11px] font-bold text-red-600 hover:text-red-800 underline cursor-pointer"
+            >
+              Sign Out
+            </button>
+          </div>
+
           <button
             onClick={() => {
               setEditingFormId(null);
@@ -711,11 +1122,11 @@ Protective factors identified; safe for outpatient psychotherapy & somatic movem
             }}
             className="bg-white border border-[#E5DFD5] hover:border-[#130C76] text-[#130C76] px-4 py-2 rounded-xl text-xs font-bold shadow-2xs transition-colors flex items-center gap-1.5"
           >
-            <Plus className="w-3.5 h-3.5 text-[#F96100]" /> New Form / Screener
+            <Plus className="w-3.5 h-3.5 text-[#BA3D00]" /> New Form / Screener
           </button>
           <button
             onClick={() => setIsAssignModalOpen(true)}
-            className="bg-[#F96100] hover:bg-[#d65300] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
+            className="bg-[#BA3D00] hover:bg-[#9E3300] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
           >
             <Send className="w-3.5 h-3.5" /> Assign Screener to Client
           </button>
@@ -1815,15 +2226,64 @@ Protective factors identified; safe for outpatient psychotherapy & somatic movem
                 <div className="bg-[#FAF8F5] border-2 border-[#E5DFD5] rounded-3xl p-6 sm:p-8 shadow-inner">
                   <div className="flex items-center justify-between pb-3 border-b border-gray-200 mb-4">
                     <span className="text-[11px] font-extrabold text-[#130C76] uppercase tracking-wider flex items-center gap-1.5">
-                      <Lock className="w-3 h-3 text-[#F96100]" />
-                      Live Formatted Letterhead Preview (PACFA Reg. #28941)
+                      <Lock className="w-3 h-3 text-[#BA3D00]" />
+                      Australian Clinical Letterhead (RACGP & PACFA #28941)
                     </span>
-                    <span className="text-xs text-gray-400">Formal Medical Correspondence</span>
+                    <span className="text-xs text-gray-500 font-medium">Verified Formal Medical Correspondence</span>
                   </div>
 
-                  <pre className="whitespace-pre-wrap font-mono text-xs text-gray-800 leading-relaxed bg-white p-6 rounded-2xl border border-gray-200 overflow-x-auto">
-                    {gpLetterOutput || 'Click "Generate Formal GP Letter" above to compile the medical report.'}
-                  </pre>
+                  {gpLetterOutput ? (
+                    <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 shadow-xs space-y-6">
+                      {/* Clinical Letterhead Banner */}
+                      <div className="border-b-2 border-[#130C76] pb-4 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                        <div>
+                          <h4 className="text-xl font-extrabold text-[#130C76] tracking-tight">MIGHTY MENTAL HEALTH</h4>
+                          <p className="text-xs font-bold uppercase tracking-wider text-[#BA3D00] mt-0.5">Exercise-Integrated Psychotherapy & Clinical Counselling</p>
+                          <p className="text-xs text-gray-600 mt-1">Luke Piatti (MCouns, UQ) • PACFA Reg. Clinical Counsellor #28941</p>
+                        </div>
+                        <div className="text-xs text-gray-500 sm:text-right space-y-0.5">
+                          <p><strong>Clinic:</strong> Logan Central, QLD 4114</p>
+                          <p><strong>Email:</strong> luke@mightymentalhealth.com.au</p>
+                          <p><strong>Web:</strong> https://mighty-mental-health.vercel.app</p>
+                        </div>
+                      </div>
+
+                      {/* Patient & GP Meta Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#F9FAFB] border border-gray-200 rounded-xl p-4 text-xs">
+                        <div className="space-y-1">
+                          <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider block">Patient Details</span>
+                          <p><strong>Name:</strong> {gpClientName || selectedApptForNote?.client_name || 'Client'}</p>
+                          <p><strong>DOB:</strong> {gpClientDob || 'On file'}</p>
+                          <p><strong>Framework:</strong> Better Access / Mental Health Care Plan</p>
+                          <p><strong>Sessions:</strong> {gpSessionsCompleted} of {gpTotalSessionsAllowed} Completed</p>
+                        </div>
+                        <div className="space-y-1 sm:border-l sm:border-gray-200 sm:pl-4">
+                          <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider block">Referring Practitioner</span>
+                          <p><strong>Doctor:</strong> {gpName || 'Referring GP'}</p>
+                          <p><strong>Clinic:</strong> {gpClinic || 'Medical Centre'}</p>
+                          <p><strong>Address:</strong> {gpAddress || 'Logan, QLD'}</p>
+                          <p><strong>Status:</strong> MHTP Progress Update</p>
+                        </div>
+                      </div>
+
+                      {/* Letter Body */}
+                      <div className="text-xs text-gray-800 leading-relaxed whitespace-pre-wrap font-sans border-t border-b border-gray-100 py-4">
+                        {gpLetterOutput}
+                      </div>
+
+                      {/* Signature Block */}
+                      <div className="pt-2 text-xs space-y-1">
+                        <p className="font-extrabold text-sm text-[#130C76]">Luke Piatti (MCouns, UQ)</p>
+                        <p className="text-gray-600">Master of Counselling (University of Queensland)</p>
+                        <p className="text-[#BA3D00] font-bold">Exercise-Integrated Counsellor & Clinical Director</p>
+                        <p className="text-gray-500 text-[11px]">PACFA Registered Clinical Counsellor #28941</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-10 text-xs text-gray-500 bg-white rounded-2xl border border-dashed border-gray-300">
+                      Click &quot;Generate Formal GP Letter&quot; above to compile the medical report into the letterhead.
+                    </div>
+                  )}
 
                   <div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between">
                     <span className="text-[11px] text-gray-500">

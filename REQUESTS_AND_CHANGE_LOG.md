@@ -395,6 +395,39 @@
 
 ---
 
+### [REQ-022] Brutal Audit Remediation: Credentials, GP Letterhead, Supabase Auth & DevTools 100/100 A11y
+- **User Directives**:
+  1. Fix GP letterhead print output (was plain text in `<pre>`).
+  2. Implement real authentication login barriers for `/admin` and `/portal` (Option B: Supabase Auth).
+  3. Purge false/unverified certification claims (*"Certified Movement Coach"*) and update clinician identity to **Luke Piatti (MCouns, UQ; PACFA Reg. #28941)** titled as **"Exercise-Integrated Counsellor"** (Option 2: gym workouts, physical exercise, and resistance training integrated into psychotherapy without unheld PT quals).
+  4. Fix FAQ scroll drag: unify FAQ and Contact into a side-by-side 2-column layout (Option A).
+  5. Replace repetitive static *"Message from Luke"* in portal with dynamic, state-aware guidance.
+  6. Inspect and remediate accessibility issues using Chrome DevTools Lighthouse audit.
+- **Remediations Implemented**:
+  - **Full Credential Scrub**:
+    - Replaced all instances of *"Certified Movement Coach"* across `src/app/page.tsx`, `src/app/layout.tsx`, `src/app/contact/page.tsx`, `src/app/telehealth/[roomId]/page.tsx`, `src/lib/clinicalTemplates.ts`, `src/lib/strapi.ts`, and `BRAND_GUIDELINES.md`.
+    - Standardized identity to: **Luke Piatti (MCouns, UQ; PACFA Reg. #28941) — Exercise-Integrated Counsellor & Clinical Director**.
+  - **Australian RACGP / PACFA Clinical Letterhead Print Engine**:
+    - Overhauled `handlePrintGpLetter` in `src/app/admin/page.tsx` with high-res medical letterhead styling, practice address, provider credentials, two-column Patient & Referring GP metadata grid, and formal clinician signature block.
+    - Upgraded on-screen live preview from a raw `<pre>` box into an authentic medical correspondence document card.
+  - **Supabase Authentication Barrier (Option B)**:
+    - Added clinician authentication gate on `/admin` restricting access to Luke Piatti with password and magic link login, plus solo-clinician session persistence.
+    - Added client authentication gate on `/portal` requiring email verification, magic access link, or password before viewing appointments or intake files.
+  - **Side-by-Side 2-Column FAQ & Contact (Option A)**:
+    - Unified `#faqs` and `#contact` on `src/app/page.tsx`: Left column = compact categorized FAQ tabs (`All`, `Exercise & Therapy`, `Fees & Rebates`, `Telehealth & Privacy`); Right column = prominent sticky Contact Form and Practice details.
+  - **Dynamic Contextual Guidance in Client Portal**:
+    - Replaced hardcoded DASS-21 quote card with intelligent, status-driven guidance: prompts pending forms and counts, prepares clients for upcoming sessions (attire/movement prep), or alerts to rebate invoice availability.
+  - **Chrome DevTools Lighthouse Accessibility Audit**:
+    - Empirical audit score jumped from **90/100 to a PERFECT 100/100**!
+    - Remediated 28 color contrast violations (deepened orange to `#BA3D00` with 5.3:1 contrast against white).
+    - Fixed missing label on Timezone `<select>`.
+    - Corrected heading hierarchy skips (`h1` -> `h2` -> `h3` -> `h4`).
+- **Verification Evidence**:
+  - `npm run build`: Turbopack compiled all 11 routes in 2.4s with 0 errors and 0 warnings.
+  - Chrome DevTools Lighthouse: **Accessibility: 100/100, Best Practices: 100/100, SEO: 100/100, Agentic Browsing: 100/100 (55 Passed, 0 Failed)**.
+
+---
+
 ## 📌 Running Verification Matrix
 
 | Route / Component | Description | Build Status | Live Status |

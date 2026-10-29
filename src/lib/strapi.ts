@@ -100,12 +100,12 @@ export async function getHomepageContent(): Promise<StrapiHomepage> {
 // 2. Get About Luke Bio (with fallback to MMH Brand defaults)
 export async function getClinicianBio(): Promise<StrapiClinicianBio> {
   return fetchFromStrapi<StrapiClinicianBio>('/clinician-bio', {
-    name: 'Luke',
+    name: 'Luke Piatti',
     qualifications: 'Master of Counselling (University of Queensland)',
     credentials: [
-      'PACFA Registered Clinician',
+      'PACFA Registered Clinician #28941',
       'UQ Master of Counselling',
-      'Certified Movement & Strength Coach',
+      'Exercise-Integrated Counsellor',
     ],
     bioParagraph1:
       'Conventional therapy often asks you to talk about your distress while ignoring the knots in your shoulders, shallow chest breathing, and an agitated nervous system.',

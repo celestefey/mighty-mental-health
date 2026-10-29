@@ -4,21 +4,22 @@ import Link from 'next/link';
 import { Phone, ShieldAlert, Calendar, UserCheck, Video, Heart, HelpCircle } from 'lucide-react';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://mightymentalhealth.vercel.app'),
-  title: 'Mighty Mental Health | Integrated Psychotherapy & Somatic Movement Logan',
-  description: 'Evidence-based psychotherapy and somatic movement regulation in Logan, Queensland and Australia-wide via Telehealth. Led by Luke (MCouns, UQ; PACFA Registered Clinician #28941).',
+  metadataBase: new URL('https://mighty-mental-health.vercel.app'),
+  title: 'Mighty Mental Health | Luke Piatti (MCouns, UQ; PACFA Reg. #28941)',
+  description: 'Evidence-based psychotherapy integrated with structured physical exercise and active movement in Logan, Queensland and Australia-wide via Telehealth. Led by Luke Piatti (MCouns, UQ; PACFA Registered Clinician #28941).',
   keywords: [
     'Psychotherapy Logan',
-    'Somatic Movement Queensland',
+    'Exercise-Integrated Counselling Queensland',
     'Counselling Logan Central',
+    'Luke Piatti Counsellor',
     'Mental Health Care Plan Brisbane',
     'PACFA Registered Counsellor',
-    'Nervous System Regulation',
+    'Active Therapy Gym Workouts',
     'Telehealth Psychology Australia',
-    'Vagal Nerve Breathwork',
+    'Behavioral Activation Brisbane',
     'Burnout Therapy QLD'
   ],
-  authors: [{ name: 'Luke (MCouns, UQ)', url: 'https://mightymentalhealth.vercel.app' }],
+  authors: [{ name: 'Luke Piatti (MCouns, UQ)', url: 'https://mighty-mental-health.vercel.app' }],
   creator: 'Mighty Mental Health',
   publisher: 'Mighty Mental Health',
   robots: {
@@ -33,17 +34,17 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: 'Mighty Mental Health | Integrated Psychotherapy & Somatic Movement',
-    description: 'Strengthening Mind & Body as One. Evidence-based counselling and somatic nervous system regulation in Logan, QLD and Telehealth Australia-wide.',
-    url: 'https://mightymentalhealth.vercel.app',
+    title: 'Mighty Mental Health | Luke Piatti (MCouns, UQ; PACFA Reg. #28941)',
+    description: 'Evidence-based psychotherapy integrated with structured physical exercise and gym work in Logan, QLD & Telehealth Australia-wide.',
+    url: 'https://mighty-mental-health.vercel.app',
     siteName: 'Mighty Mental Health',
     locale: 'en_AU',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Mighty Mental Health | Luke (MCouns, UQ; PACFA Reg. #28941)',
-    description: 'Integrated psychotherapy and somatic movement coaching in Logan, QLD & Telehealth Australia-Wide.',
+    title: 'Mighty Mental Health | Luke Piatti (MCouns, UQ; PACFA Reg. #28941)',
+    description: 'Evidence-based counselling integrated with physical exercise and strength work in Logan, QLD & Telehealth Australia-Wide.',
   },
 };
 
@@ -51,9 +52,9 @@ const jsonLdSchema = {
   '@context': 'https://schema.org',
   '@type': 'MedicalBusiness',
   name: 'Mighty Mental Health',
-  url: 'https://mightymentalhealth.vercel.app',
-  logo: 'https://mightymentalhealth.vercel.app/icon',
-  description: 'Integrated psychotherapy and somatic movement therapy practice led by Luke (MCouns, UQ; PACFA Registered Clinician #28941).',
+  url: 'https://mighty-mental-health.vercel.app',
+  logo: 'https://mighty-mental-health.vercel.app/icon',
+  description: 'Evidence-based psychotherapy integrated with structured physical exercise and active movement led by Luke Piatti (MCouns, UQ; PACFA Registered Clinician #28941).',
   address: {
     '@type': 'PostalAddress',
     addressLocality: 'Logan Central',
@@ -73,13 +74,13 @@ const jsonLdSchema = {
     { '@type': 'AdministrativeArea', name: 'Brisbane, Queensland' },
     { '@type': 'Country', name: 'Australia (Telehealth)' },
   ],
-  medicalSpecialty: ['Psychotherapy', 'Counseling', 'Somatic Therapy'],
+  medicalSpecialty: ['Psychotherapy', 'Counseling', 'Exercise-Integrated Therapy'],
   founder: {
     '@type': 'Person',
-    name: 'Luke',
-    jobTitle: 'Clinical Director & Registered Counsellor',
+    name: 'Luke Piatti',
+    jobTitle: 'Exercise-Integrated Counsellor & Clinical Director',
     alumniOf: 'University of Queensland (UQ)',
-    hasCredential: 'PACFA Registered Clinical Counsellor #28941',
+    hasCredential: 'Master of Counselling (UQ), PACFA Registered Clinical Counsellor #28941',
   },
 };
 
@@ -128,36 +129,33 @@ export default function RootLayout({
         <header className="bg-white/95 backdrop-blur-md border-b border-[#E5DFD5] sticky top-8 z-40">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-11 h-11 rounded-xl bg-[#F96100] flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform">
+              <div className="w-11 h-11 rounded-xl bg-[#BA3D00] flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform">
                 <Heart className="w-6 h-6 fill-white" />
               </div>
               <div>
                 <span className="font-extrabold text-xl tracking-tight text-[#130C76] block leading-none">
                   MIGHTY
                 </span>
-                <span className="text-xs font-semibold tracking-wider text-[#F96100] uppercase block mt-1">
+                <span className="text-xs font-bold tracking-wider text-[#BA3D00] uppercase block mt-1">
                   Mental Health
                 </span>
               </div>
             </Link>
 
             <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-700">
-              <Link href="/#services" className="hover:text-[#F96100] transition-colors">
+              <Link href="/#services" className="hover:text-[#BA3D00] transition-colors">
                 Services
               </Link>
-              <Link href="/#about" className="hover:text-[#F96100] transition-colors">
-                About Luke
+              <Link href="/#about" className="hover:text-[#BA3D00] transition-colors">
+                About Luke Piatti
               </Link>
-              <Link href="/#booking" className="hover:text-[#F96100] transition-colors">
+              <Link href="/#booking" className="hover:text-[#BA3D00] transition-colors">
                 Live Calendar
               </Link>
-              <Link href="/#faqs" className="hover:text-[#F96100] transition-colors">
-                FAQs
+              <Link href="/#faqs" className="hover:text-[#BA3D00] transition-colors">
+                FAQs & Contact
               </Link>
-              <Link href="/#contact" className="hover:text-[#F96100] transition-colors">
-                Contact
-              </Link>
-              <Link href="/portal" className="text-[#130C76] hover:text-[#F96100] transition-colors flex items-center gap-1.5 font-semibold">
+              <Link href="/portal" className="text-[#130C76] hover:text-[#BA3D00] transition-colors flex items-center gap-1.5 font-semibold">
                 <UserCheck className="w-4 h-4" /> Client Portal
               </Link>
               <Link href="/admin" className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1.5 rounded-md transition-colors font-medium border border-gray-300">
@@ -168,7 +166,7 @@ export default function RootLayout({
             <div className="flex items-center gap-3">
               <Link
                 href="/#booking"
-                className="bg-[#F96100] hover:bg-[#d65300] text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-sm transition-all hover:shadow hover:scale-[1.02] flex items-center gap-2"
+                className="bg-[#BA3D00] hover:bg-[#9E3300] text-white px-5 py-2.5 rounded-xl font-semibold text-sm shadow-sm transition-all hover:shadow hover:scale-[1.02] flex items-center gap-2"
               >
                 <Calendar className="w-4 h-4" /> Book Consultation
               </Link>
@@ -194,13 +192,13 @@ export default function RootLayout({
               </p>
               <div className="flex flex-wrap gap-2 pt-2">
                 <span className="text-[11px] bg-white/10 px-2.5 py-1 rounded text-white/90 border border-white/10 font-medium">
-                  PACFA Registered Clinician
+                  PACFA Registered Clinician #28941
                 </span>
                 <span className="text-[11px] bg-white/10 px-2.5 py-1 rounded text-white/90 border border-white/10 font-medium">
                   UQ Master of Counselling
                 </span>
                 <span className="text-[11px] bg-white/10 px-2.5 py-1 rounded text-white/90 border border-white/10 font-medium">
-                  Certified Movement Coach
+                  Exercise-Integrated Counsellor
                 </span>
               </div>
             </div>

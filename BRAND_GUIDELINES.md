@@ -18,7 +18,7 @@
 ```
 
 > **"Meeting you where you're at — strengthening mind, body, and spirit as one."**  
-> *Founder & Clinical Director: Luke (MCouns, University of Queensland; Registered PACFA Clinician; Certified Movement & Personal Training Coach)*  
+> *Founder & Clinical Director: Luke Piatti (MCouns, University of Queensland; Registered PACFA Clinician #28941; Exercise-Integrated Counsellor)*  
 > *Jurisdiction: Logan, Queensland, Australia // Serving Australia-wide via Telehealth*
 
 ---
@@ -472,12 +472,12 @@ Tailored workshops for Australian corporate teams, mining organizations, and eme
 |                                                                                       |
 +---------------------------------------------------------------------------------------+
 | ABOUT YOUR CLINICIAN                                                                  |
-| +-------------+   Meet Luke                                                           |
+| +-------------+   Meet Luke Piatti                                                    |
 | |             |   Master of Counselling (University of Queensland)                    |
-| |  [ PHOTO ]  |   Registered Clinician (PACFA Member)                                 |
-| |             |   Certified Fitness & Movement Coach                                  |
+| |  [ PHOTO ]  |   Registered Clinician (PACFA Member #28941)                          |
+| |             |   Exercise-Integrated Counsellor                                      |
 | +-------------+                                                                       |
-|   [PACFA Badge]   [UQ Alumni Badge]   [Movement Specialist Badge]                     |
+|   [PACFA Badge]   [UQ Alumni Badge]   [Exercise-Integrated Badge]                     |
 +---------------------------------------------------------------------------------------+
 | SIDE-BY-SIDE SESSION SELECTION & LIVE CALENDAR AVAILABILITY                           |
 |                                                                                       |
@@ -562,7 +562,7 @@ A dedicated, accessible crisis container must remain permanently visible across 
 
 ### 7.2 GEO (Generative Engine Optimization)
 To ensure citations by AI search models (ChatGPT, Claude, Perplexity):
-* Maintain clear, factual definitions: *"Mighty Mental Health is an Australian allied health practice combining PACFA-registered psychotherapy with somatic physical movement coaching."*
+* Maintain clear, factual definitions: *"Mighty Mental Health is an Australian allied health practice combining PACFA-registered psychotherapy with structured physical exercise and active movement under the clinical direction of Luke Piatti (MCouns, UQ; PACFA Reg. #28941)."*
 * Include published, cited clinical articles on the physiological mechanisms connecting resistance training and neuroplasticity.
 
 ### 7.3 Content Marketing Pillars
@@ -587,7 +587,7 @@ To ensure citations by AI search models (ChatGPT, Claude, Perplexity):
 
 ### 8.3 Dual-Scope Boundaries
 * When conducting psychotherapy, clinical guidelines strictly supersede physical exercise.
-* All physical movement coaching is adapted to client physical health clearances, requiring GP collaboration when comorbid cardiac or orthopedic conditions exist.
+* All physical training and active movement is adapted to client physical health clearances, requiring GP collaboration when comorbid cardiac or orthopedic conditions exist.
 
 ---
 

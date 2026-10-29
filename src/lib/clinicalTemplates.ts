@@ -238,10 +238,10 @@ BASELINE PSYCHOMETRIC FINDINGS:
     : `In light of the client's positive clinical engagement and remaining recovery goals, I recommend a re-referral for an additional 4 sessions (Sessions 7–10) under the Better Access / Mental Health Care Plan framework.`);
 
   return `MIGHTY MENTAL HEALTH
-Integrated Psychotherapy & Somatic Movement
-Logan, Queensland, Australia | Provider: Luke (MCouns, UQ)
+Exercise-Integrated Psychotherapy & Counselling
+Logan, Queensland, Australia | Provider: Luke Piatti (MCouns, UQ)
 PACFA Reg. Clinical Counsellor #28941 | luke@mightymentalhealth.com.au
-Web: https://mightymentalhealth.vercel.app
+Web: https://mighty-mental-health.vercel.app
 
 CONFIDENTIAL MEDICAL CORRESPONDENCE
 -----------------------------------------------------------------------------
@@ -256,7 +256,7 @@ SESSION COUNT: ${sessions} of ${maxSessions} completed
 
 Dear ${gpHeader},
 
-Thank you for referring ${options.clientName} to Mighty Mental Health. I am writing to provide an update regarding ${options.clientName}'s psychological and somatic counselling care.
+Thank you for referring ${options.clientName} to Mighty Mental Health. I am writing to provide an update regarding ${options.clientName}'s psychological and exercise-integrated counselling care.
 
 ${options.templateType === 'gp-first-session' ? 'INITIAL CONSULTATION & PRESENTING ISSUES:' : 'PROGRESS UPDATE & CLINICAL REVIEW:'}
 -----------------------------------------------------------------------------
@@ -267,9 +267,9 @@ TREATMENT MODALITIES & CLINICAL INTERVENTIONS:
 -----------------------------------------------------------------------------
 Therapeutic interventions to date have included:
 - Evidence-based Psychotherapy (PACFA accredited framework).
-- Somatic Nervous System Regulation (vagal nerve stimulation, diaphragmatic pacing).
-- Cognitive appraisal, distress tolerance, and values-aligned behavioral activation.
-- Physical movement prescriptions (aerobic walking cadence, resistance for nervous system grounding).
+- Structured physical exercise & active movement integration (resistance training, behavioral activation).
+- Somatic nervous system regulation (down-regulation pacing, physiological sigh, vagal tone).
+- Cognitive appraisal, distress tolerance, and values-aligned habit design.
 Focus: ${focus}
 
 RECOMMENDATION & CONTINUITY OF CARE:
@@ -280,10 +280,10 @@ Please do not hesitate to contact me directly at luke@mightymentalhealth.com.au 
 
 Warm regards,
 
-Luke MCouns (UQ)
+Luke Piatti (MCouns, UQ)
 Master of Counselling (University of Queensland)
 Registered Clinical Counsellor (PACFA Reg. #28941)
-Certified Movement & Somatic Coach
+Exercise-Integrated Counsellor
 Mighty Mental Health — Logan, QLD
 `;
 }

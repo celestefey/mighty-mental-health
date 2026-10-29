@@ -18,10 +18,10 @@ export default function ContactPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="text-center max-w-2xl mx-auto mb-16">
-        <span className="text-xs font-bold uppercase tracking-wider text-[#F96100] block mb-2">Get in Touch</span>
+        <span className="text-xs font-bold uppercase tracking-wider text-[#BA3D00] block mb-2">Get in Touch</span>
         <h1 className="text-3xl font-extrabold text-[#130C76] sm:text-4xl">Contact Mighty Mental Health</h1>
         <p className="text-sm text-gray-600 mt-3 leading-relaxed">
-          Have questions about the somatic-cognitive approach, PACFA health rebates, or booking an initial consultation? Luke and our practice team are here to help.
+          Have questions about our exercise-integrated therapy approach, PACFA private health rebates, or booking an initial consultation? Luke Piatti is here to help.
         </p>
       </div>
 
@@ -33,15 +33,15 @@ export default function ContactPage() {
             
             <div className="space-y-4 text-xs text-gray-700">
               <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-[#F96100] shrink-0 mt-0.5" />
+                <MapPin className="w-5 h-5 text-[#BA3D00] shrink-0 mt-0.5" />
                 <div>
                   <span className="font-bold text-gray-900 block">Practice Clinic Base</span>
-                  <span>Logan, Queensland, Australia</span>
+                  <span>Logan Central, Queensland, Australia</span>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <Mail className="w-5 h-5 text-[#F96100] shrink-0 mt-0.5" />
+                <Mail className="w-5 h-5 text-[#BA3D00] shrink-0 mt-0.5" />
                 <div>
                   <span className="font-bold text-gray-900 block">Clinical Email</span>
                   <span>luke@mightymentalhealth.com.au</span>
@@ -49,7 +49,7 @@ export default function ContactPage() {
               </div>
 
               <div className="flex items-start gap-3">
-                <Phone className="w-5 h-5 text-[#F96100] shrink-0 mt-0.5" />
+                <Phone className="w-5 h-5 text-[#BA3D00] shrink-0 mt-0.5" />
                 <div>
                   <span className="font-bold text-gray-900 block">Direct Consult Line</span>
                   <span>Phone consultations scheduled via online booking</span>
@@ -58,7 +58,7 @@ export default function ContactPage() {
             </div>
 
             <div className="pt-4 border-t border-gray-100 text-[11px] text-gray-500 space-y-1">
-              <p><strong>Clinical Director:</strong> Luke (MCouns, UQ; PACFA Reg)</p>
+              <p><strong>Clinical Director:</strong> Luke Piatti (MCouns, UQ; PACFA Reg. #28941)</p>
               <p>Serving clients Australia-wide via secure Telehealth.</p>
             </div>
           </div>
