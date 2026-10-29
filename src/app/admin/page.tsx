@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { 
   Calendar as CalendarIcon, 
   Users, 
+  User,
   FileText, 
   Plus, 
   Edit3, 
@@ -1473,6 +1474,7 @@ Protective factors identified; safe for outpatient psychotherapy & somatic movem
       {/* Admin Tab Navigation */}
       <div className="flex border-b border-gray-200 mt-6 space-x-6 overflow-x-auto text-sm font-bold">
         {[
+          { key: 'clients', label: 'Patient Charts & Dossiers', icon: Users, count: uniqueClientsCount },
           { key: 'schedule', label: 'Appointments & Schedule', icon: CalendarIcon, count: appointments.length },
           { key: 'assignments', label: 'Form Submissions', icon: CheckCircle2, count: assignments.length },
           { key: 'intakes', label: 'Client Intakes', icon: UserCheck, count: intakes.length },
@@ -1503,6 +1505,26 @@ Protective factors identified; safe for outpatient psychotherapy & somatic movem
         })}
       </div>
 
+      {/* TAB CONTENT 0: PATIENT CHARTS & DOSSIERS (360° CLINICAL DOSSIER) */}
+      {activeTab === 'clients' && (
+        <div className="mt-8">
+          <ClientChartDossier
+            appointments={appointments}
+            intakes={intakes}
+            assignments={assignments}
+            clinicalNotes={clinicalNotes}
+            forms={forms}
+            selectedClientEmail={selectedClientEmail}
+            initialDossierTab={clientDossierInitialTab}
+            onSelectClient={(email) => setSelectedClientEmail(email ? email.toLowerCase() : null)}
+            onDraftNoteForClient={handleDraftNoteForClient}
+            onGenerateGpLetterForClient={handleGenerateGpLetterForClient}
+            onAssignFormForClient={handleAssignFormForClient}
+            onSeedDemoData={handleSeedDemoData}
+          />
+        </div>
+      )}
+
       {/* TAB CONTENT 1: SCHEDULE */}
       {activeTab === 'schedule' && (
         <div className="mt-8 space-y-6">
@@ -1530,7 +1552,12 @@ Protective factors identified; safe for outpatient psychotherapy & somatic movem
                       <tr key={appt.id} className="hover:bg-gray-50/60">
                         <td className="py-4">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="font-extrabold text-sm text-gray-900">{appt.client_name}</span>
+                            <button
+                              onClick={() => handleOpenClientChart(appt.client_email, 'movement')}
+                              className="font-extrabold text-sm text-gray-900 hover:text-[#BA3D00] text-left cursor-pointer transition-colors"
+                            >
+                              {appt.client_name}
+                            </button>
                             {appt.is_demo && (
                               <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[9px] font-extrabold px-1.5 py-0.2 rounded-full uppercase">
                                 Demo
@@ -1563,6 +1590,12 @@ Protective factors identified; safe for outpatient psychotherapy & somatic movem
                         </span>
                       </td>
                       <td className="py-4 text-right space-x-2">
+                        <button
+                          onClick={() => handleOpenClientChart(appt.client_email, 'movement')}
+                          className="bg-amber-50 hover:bg-amber-100 text-[#BA3D00] border border-amber-200 px-3 py-1.5 rounded-lg text-xs font-bold inline-flex items-center gap-1 cursor-pointer transition-colors"
+                        >
+                          <User className="w-3.5 h-3.5" /> Patient Chart
+                        </button>
                         {appt.modality === 'video' && (
                           <Link
                             href={`/telehealth/${appt.telehealth_room_id}?role=clinician`}
@@ -1678,7 +1711,13 @@ Protective factors identified; safe for outpatient psychotherapy & somatic movem
                         <td className="py-4 text-gray-500">
                           {asg.completed_at ? new Date(asg.completed_at).toLocaleDateString('en-AU') : '—'}
                         </td>
-                        <td className="py-4 text-right">
+                        <td className="py-4 text-right space-x-1.5">
+                          <button
+                            onClick={() => handleOpenClientChart(asg.client_email, 'psychometrics')}
+                            className="inline-flex items-center gap-1 bg-amber-50 hover:bg-amber-100 text-[#BA3D00] border border-amber-200 px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer"
+                          >
+                            <Activity className="w-3 h-3" /> Trajectory Chart
+                          </button>
                           <Link
                             href={`/screeners/${asg.id}`}
                             target="_blank"
@@ -2030,6 +2069,13 @@ Protective factors identified; safe for outpatient psychotherapy & somatic movem
                       </span>
 
                       <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleOpenClientChart(intake.client_email, 'movement')}
+                          className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#130C76] hover:bg-[#0c0750] text-white transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
+                        >
+                          <User className="w-3.5 h-3.5" />
+                          Open Patient Chart
+                        </button>
                         <button
                           onClick={() => setSelectedIntake(intake)}
                           className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-white hover:bg-gray-100 text-[#130C76] border border-gray-300 transition-colors flex items-center gap-1 cursor-pointer"
