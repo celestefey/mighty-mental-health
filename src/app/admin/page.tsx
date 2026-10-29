@@ -189,6 +189,22 @@ export default function ClinicianAdminDashboard() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Listen to URL parameters for direct tab / client linking (e.g. /admin?tab=clients)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabParam = urlParams.get('tab');
+      const clientParam = urlParams.get('client');
+      if (tabParam && ['schedule', 'clients', 'forms', 'assignments', 'intakes', 'notes'].includes(tabParam)) {
+        setActiveTab(tabParam as any);
+      }
+      if (clientParam) {
+        setSelectedClientEmail(clientParam.toLowerCase());
+        setActiveTab('clients');
+      }
+    }
+  }, []);
+
   async function handlePasswordLogin(e: React.FormEvent) {
     e.preventDefault();
     setAuthSubmitting(true);
@@ -1370,6 +1386,19 @@ Protective factors identified; safe for outpatient psychotherapy & somatic movem
 
           <button
             onClick={() => {
+              setSelectedClientEmail(null);
+              setActiveTab('clients');
+            }}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'clients'
+                ? 'bg-[#130C76] text-white shadow-md'
+                : 'bg-white border-2 border-[#130C76] text-[#130C76] hover:bg-[#130C76] hover:text-white'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" /> 360° Patient Charts & Dossiers ({uniqueClientsCount})
+          </button>
+          <button
+            onClick={() => {
               setEditingFormId(null);
               setFormTitle('');
               setFormSlug('');
@@ -1406,6 +1435,27 @@ Protective factors identified; safe for outpatient psychotherapy & somatic movem
             <p className="text-[11px] text-gray-500 mt-0.5">
               Simulate complete patient journeys: Sarah Jenkins (Severe DASS-21), David Chen (Pending GAD-7), and Marcus Brody (Overdue Screener).
             </p>
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Quick Open Patient Chart:</span>
+              <button
+                onClick={() => handleOpenClientChart('sarah.jenkins@example.com', 'movement')}
+                className="text-[11px] font-bold text-[#130C76] hover:text-[#BA3D00] bg-white border border-[#E5DFD5] hover:border-[#130C76] px-2.5 py-1 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1 shadow-2xs"
+              >
+                <User className="w-3 h-3 text-[#BA3D00]" /> Sarah Jenkins (Severe DASS-21)
+              </button>
+              <button
+                onClick={() => handleOpenClientChart('david.chen@example.com', 'psychometrics')}
+                className="text-[11px] font-bold text-[#130C76] hover:text-[#BA3D00] bg-white border border-[#E5DFD5] hover:border-[#130C76] px-2.5 py-1 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1 shadow-2xs"
+              >
+                <User className="w-3 h-3 text-[#130C76]" /> David Chen (Pending GAD-7)
+              </button>
+              <button
+                onClick={() => handleOpenClientChart('marcus.brody@example.com', 'movement')}
+                className="text-[11px] font-bold text-[#130C76] hover:text-[#BA3D00] bg-white border border-[#E5DFD5] hover:border-[#130C76] px-2.5 py-1 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1 shadow-2xs"
+              >
+                <User className="w-3 h-3 text-amber-600" /> Marcus Brody (Somatic Tension)
+              </button>
+            </div>
           </div>
         </div>
 
