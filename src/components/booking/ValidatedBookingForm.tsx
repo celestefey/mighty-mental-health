@@ -100,10 +100,11 @@ export function ValidatedBookingForm({
     const mm = minutes.toString().padStart(2, '0');
     const scheduledDateTime = `${selectedDate}T${hh}:${mm}:00+10:00`;
 
-    // 1. Store appointment in Supabase
+    // 1. Store appointment in Supabase with Concurrency Defense
     const { data, error } = await supabase
       .from('mmh_appointments')
       .insert({
+        clinician_id: '00000000-0000-0000-0000-000000000001',
         client_name: values.clientName,
         client_email: values.clientEmail,
         client_phone: values.clientPhone,
@@ -123,7 +124,15 @@ export function ValidatedBookingForm({
       .single();
 
     if (error) {
-      setSubmissionError(`Unable to save booking: ${error.message || 'Database unavailable'}. Please contact Luke at luke@mightymentalhealth.com.au`);
+      if (
+        error.code === '23P01' ||
+        error.message?.includes('no_overlapping_sessions') ||
+        error.message?.includes('conflicts with existing key')
+      ) {
+        setSubmissionError('This consultation time slot was just booked by another client. Please select an alternate time on the booking schedule.');
+      } else {
+        setSubmissionError(`Unable to save booking: ${error.message || 'Database unavailable'}. Please contact Luke at luke@mightymentalhealth.com.au`);
+      }
       setIsSubmitting(false);
       return;
     }

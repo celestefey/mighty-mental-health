@@ -89,6 +89,13 @@ export default function ClinicianAdminDashboard() {
   // Client Intake Modal state
   const [selectedIntake, setSelectedIntake] = useState<MMHClientIntake | null>(null);
 
+  // Addenda State (PACFA append-only legal amendments)
+  const [selectedNoteForAddendum, setSelectedNoteForAddendum] = useState<MMHClinicalNote | null>(null);
+  const [addendumText, setAddendumText] = useState('');
+  const [amendmentReason, setAmendmentReason] = useState('Clarification of clinical details');
+  const [isSavingAddendum, setIsSavingAddendum] = useState(false);
+  const [addendumError, setAddendumError] = useState<string | null>(null);
+
   // Clinical Notes & GP Letters state
   const [selectedApptForNote, setSelectedApptForNote] = useState<MMHAppointment | null>(null);
   const [selectedNoteTemplate, setSelectedNoteTemplate] = useState<ClinicalTemplateType>('SOAP');
@@ -245,7 +252,7 @@ export default function ClinicianAdminDashboard() {
       supabase.from('mmh_appointments').select('*, service:mmh_services(*)').order('scheduled_at', { ascending: false }),
       supabase.from('mmh_forms').select('*').order('created_at', { ascending: true }),
       supabase.from('mmh_form_assignments').select('*, form:mmh_forms(*)').order('created_at', { ascending: false }),
-      supabase.from('mmh_clinical_notes').select('*').order('created_at', { ascending: false }),
+      supabase.from('mmh_clinical_notes').select('*, addenda:mmh_clinical_note_addenda(*)').order('created_at', { ascending: false }),
       supabase.from('mmh_client_intakes').select('*').order('created_at', { ascending: false }),
     ]);
 
@@ -258,6 +265,33 @@ export default function ClinicianAdminDashboard() {
     if (notesRes.data) setClinicalNotes(notesRes.data as MMHClinicalNote[]);
     if (intakesRes.data) setIntakes(intakesRes.data as MMHClientIntake[]);
     setLoading(false);
+  }
+
+  // Handle Legal Addendum Submission (PACFA Compliant append-only)
+  async function handleSaveAddendum(e: React.FormEvent) {
+    e.preventDefault();
+    if (!selectedNoteForAddendum || !addendumText.trim()) return;
+    setIsSavingAddendum(true);
+    setAddendumError(null);
+    try {
+      const { error } = await supabase.from('mmh_clinical_note_addenda').insert({
+        note_id: selectedNoteForAddendum.id,
+        addendum_text: addendumText.trim(),
+        reason_for_amendment: amendmentReason,
+      });
+      if (error) {
+        setAddendumError(error.message);
+      } else {
+        setSelectedNoteForAddendum(null);
+        setAddendumText('');
+        setAmendmentReason('Clarification of clinical details');
+        await loadAllAdminData();
+      }
+    } catch (err: any) {
+      setAddendumError(err.message || 'Failed to attach legal addendum.');
+    } finally {
+      setIsSavingAddendum(false);
+    }
   }
 
   // Handle Form Builder Save
@@ -2568,9 +2602,24 @@ Protective factors identified; safe for outpatient psychotherapy & somatic movem
                           </span>
                         )}
                       </div>
-                      <span className="text-gray-400 font-mono text-[11px]">
-                        {new Date(note.created_at).toLocaleString('en-AU')}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        {note.is_locked && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedNoteForAddendum(note);
+                              setAddendumText('');
+                              setAddendumError(null);
+                            }}
+                            className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold text-[#BA3D00] bg-[#BA3D00]/10 hover:bg-[#BA3D00]/20 rounded-md transition-colors cursor-pointer"
+                          >
+                            <Edit3 className="w-2.5 h-2.5" /> Attach Addendum
+                          </button>
+                        )}
+                        <span className="text-gray-400 font-mono text-[11px]">
+                          {new Date(note.created_at).toLocaleString('en-AU')}
+                        </span>
+                      </div>
                     </div>
 
                     {note.gp_letter_text ? (
@@ -2594,6 +2643,34 @@ Protective factors identified; safe for outpatient psychotherapy & somatic movem
                         <div className="p-2.5 bg-white rounded-xl border border-gray-200">
                           <strong className="text-[#130C76] block mb-1">Plan:</strong>
                           <p className="text-gray-600 line-clamp-3">{note.plan || 'Nil recorded'}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Append-only Legal Addenda */}
+                    {note.addenda && note.addenda.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-[#E5DFD5] space-y-2">
+                        <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#130C76]">
+                          <ShieldCheck className="w-3.5 h-3.5 text-[#1E3A2F]" />
+                          <span>Legal Addenda (Append-Only Audit Log: PACFA Compliant)</span>
+                        </div>
+                        <div className="space-y-2 pl-2 border-l-2 border-[#1E3A2F]/40">
+                          {note.addenda.map((ad) => (
+                            <div key={ad.id} className="p-2.5 bg-white rounded-xl border border-gray-200 text-[11px] space-y-1">
+                              <div className="flex items-center justify-between gap-2 text-[10px]">
+                                <span className="font-extrabold text-[#1E3A2F] bg-[#1E3A2F]/10 px-2 py-0.5 rounded-full">
+                                  {ad.reason_for_amendment}
+                                </span>
+                                <span className="text-gray-400 font-mono">
+                                  {new Date(ad.created_at).toLocaleString('en-AU')}
+                                </span>
+                              </div>
+                              <p className="text-gray-800 whitespace-pre-wrap">{ad.addendum_text}</p>
+                              <span className="text-[10px] text-gray-400 block pt-0.5">
+                                Sealed by Luke Piatti (PACFA Reg. #28941)
+                              </span>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     )}
@@ -3073,6 +3150,108 @@ Protective factors identified; safe for outpatient psychotherapy & somatic movem
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 5: ATTACH LEGAL ADDENDUM TO LOCKED CLINICAL NOTE */}
+      {selectedNoteForAddendum && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-gray-100 max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between pb-4 border-b border-gray-100 shrink-0">
+              <div>
+                <span className="text-[10px] font-extrabold text-[#BA3D00] uppercase tracking-wider block">
+                  PACFA Compliant Clinical Audit Log
+                </span>
+                <h3 className="font-extrabold text-lg text-[#130C76]">
+                  Attach Legal Addendum
+                </h3>
+                <span className="text-xs text-gray-500 font-medium">
+                  Client: <strong className="text-gray-800">{selectedNoteForAddendum.client_name}</strong> • Original Note: {new Date(selectedNoteForAddendum.created_at).toLocaleDateString('en-AU')}
+                </span>
+              </div>
+              <button
+                onClick={() => setSelectedNoteForAddendum(null)}
+                className="text-gray-400 hover:text-gray-600 text-2xl font-bold cursor-pointer"
+              >
+                &times;
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveAddendum} className="overflow-y-auto py-5 space-y-4 flex-1 pr-1 text-xs">
+              <div className="p-3 bg-amber-50/80 rounded-2xl border border-amber-200 text-amber-900 leading-relaxed text-[11px]">
+                <strong className="block mb-0.5 font-bold">Australian Medical Defense & PACFA Standard:</strong>
+                Locked clinical notes cannot be modified or overwritten. This entry will be appended permanently with an immutable timestamp to preserve clinical legal integrity.
+              </div>
+
+              {addendumError && (
+                <div className="p-3 bg-red-50 text-red-800 rounded-xl border border-red-200 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+                  <span>{addendumError}</span>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-gray-700 font-bold mb-1">
+                  Reason for Amendment
+                </label>
+                <select
+                  value={amendmentReason}
+                  onChange={(e) => setAmendmentReason(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-gray-200 bg-white font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#130C76]"
+                >
+                  <option value="Clarification of clinical details">Clarification of clinical details</option>
+                  <option value="Correction of objective fact or date">Correction of objective fact or date</option>
+                  <option value="Additional information received from client or external provider">Additional information received from client or external provider</option>
+                  <option value="Retrospective clinical assessment note">Retrospective clinical assessment note</option>
+                  <option value="Safety risk plan update or post-session contact">Safety risk plan update or post-session contact</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-bold mb-1">
+                  Addendum Text (Permanent Clinical Entry)
+                </label>
+                <textarea
+                  value={addendumText}
+                  onChange={(e) => setAddendumText(e.target.value)}
+                  rows={6}
+                  placeholder="Record additional clinical observations, clarifications, or newly reported information..."
+                  className="w-full p-3 rounded-xl border border-gray-200 bg-white text-gray-800 font-sans focus:outline-none focus:ring-2 focus:ring-[#130C76] text-xs leading-relaxed"
+                  required
+                />
+                <span className="text-[10px] text-gray-400 mt-1 block">
+                  Author: Luke Piatti (MCouns, UQ; PACFA Reg. #28941)
+                </span>
+              </div>
+
+              <div className="pt-3 border-t border-gray-100 flex items-center justify-end gap-3 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setSelectedNoteForAddendum(null)}
+                  className="px-4 py-2 text-xs font-bold text-gray-600 hover:text-gray-800 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingAddendum || !addendumText.trim()}
+                  className="bg-[#BA3D00] hover:bg-[#9d3300] disabled:opacity-50 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer flex items-center gap-2"
+                >
+                  {isSavingAddendum ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      Sealing Addendum...
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      Seal Permanent Addendum
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

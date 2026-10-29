@@ -13,11 +13,13 @@ export interface MMHService {
 
 export interface MMHAppointment {
   id: string;
+  clinician_id?: string;
   client_name: string;
   client_email: string;
   client_phone: string;
   service_id: string;
   scheduled_at: string;
+  ends_at?: string;
   duration_minutes: number;
   modality: 'video' | 'phone';
   status: 'confirmed' | 'pending' | 'completed' | 'cancelled';
@@ -58,6 +60,9 @@ export interface MMHFormAssignment {
   form_id: string;
   client_name: string;
   client_email: string;
+  token_hash?: string;
+  expires_at?: string;
+  used_at?: string;
   deadline: string;
   status: 'assigned' | 'completed' | 'overdue';
   answers?: Record<string, any>;
@@ -77,6 +82,15 @@ export type ClinicalTemplateType =
   | 'gp-first-session'
   | 'gp-progress-update';
 
+export interface MMHClinicalNoteAddendum {
+  id: string;
+  note_id: string;
+  clinician_id?: string;
+  addendum_text: string;
+  reason_for_amendment: string;
+  created_at: string;
+}
+
 export interface MMHClinicalNote {
   id: string;
   appointment_id?: string;
@@ -92,6 +106,7 @@ export interface MMHClinicalNote {
   gp_letter_text?: string;
   is_locked: boolean;
   locked_at?: string;
+  addenda?: MMHClinicalNoteAddendum[];
   is_demo?: boolean;
   created_at: string;
   updated_at: string;

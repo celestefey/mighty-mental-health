@@ -153,13 +153,25 @@ export default function ClientIntakePage() {
     <div className="min-h-screen bg-[#FBF9F5] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         
-        {/* Header Breadcrumbs */}
-        <div className="flex items-center justify-between mb-8">
+        {/* Header Breadcrumbs & Quick Safety Exit */}
+        <div className="flex items-center justify-between gap-4 mb-8">
           <Link href="/portal" className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-[#130C76] transition-colors">
             <ArrowLeft className="w-4 h-4" /> Back to Client Portal
           </Link>
-          <div className="flex items-center gap-2 text-xs font-bold text-[#F96100]">
-            <ShieldCheck className="w-4 h-4" /> 256-Bit Encrypted Clinical Intake
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-[#1E3A2F]">
+              <ShieldCheck className="w-4 h-4" /> Protected under Privacy Act (APPs 1–13)
+            </div>
+            {/* 1800RESPECT Safe Exit / Quick Escape */}
+            <button
+              type="button"
+              onClick={() => window.location.replace('https://www.bom.gov.au')}
+              title="Instantly leave this page and redirect to Australian Weather (BOM)"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-800 border border-red-200 text-xs font-bold transition-all shadow-xs cursor-pointer"
+            >
+              <ShieldAlert className="w-3.5 h-3.5 text-red-600" />
+              <span>Quick Safety Exit</span>
+            </button>
           </div>
         </div>
 

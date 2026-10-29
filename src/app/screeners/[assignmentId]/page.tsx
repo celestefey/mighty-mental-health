@@ -23,7 +23,9 @@ import {
   ShieldCheck, 
   AlertCircle,
   ShieldAlert,
-  Info
+  Info,
+  PhoneCall,
+  HeartHandshake
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -38,6 +40,23 @@ export default function ScreenerSubmissionPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<any>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [showCrisisModal, setShowCrisisModal] = useState(false);
+  const [crisisAcknowledged, setCrisisAcknowledged] = useState(false);
+
+  // Quick escape (1800RESPECT standard)
+  const handleQuickEscape = () => {
+    window.location.replace('https://www.bom.gov.au');
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !showCrisisModal) {
+        handleQuickEscape();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showCrisisModal]);
 
   useEffect(() => {
     async function fetchAssignment() {
@@ -65,6 +84,12 @@ export default function ScreenerSubmissionPage() {
 
   const handleAnswerChange = (questionId: string, value: any) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
+
+    // Real-time Duty of Care Interceptor for suicidal ideation / acute risk
+    const isPhq9SuicideItem = assignment?.form?.slug === 'phq-9' && (questionId === 'q9' || questionId === 'phq9_9');
+    if (isPhq9SuicideItem && Number(value) > 0 && !crisisAcknowledged) {
+      setShowCrisisModal(true);
+    }
   };
 
   const handleMultiSelectToggle = (questionId: string, option: string) => {
@@ -147,21 +172,35 @@ export default function ScreenerSubmissionPage() {
       severityFlag = 'Intake Submitted';
     }
 
-    const { error: updateError } = await supabase
-      .from('mmh_form_assignments')
-      .update({
-        status: 'completed',
-        answers: answers,
-        score_summary: scoreSummary,
-        clinical_severity: severityFlag,
-        completed_at: new Date().toISOString(),
-      })
-      .eq('id', assignment.id);
+    const isCrisis = slug === 'phq-9' && answers['q9'] && Number(answers['q9']) > 0;
 
-    if (updateError) {
-      setValidationError(`Failed to submit screener: ${updateError.message || 'Database error'}. Please try again.`);
-      setIsSubmitting(false);
-      return;
+    // Call stored procedure RPC (SECURITY DEFINER)
+    const { data: rpcRes, error: rpcError } = await (supabase.rpc as any)('submit_screener_result', {
+      p_assignment_id: assignment.id,
+      p_answers: answers,
+      p_score_summary: scoreSummary,
+      p_clinical_severity: severityFlag,
+      p_is_crisis_flagged: Boolean(isCrisis),
+    });
+
+    if (rpcError) {
+      // Fallback in case RPC is not cached/accessible
+      const { error: updateError } = await supabase
+        .from('mmh_form_assignments')
+        .update({
+          status: 'completed',
+          answers: answers,
+          score_summary: scoreSummary,
+          clinical_severity: severityFlag,
+          completed_at: new Date().toISOString(),
+        })
+        .eq('id', assignment.id);
+
+      if (updateError) {
+        setValidationError(`Failed to submit screener: ${updateError.message || 'Database error'}. Please try again.`);
+        setIsSubmitting(false);
+        return;
+      }
     }
 
     // Dispatch real-time clinical notification alert to Luke
@@ -215,9 +254,22 @@ export default function ScreenerSubmissionPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <Link href="/portal" className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-[#130C76] mb-6 transition-colors">
-        <ArrowLeft className="w-4 h-4" /> Back to Client Portal
-      </Link>
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <Link href="/portal" className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-[#130C76] transition-colors">
+          <ArrowLeft className="w-4 h-4" /> Back to Client Portal
+        </Link>
+
+        {/* 1800RESPECT Safe Exit / Quick Escape */}
+        <button
+          type="button"
+          onClick={handleQuickEscape}
+          title="Instantly leave this page and redirect to Australian Weather (BOM) to protect your privacy"
+          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-800 border border-red-200 text-xs font-bold transition-all shadow-xs cursor-pointer"
+        >
+          <ShieldAlert className="w-3.5 h-3.5 text-red-600" />
+          <span>Quick Safety Exit (Esc)</span>
+        </button>
+      </div>
 
       <div className="bg-white rounded-3xl p-6 sm:p-10 border border-[#E5DFD5] shadow-lg">
         {/* Form Title & Instructions */}
@@ -800,6 +852,103 @@ export default function ScreenerSubmissionPage() {
           </form>
         )}
       </div>
+
+      {/* Duty of Care Crisis Interceptor Modal */}
+      {showCrisisModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-red-200 space-y-5 animate-in fade-in duration-200">
+            <div className="w-14 h-14 rounded-full bg-red-100 border border-red-300 text-red-600 flex items-center justify-center mx-auto">
+              <HeartHandshake className="w-7 h-7" />
+            </div>
+
+            <div className="text-center space-y-2">
+              <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#BA3D00]">
+                Immediate Duty of Care Support
+              </span>
+              <h2 className="text-xl font-black text-[#130C76]">
+                We are listening. You don&apos;t have to carry this alone.
+              </h2>
+              <p className="text-xs text-gray-600 leading-relaxed">
+                You indicated experiencing thoughts of self-harm or being better off dead. While Luke will review your responses, this screener is not monitored 24/7. Immediate, compassionate and confidential Australian clinical support is available right now:
+              </p>
+            </div>
+
+            <div className="space-y-2.5">
+              <a
+                href="tel:000"
+                className="flex items-center justify-between p-3.5 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-bold text-xs transition-colors shadow-xs"
+              >
+                <div className="flex items-center gap-2.5">
+                  <PhoneCall className="w-4 h-4 shrink-0" />
+                  <div>
+                    <span className="block font-black text-sm">Emergency Services: 000</span>
+                    <span className="text-[10px] text-red-100 font-normal">Immediate life-threatening risk or medical emergency</span>
+                  </div>
+                </div>
+                <span className="bg-white/20 px-2.5 py-1 rounded-lg text-[10px] uppercase font-black">Call 000</span>
+              </a>
+
+              <a
+                href="tel:131114"
+                className="flex items-center justify-between p-3 bg-red-50 hover:bg-red-100 border border-red-200 text-red-950 rounded-2xl font-bold text-xs transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <PhoneCall className="w-4 h-4 text-red-600 shrink-0" />
+                  <div>
+                    <span className="block font-black">Lifeline: 13 11 14</span>
+                    <span className="text-[10px] text-red-700 font-normal">24/7 Crisis support and suicide prevention</span>
+                  </div>
+                </div>
+                <span className="bg-red-200/60 px-2 py-0.5 rounded-lg text-[10px]">Call 24/7</span>
+              </a>
+
+              <a
+                href="tel:1300659467"
+                className="flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-900 rounded-2xl font-bold text-xs transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <PhoneCall className="w-4 h-4 text-[#130C76] shrink-0" />
+                  <div>
+                    <span className="block font-black">Suicide Call Back Service: 1300 659 467</span>
+                    <span className="text-[10px] text-gray-500 font-normal">Free nationwide professional telephone counselling</span>
+                  </div>
+                </div>
+                <span className="bg-gray-200 px-2 py-0.5 rounded-lg text-[10px]">Call</span>
+              </a>
+
+              <a
+                href="tel:1300224636"
+                className="flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-900 rounded-2xl font-bold text-xs transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <PhoneCall className="w-4 h-4 text-[#130C76] shrink-0" />
+                  <div>
+                    <span className="block font-black">Beyond Blue: 1300 22 4636</span>
+                    <span className="text-[10px] text-gray-500 font-normal">24/7 Mental health support and advice</span>
+                  </div>
+                </div>
+                <span className="bg-gray-200 px-2 py-0.5 rounded-lg text-[10px]">Call</span>
+              </a>
+            </div>
+
+            <div className="pt-2 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <span className="text-[11px] text-gray-500">
+                Luke Piatti (PACFA #28941)
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setCrisisAcknowledged(true);
+                  setShowCrisisModal(false);
+                }}
+                className="w-full sm:w-auto px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+              >
+                I have noted these numbers, continue screener
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

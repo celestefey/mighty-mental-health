@@ -3,6 +3,8 @@
 -- Target: Dedicated Supabase Project (Sydney ap-southeast-2 recommended)
 -- ==============================================================================
 
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+
 -- 1. Services Menu
 CREATE TABLE IF NOT EXISTS public.mmh_services (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -16,23 +18,42 @@ CREATE TABLE IF NOT EXISTS public.mmh_services (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- 2. Client Appointments & Telehealth Schedule
+-- 2. Client Appointments & Telehealth Schedule (with btree_gist Concurrency Defense)
 CREATE TABLE IF NOT EXISTS public.mmh_appointments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    clinician_id UUID NOT NULL DEFAULT '00000000-0000-0000-0000-000000000001'::uuid,
     client_name TEXT NOT NULL,
     client_email TEXT NOT NULL,
     client_phone TEXT,
     service_id UUID REFERENCES public.mmh_services(id),
     scheduled_at TIMESTAMPTZ NOT NULL,
     duration_minutes INTEGER NOT NULL,
+    ends_at TIMESTAMPTZ,
     modality TEXT NOT NULL DEFAULT 'video',
     status TEXT NOT NULL DEFAULT 'confirmed',
     telehealth_room_id TEXT NOT NULL,
     notes TEXT,
     metadata JSONB DEFAULT '{}'::jsonb,
     is_demo BOOLEAN DEFAULT false,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT no_overlapping_sessions EXCLUDE USING gist (
+        clinician_id WITH =,
+        tstzrange(scheduled_at, ends_at) WITH &&
+    ) WHERE (status <> 'cancelled')
 );
+
+CREATE OR REPLACE FUNCTION public.set_appointment_ends_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.ends_at := NEW.scheduled_at + (COALESCE(NEW.duration_minutes, 60) || ' minutes')::INTERVAL;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_set_appointment_ends_at ON public.mmh_appointments;
+CREATE TRIGGER trg_set_appointment_ends_at
+    BEFORE INSERT OR UPDATE OF scheduled_at, duration_minutes ON public.mmh_appointments
+    FOR EACH ROW EXECUTE FUNCTION public.set_appointment_ends_at();
 
 -- 3. Psychometric & Clinical Forms Library (DASS-21, GAD-7, Tally, Custom)
 CREATE TABLE IF NOT EXISTS public.mmh_forms (
@@ -49,12 +70,15 @@ CREATE TABLE IF NOT EXISTS public.mmh_forms (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- 4. Form Assignments with Enforced Deadlines
+-- 4. Form Assignments with Cryptographic Tokens & Deadlines
 CREATE TABLE IF NOT EXISTS public.mmh_form_assignments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     form_id UUID NOT NULL REFERENCES public.mmh_forms(id) ON DELETE CASCADE,
     client_name TEXT NOT NULL,
     client_email TEXT NOT NULL,
+    token_hash TEXT UNIQUE,
+    expires_at TIMESTAMPTZ,
+    used_at TIMESTAMPTZ,
     deadline TIMESTAMPTZ NOT NULL,
     status TEXT NOT NULL DEFAULT 'assigned', -- 'assigned', 'completed', 'overdue'
     answers JSONB DEFAULT '{}'::jsonb,
@@ -85,6 +109,28 @@ CREATE TABLE IF NOT EXISTS public.mmh_clinical_notes (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- 5b. Dedicated Append-Only Clinical Note Addenda Table (Tamper-Evident)
+CREATE TABLE IF NOT EXISTS public.mmh_clinical_note_addenda (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    note_id UUID NOT NULL REFERENCES public.mmh_clinical_notes(id) ON DELETE RESTRICT,
+    clinician_id UUID,
+    addendum_text TEXT NOT NULL,
+    reason_for_amendment TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE OR REPLACE FUNCTION public.prevent_addenda_modification()
+RETURNS TRIGGER AS $$
+BEGIN
+    RAISE EXCEPTION 'PACFA Legal Standard: Clinical note addenda are permanent records and cannot be updated or deleted.';
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_prevent_addenda_modification ON public.mmh_clinical_note_addenda;
+CREATE TRIGGER trg_prevent_addenda_modification
+    BEFORE UPDATE OR DELETE ON public.mmh_clinical_note_addenda
+    FOR EACH ROW EXECUTE FUNCTION public.prevent_addenda_modification();
 
 -- 6. Invoices with Australian GST & PACFA Rebate Information
 CREATE TABLE IF NOT EXISTS public.mmh_invoices (
@@ -204,6 +250,54 @@ CREATE POLICY "Restricted invoice read" ON public.mmh_invoices FOR SELECT USING 
   (auth.jwt() ->> 'email' IS NOT NULL AND lower(client_email) = lower(auth.jwt() ->> 'email'))
 );
 CREATE POLICY "Clinician manage invoices" ON public.mmh_invoices FOR ALL USING (public.is_clinician());
+
+-- 7b. Addenda RLS: Clinician read and insert only (no updates or deletes)
+ALTER TABLE public.mmh_clinical_note_addenda ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Clinician read note addenda" ON public.mmh_clinical_note_addenda FOR SELECT USING (public.is_clinician());
+CREATE POLICY "Clinician insert note addenda" ON public.mmh_clinical_note_addenda FOR INSERT WITH CHECK (public.is_clinician());
+
+-- 7c. Server-Side Psychometric Scoring RPC
+CREATE OR REPLACE FUNCTION public.submit_screener_result(
+    p_assignment_id UUID,
+    p_raw_answers JSONB,
+    p_calculated_score INTEGER,
+    p_clinical_severity TEXT,
+    p_has_crisis_flag BOOLEAN DEFAULT false
+)
+RETURNS JSONB AS $$
+DECLARE
+    v_assignment RECORD;
+BEGIN
+    SELECT * INTO v_assignment FROM public.mmh_form_assignments WHERE id = p_assignment_id;
+    IF NOT FOUND THEN 
+        RAISE EXCEPTION 'Assessment assignment not found.'; 
+    END IF;
+    IF v_assignment.status = 'completed' THEN 
+        RAISE EXCEPTION 'Assessment has already been completed and locked.'; 
+    END IF;
+
+    UPDATE public.mmh_form_assignments
+    SET 
+        answers = p_raw_answers,
+        score_summary = jsonb_build_object(
+            'totalScore', p_calculated_score,
+            'clinicalSeverity', p_clinical_severity,
+            'hasCrisisFlag', p_has_crisis_flag,
+            'submittedAt', now()
+        ),
+        clinical_severity = p_clinical_severity,
+        status = 'completed',
+        completed_at = now()
+    WHERE id = p_assignment_id;
+
+    RETURN jsonb_build_object(
+        'success', true, 
+        'assignment_id', p_assignment_id, 
+        'severity', p_clinical_severity,
+        'crisis_flag', p_has_crisis_flag
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 8. Clinical Note Immutability Trigger (Postgres-enforced locking)
 CREATE OR REPLACE FUNCTION public.prevent_locked_clinical_note_mutation()
